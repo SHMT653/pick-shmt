@@ -44,6 +44,11 @@ export function subscribeToLobbyRealtime(code, onChange) {
     .channel(`pickr-room-${code}`)
     .on(
       "postgres_changes",
+      { event: "*", schema: "public", table: "lobbies" },
+      onChange,
+    )
+    .on(
+      "postgres_changes",
       { event: "*", schema: "public", table: "participants" },
       onChange,
     )

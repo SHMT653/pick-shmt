@@ -3,14 +3,17 @@ import {
   clearActiveParticipantId,
   deleteExpiredLobbies,
   deleteLobby,
+  closeCloudLobby,
   getActiveParticipantId,
   listLobbyCodes,
   markLobbyClosed,
+  readCloudLobby,
   readLobby,
   setActiveParticipantId,
   wasLobbyClosed,
-  writeLobby,
+  writeCloudLobby,
 } from "./storage.js";
+import { subscribeToLobbyRealtime } from "./supabase.js";
 import {
   addHours,
   generateId,
@@ -39,33 +42,50 @@ const channel = "BroadcastChannel" in window ? new BroadcastChannel("pickr-local
 export function subscribeToLobby(code, onUpdate) {
   const safeCode = normalizeCode(code);
 
+  const emitLatest = async (eventType) => {
+    try {
+      onUpdate(await readCloudLobby(safeCode), eventType);
+    } catch {
+      onUpdate(readLobby(safeCode), eventType);
+    }
+  };
+
   const handleMessage = (event) => {
     if (event.data?.code === safeCode) {
-      onUpdate(readLobby(safeCode), event.data.type);
+      emitLatest(event.data.type);
     }
   };
 
   const handleStorage = (event) => {
     if (event.key?.endsWith(safeCode)) {
-      onUpdate(readLobby(safeCode), "storage");
+      emitLatest("storage");
     }
   };
 
   channel?.addEventListener("message", handleMessage);
   window.addEventListener("storage", handleStorage);
+  const unsubscribeRealtime = subscribeToLobbyRealtime(safeCode, () => emitLatest("realtime"));
 
   return () => {
     channel?.removeEventListener("message", handleMessage);
     window.removeEventListener("storage", handleStorage);
+    unsubscribeRealtime();
   };
 }
 
-export function createLobby(nicknameInput, ideasInput = "") {
+export async function createLobby(nicknameInput, ideasInput = "") {
   deleteExpiredLobbies();
 
   const nickname = validateNickname(nicknameInput);
   const ideas = parseIdeas(ideasInput, false);
-  const code = generateLobbyCode(new Set(listLobbyCodes()));
+  const usedCodes = new Set(listLobbyCodes());
+  let code = generateLobbyCode(usedCodes);
+
+  while (await readCloudLobby(code)) {
+    usedCodes.add(code);
+    code = generateLobbyCode(usedCodes);
+  }
+
   const host = createParticipant(nickname, true, ideas);
   const now = new Date();
   const lobby = {
@@ -80,12 +100,12 @@ export function createLobby(nicknameInput, ideasInput = "") {
     rounds: [],
   };
 
-  persistLobby(lobby, "room:create");
+  await persistLobby(lobby, "room:create");
   setActiveParticipantId(code, host.id);
   return { lobby, participant: host };
 }
 
-export function joinLobby(codeInput, nicknameInput, ideasInput = "") {
+export async function joinLobby(codeInput, nicknameInput, ideasInput = "") {
   deleteExpiredLobbies();
 
   const code = normalizeCode(codeInput);
@@ -96,7 +116,7 @@ export function joinLobby(codeInput, nicknameInput, ideasInput = "") {
     throw createLobbyError("invalid-code", "Invalid code.");
   }
 
-  const lobby = readLobby(code);
+  const lobby = await readCloudLobby(code);
 
   if (!lobby) {
     throw createLobbyError(wasLobbyClosed(code) ? "room-closed" : "room-not-found", wasLobbyClosed(code) ? "Room closed." : "Room not found.");
@@ -118,19 +138,19 @@ export function joinLobby(codeInput, nicknameInput, ideasInput = "") {
 
   const participant = createParticipant(nickname, false, ideas);
   lobby.participants.push(participant);
-  persistLobby(lobby, "participant:join");
+  await persistLobby(lobby, "participant:join");
   setActiveParticipantId(code, participant.id);
 
   return { lobby, participant };
 }
 
-export function restoreParticipant(code) {
-  const lobby = readLobby(code);
+export async function restoreParticipant(code) {
+  const lobby = await readCloudLobby(code);
   const participantId = getActiveParticipantId(code);
   return lobby?.participants.find((participant) => participant.id === participantId) ?? null;
 }
 
-export function setReady(code, participantId, isReady) {
+export async function setReady(code, participantId, isReady) {
   return updateLobby(code, "participant:ready", (lobby) => {
     const participant = getParticipant(lobby, participantId);
     if (isReady && !participant.isHost && !participant.ideas?.length) {
@@ -141,7 +161,7 @@ export function setReady(code, participantId, isReady) {
   });
 }
 
-export function updateParticipantIdeas(code, participantId, ideasInput) {
+export async function updateParticipantIdeas(code, participantId, ideasInput) {
   return updateLobby(code, "participant:ideas", (lobby) => {
     const participant = getParticipant(lobby, participantId);
     participant.ideas = parseIdeas(ideasInput, false);
@@ -152,14 +172,14 @@ export function updateParticipantIdeas(code, participantId, ideasInput) {
   });
 }
 
-export function toggleLobbyLock(code, participantId) {
+export async function toggleLobbyLock(code, participantId) {
   return updateLobby(code, "room:lock", (lobby) => {
     assertHost(lobby, participantId);
     lobby.isLocked = !lobby.isLocked;
   });
 }
 
-export function addDemoGroup(code) {
+export async function addDemoGroup(code) {
   return updateLobby(code, "participant:demo", (lobby) => {
     const demoPeople = [
       { name: "Anna", ideas: ["Sushi", "Thai"] },
@@ -181,7 +201,7 @@ export function addDemoGroup(code) {
   });
 }
 
-export function removeParticipant(code, participantId) {
+export async function removeParticipant(code, participantId) {
   return updateLobby(code, "participant:remove", (lobby) => {
     const removed = lobby.participants.find((participant) => participant.id === participantId);
     lobby.participants = lobby.participants.filter((participant) => participant.id !== participantId);
@@ -193,8 +213,8 @@ export function removeParticipant(code, participantId) {
   });
 }
 
-export function leaveLobby(code, participantId) {
-  const lobby = removeParticipant(code, participantId);
+export async function leaveLobby(code, participantId) {
+  const lobby = await removeParticipant(code, participantId);
   clearActiveParticipantId(code);
 
   if (!lobby.participants.length) {
@@ -205,22 +225,23 @@ export function leaveLobby(code, participantId) {
   return lobby;
 }
 
-export function closeLobby(code) {
+export async function closeLobby(code) {
   const safeCode = normalizeCode(code);
   const lobby = readLobby(safeCode);
 
   if (lobby) {
     lobby.status = "closed";
-    persistLobby(lobby, "room:closing");
+    await persistLobby(lobby, "room:closing");
   }
 
   // Cleanup: temporary data is removed; only a short closed marker remains for friendly UI copy.
   deleteLobby(safeCode);
+  await closeCloudLobby(safeCode);
   markLobbyClosed(safeCode);
   announce(safeCode, "room:closed");
 }
 
-export function startRound(code, participantId, roundInput) {
+export async function startRound(code, participantId, roundInput) {
   return updateLobby(code, "round:start", (lobby) => {
     assertHost(lobby, participantId);
 
@@ -246,7 +267,7 @@ export function startRound(code, participantId, roundInput) {
   });
 }
 
-export function submitVote(code, participantId, roundId, payload) {
+export async function submitVote(code, participantId, roundId, payload) {
   return updateLobby(code, "vote:submit", (lobby) => {
     const round = getRound(lobby, roundId);
     assertParticipant(lobby, participantId);
@@ -264,7 +285,7 @@ export function submitVote(code, participantId, roundId, payload) {
   });
 }
 
-export function completeWheelRound(code, participantId, roundId) {
+export async function completeWheelRound(code, participantId, roundId) {
   return updateLobby(code, "round:wheel", (lobby) => {
     assertHost(lobby, participantId);
     const round = getRound(lobby, roundId);
@@ -273,7 +294,7 @@ export function completeWheelRound(code, participantId, roundId) {
   });
 }
 
-export function completeWhoPaysRound(code, participantId, roundId, variant) {
+export async function completeWhoPaysRound(code, participantId, roundId, variant) {
   return updateLobby(code, "round:who-pays", (lobby) => {
     assertHost(lobby, participantId);
     const round = getRound(lobby, roundId);
@@ -282,7 +303,7 @@ export function completeWhoPaysRound(code, participantId, roundId, variant) {
   });
 }
 
-export function simulateRoomVotes(code, participantId, roundId) {
+export async function simulateRoomVotes(code, participantId, roundId) {
   return updateLobby(code, "vote:simulate", (lobby) => {
     assertHost(lobby, participantId);
     const round = getRound(lobby, roundId);
@@ -290,7 +311,7 @@ export function simulateRoomVotes(code, participantId, roundId) {
   });
 }
 
-export function createSuddenDeath(code, participantId, roundId) {
+export async function createSuddenDeath(code, participantId, roundId) {
   return updateLobby(code, "round:sudden-death", (lobby) => {
     assertHost(lobby, participantId);
     const sourceRound = getRound(lobby, roundId);
@@ -302,7 +323,7 @@ export function createSuddenDeath(code, participantId, roundId) {
   });
 }
 
-export function createRematch(code, participantId, roundId) {
+export async function createRematch(code, participantId, roundId) {
   return updateLobby(code, "round:rematch", (lobby) => {
     assertHost(lobby, participantId);
     const sourceRound = getRound(lobby, roundId);
@@ -322,8 +343,8 @@ export function isHost(participant) {
   return Boolean(participant?.isHost);
 }
 
-function updateLobby(code, eventName, updater) {
-  const lobby = readLobby(code);
+async function updateLobby(code, eventName, updater) {
+  const lobby = await readCloudLobby(code);
 
   if (!lobby) {
     throw createLobbyError(wasLobbyClosed(code) ? "room-closed" : "room-not-found", wasLobbyClosed(code) ? "Room closed." : "Room not found.");
@@ -331,13 +352,13 @@ function updateLobby(code, eventName, updater) {
 
   assertLobbyOpen(lobby);
   updater(lobby);
-  persistLobby(lobby, eventName);
+  await persistLobby(lobby, eventName);
   return lobby;
 }
 
-function persistLobby(lobby, eventName) {
+async function persistLobby(lobby, eventName) {
   lobby.updatedAt = new Date().toISOString();
-  writeLobby(lobby);
+  await writeCloudLobby(lobby);
   announce(lobby.code, eventName);
 }
 

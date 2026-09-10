@@ -35,7 +35,7 @@ import {
   clearLocalData,
   loadHistory,
   loadSettings,
-  readLobby,
+  readCloudLobby,
   saveSettings,
   wasLobbyClosed,
 } from "./storage.js";
@@ -134,9 +134,22 @@ function parseRoute() {
   return { view: "home" };
 }
 
-function loadRoomRoute(code, view) {
-  const lobby = readLobby(code);
-  const participant = restoreParticipant(code);
+async function loadRoomRoute(code, view) {
+  let lobby;
+  let participant;
+
+  try {
+    lobby = await readCloudLobby(code);
+    participant = await restoreParticipant(code);
+  } catch (error) {
+    state.view = "room";
+    state.lobby = null;
+    state.participant = null;
+    state.error = getFriendlyMessage(error);
+    subscribeToRoom("");
+    render();
+    return;
+  }
 
   if (!lobby) {
     state.view = "room";
@@ -167,7 +180,7 @@ function setCurrentRoom(lobby, participant = null) {
   state.participant =
     participant ??
     lobby.participants.find((item) => item.id === state.participant?.id) ??
-    restoreParticipant(lobby.code);
+    null;
   subscribeToRoom(lobby.code);
   recordCompletedResults(lobby);
 }
@@ -251,7 +264,7 @@ async function renderQrCode() {
   }
 }
 
-function handleClick(event) {
+async function handleClick(event) {
   const button = event.target.closest("[data-action]");
   if (!button || button.disabled) {
     return;
@@ -267,11 +280,11 @@ function handleClick(event) {
     } else if (action === "select-mode") {
       selectMode(button.dataset.mode);
     } else if (action === "toggle-ready") {
-      toggleReady();
+      await toggleReady();
     } else if (action === "toggle-lock") {
-      toggleRoomLock();
+      await toggleRoomLock();
     } else if (action === "add-demo-group") {
-      updateRoom(addDemoGroup(state.lobby.code));
+      updateRoom(await addDemoGroup(state.lobby.code));
       showToast(t(state.settings.language, "toastDemoGroup"));
     } else if (action === "copy-link") {
       copyRoomLink(button.dataset.link);
@@ -282,31 +295,31 @@ function handleClick(event) {
     } else if (action === "share-room") {
       shareRoom(button.dataset.link);
     } else if (action === "remove-participant") {
-      updateRoom(removeParticipant(state.lobby.code, button.dataset.participantId));
+      updateRoom(await removeParticipant(state.lobby.code, button.dataset.participantId));
     } else if (action === "leave-room") {
-      leaveCurrentRoom();
+      await leaveCurrentRoom();
     } else if (action === "close-room") {
-      closeCurrentRoom();
+      await closeCurrentRoom();
     } else if (action === "open-decision") {
       navigate("decision");
     } else if (action === "back-room" || action === "new-pick") {
       navigate("room");
     } else if (action === "swipe-vote") {
-      voteSwipe(button.dataset.optionId, button.dataset.vote);
+      await voteSwipe(button.dataset.optionId, button.dataset.vote);
     } else if (action === "blind-vote") {
-      voteBlind(button.dataset.optionId);
+      await voteBlind(button.dataset.optionId);
     } else if (action === "battle-vote") {
-      voteBattle(button.dataset.optionId);
+      await voteBattle(button.dataset.optionId);
     } else if (action === "spin-wheel") {
-      runSpinAnimation("wheel");
+      await runSpinAnimation("wheel");
     } else if (action === "run-who-pays") {
-      runSpinAnimation("whoPays");
+      await runSpinAnimation("whoPays");
     } else if (action === "simulate-votes") {
-      simulateVotes();
+      await simulateVotes();
     } else if (action === "sudden-death") {
-      startSuddenDeath();
+      await startSuddenDeath();
     } else if (action === "rematch") {
-      startRematch();
+      await startRematch();
     } else if (action === "toggle-theme") {
       toggleTheme();
     } else if (action === "set-language") {
@@ -327,7 +340,7 @@ function handleClick(event) {
   }
 }
 
-function handleSubmit(event) {
+async function handleSubmit(event) {
   const form = event.target.closest("form[data-form]");
   if (!form) {
     return;
@@ -339,15 +352,15 @@ function handleSubmit(event) {
 
   try {
     if (formType === "create-room") {
-      submitCreateRoom(data);
+      await submitCreateRoom(data);
     } else if (formType === "join-room") {
-      submitJoinRoom(data);
+      await submitJoinRoom(data);
     } else if (formType === "home-join") {
       submitHomeJoin(data);
     } else if (formType === "start-round") {
-      submitStartRound(data);
+      await submitStartRound(data);
     } else if (formType === "save-ideas") {
-      submitIdeas(data);
+      await submitIdeas(data);
     } else if (formType === "quick-pick") {
       submitQuickPick(form, event.submitter);
     }
@@ -387,8 +400,8 @@ function handleChange(event) {
   }
 }
 
-function submitCreateRoom(data) {
-  const result = createLobby(data.get("nickname"), data.get("ideas"));
+async function submitCreateRoom(data) {
+  const result = await createLobby(data.get("nickname"), data.get("ideas"));
   state.settings.lastNickname = result.participant.nickname;
   saveSettings(state.settings);
   setCurrentRoom(result.lobby, result.participant);
@@ -397,8 +410,8 @@ function submitCreateRoom(data) {
   applyRoute();
 }
 
-function submitJoinRoom(data) {
-  const result = joinLobby(data.get("code"), data.get("nickname"), data.get("ideas"));
+async function submitJoinRoom(data) {
+  const result = await joinLobby(data.get("code"), data.get("nickname"), data.get("ideas"));
   state.settings.lastNickname = result.participant.nickname;
   saveSettings(state.settings);
   setCurrentRoom(result.lobby, result.participant);
@@ -419,16 +432,16 @@ function submitHomeJoin(data) {
   applyRoute();
 }
 
-function submitStartRound() {
-  const lobby = startRound(state.lobby.code, state.participant.id, {
+async function submitStartRound() {
+  const lobby = await startRound(state.lobby.code, state.participant.id, {
     ...state.composer,
   });
   updateRoom(lobby);
   navigate("decision");
 }
 
-function submitIdeas(data) {
-  updateRoom(updateParticipantIdeas(state.lobby.code, state.participant.id, data.get("ideas")));
+async function submitIdeas(data) {
+  updateRoom(await updateParticipantIdeas(state.lobby.code, state.participant.id, data.get("ideas")));
   showToast(t(state.settings.language, "toastIdeasSaved"));
 }
 
@@ -499,37 +512,37 @@ function shuffleQuestion() {
   render();
 }
 
-function toggleReady() {
-  updateRoom(setReady(state.lobby.code, state.participant.id, !state.participant.isReady));
+async function toggleReady() {
+  updateRoom(await setReady(state.lobby.code, state.participant.id, !state.participant.isReady));
 }
 
-function toggleRoomLock() {
-  const lobby = toggleLobbyLock(state.lobby.code, state.participant.id);
+async function toggleRoomLock() {
+  const lobby = await toggleLobbyLock(state.lobby.code, state.participant.id);
   updateRoom(lobby);
   showToast(t(state.settings.language, lobby.isLocked ? "toastRoomLocked" : "toastRoomUnlocked"));
 }
 
-function voteSwipe(optionId, vote) {
-  const lobby = submitVote(state.lobby.code, state.participant.id, state.lobby.activeRoundId, {
+async function voteSwipe(optionId, vote) {
+  const lobby = await submitVote(state.lobby.code, state.participant.id, state.lobby.activeRoundId, {
     optionId,
     vote,
   });
   updateRoom(lobby);
 }
 
-function voteBlind(optionId) {
-  updateRoom(submitVote(state.lobby.code, state.participant.id, state.lobby.activeRoundId, { optionId }));
+async function voteBlind(optionId) {
+  updateRoom(await submitVote(state.lobby.code, state.participant.id, state.lobby.activeRoundId, { optionId }));
 }
 
-function voteBattle(optionId) {
-  updateRoom(submitVote(state.lobby.code, state.participant.id, state.lobby.activeRoundId, { optionId }));
+async function voteBattle(optionId) {
+  updateRoom(await submitVote(state.lobby.code, state.participant.id, state.lobby.activeRoundId, { optionId }));
 }
 
-function simulateVotes() {
-  updateRoom(simulateRoomVotes(state.lobby.code, state.participant.id, state.lobby.activeRoundId));
+async function simulateVotes() {
+  updateRoom(await simulateRoomVotes(state.lobby.code, state.participant.id, state.lobby.activeRoundId));
 }
 
-function runSpinAnimation(mode) {
+async function runSpinAnimation(mode) {
   const round = getActiveRound(state.lobby);
 
   if (!round) {
@@ -540,10 +553,10 @@ function runSpinAnimation(mode) {
     state.spinning = { roundId: round.id, mode };
 
     if (mode === "wheel") {
-      updateRoom(completeWheelRound(state.lobby.code, state.participant.id, round.id));
+      updateRoom(await completeWheelRound(state.lobby.code, state.participant.id, round.id));
     } else {
       const variant = document.querySelector("[data-who-pays-variant]")?.value ?? WHO_PAYS_VARIANTS[0];
-      updateRoom(completeWhoPaysRound(state.lobby.code, state.participant.id, round.id, variant));
+      updateRoom(await completeWhoPaysRound(state.lobby.code, state.participant.id, round.id, variant));
     }
 
     window.setTimeout(() => {
@@ -556,13 +569,13 @@ function runSpinAnimation(mode) {
   }
 }
 
-function startSuddenDeath() {
-  updateRoom(createSuddenDeath(state.lobby.code, state.participant.id, state.lobby.activeRoundId));
+async function startSuddenDeath() {
+  updateRoom(await createSuddenDeath(state.lobby.code, state.participant.id, state.lobby.activeRoundId));
   navigate("decision");
 }
 
-function startRematch() {
-  updateRoom(createRematch(state.lobby.code, state.participant.id, state.lobby.activeRoundId));
+async function startRematch() {
+  updateRoom(await createRematch(state.lobby.code, state.participant.id, state.lobby.activeRoundId));
   navigate("decision");
 }
 
@@ -603,17 +616,17 @@ function shareRoom(link) {
   copyRoomLink(link);
 }
 
-function closeCurrentRoom() {
-  closeLobby(state.lobby.code);
+async function closeCurrentRoom() {
+  await closeLobby(state.lobby.code);
   state.lobby = null;
   state.participant = null;
   showToast(t(state.settings.language, "toastRoomClosed"));
   navigate("home");
 }
 
-function leaveCurrentRoom() {
+async function leaveCurrentRoom() {
   const code = state.lobby.code;
-  leaveLobby(code, state.participant.id);
+  await leaveLobby(code, state.participant.id);
   state.lobby = null;
   state.participant = null;
   showToast(t(state.settings.language, "toastLeftRoom"));

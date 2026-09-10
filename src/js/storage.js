@@ -1,4 +1,5 @@
 import { STORAGE_KEYS } from "./config.js";
+import { getSupabaseClient } from "./supabase.js";
 import { isExpired, normalizeCode } from "./utils.js";
 
 const DEFAULT_SETTINGS = {
@@ -52,12 +53,88 @@ export function readLobby(code) {
   return lobby;
 }
 
+export async function readCloudLobby(code) {
+  const safeCode = normalizeCode(code);
+  const supabase = getSupabaseClient();
+
+  if (!supabase) {
+    return readLobby(safeCode);
+  }
+
+  const { data, error } = await supabase
+    .from("lobbies")
+    .select("code,status,state")
+    .eq("code", safeCode)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  const lobby = data?.state ?? null;
+
+  if (!lobby?.code || !Array.isArray(lobby.participants) || data.status === "closed" || isExpired(lobby)) {
+    return null;
+  }
+
+  writeLobby(lobby);
+  return lobby;
+}
+
 export function writeLobby(lobby) {
   saveJson(`${STORAGE_KEYS.lobbyPrefix}${normalizeCode(lobby.code)}`, lobby);
 }
 
+export async function writeCloudLobby(lobby) {
+  writeLobby(lobby);
+
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return lobby;
+  }
+
+  const { error } = await supabase
+    .from("lobbies")
+    .upsert(
+      {
+        code: lobby.code,
+        status: lobby.status,
+        is_locked: Boolean(lobby.isLocked),
+        created_at: lobby.createdAt,
+        expires_at: lobby.expiresAt,
+        state: lobby,
+      },
+      { onConflict: "code" },
+    );
+
+  if (error) {
+    throw error;
+  }
+
+  return lobby;
+}
+
 export function deleteLobby(code) {
   window.localStorage.removeItem(`${STORAGE_KEYS.lobbyPrefix}${normalizeCode(code)}`);
+}
+
+export async function closeCloudLobby(code) {
+  const safeCode = normalizeCode(code);
+  deleteLobby(safeCode);
+
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("lobbies")
+    .update({ status: "closed" })
+    .eq("code", safeCode);
+
+  if (error) {
+    throw error;
+  }
 }
 
 export function markLobbyClosed(code) {

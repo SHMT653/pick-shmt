@@ -9,9 +9,13 @@ create table if not exists public.lobbies (
   code text not null unique check (code ~ '^[A-HJ-KM-NP-Z2-9]{6}$'),
   status text not null default 'open' check (status in ('open', 'closed')),
   is_locked boolean not null default false,
+  state jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
   expires_at timestamptz not null default (now() + interval '24 hours')
 );
+
+alter table public.lobbies
+  add column if not exists state jsonb not null default '{}'::jsonb;
 
 create table if not exists public.participants (
   id uuid primary key default gen_random_uuid(),
