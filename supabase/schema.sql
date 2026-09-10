@@ -99,7 +99,7 @@ create policy "temporary lobby read" on public.lobbies
   for select using (expires_at > now());
 
 create policy "temporary lobby insert" on public.lobbies
-  for insert with check (expires_at <= now() + interval '24 hours');
+  for insert with check (expires_at <= now() + interval '25 hours');
 
 create policy "temporary lobby update" on public.lobbies
   for update using (expires_at > now()) with check (expires_at > now());

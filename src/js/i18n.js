@@ -179,7 +179,7 @@ const STRINGS = {
     errorRoomLocked: "Room is locked.",
     errorRoomNotFound: "Room not found.",
     errorRoundLimit: "This room has reached the round limit.",
-    errorSupabaseSetup: "Supabase setup is missing. Run the Pickr SQL schema once.",
+    errorSupabaseSetup: "Supabase blocked the room save. Run the latest Pickr SQL in Supabase.",
     errorGeneric: "Something went wrong.",
   },
   de: {
@@ -357,7 +357,7 @@ const STRINGS = {
     errorRoomLocked: "Raum ist gesperrt.",
     errorRoomNotFound: "Raum nicht gefunden.",
     errorRoundLimit: "Dieser Raum hat das Rundenlimit erreicht.",
-    errorSupabaseSetup: "Supabase ist noch nicht fertig eingerichtet. Führe einmal das Pickr-SQL aus.",
+    errorSupabaseSetup: "Supabase blockiert das Speichern. Führe das neueste Pickr-SQL in Supabase aus.",
     errorGeneric: "Etwas ist schiefgelaufen.",
   },
 };

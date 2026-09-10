@@ -822,6 +822,8 @@ function isSupabaseSetupError(error) {
     message.includes("schema cache") ||
     message.includes("column") && message.includes("state") ||
     message.includes("relation") && message.includes("lobbies") ||
+    message.includes("row-level security") ||
+    message.includes("violates row-level security") ||
     message.includes("permission denied")
   );
 }
