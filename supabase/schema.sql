@@ -86,6 +86,15 @@ alter table public.votes enable row level security;
 
 -- Prototype RLS: rows are temporary, non-sensitive, and expire quickly.
 -- A production build can add per-room secrets before relaxing host-only updates.
+drop policy if exists "temporary lobby read" on public.lobbies;
+drop policy if exists "temporary lobby insert" on public.lobbies;
+drop policy if exists "temporary lobby update" on public.lobbies;
+drop policy if exists "temporary participant read" on public.participants;
+drop policy if exists "temporary participant write" on public.participants;
+drop policy if exists "temporary rounds write" on public.rounds;
+drop policy if exists "temporary options write" on public.options;
+drop policy if exists "temporary votes write" on public.votes;
+
 create policy "temporary lobby read" on public.lobbies
   for select using (expires_at > now());
 
@@ -181,3 +190,10 @@ as $$
   where expires_at <= now()
   or status = 'closed';
 $$;
+
+do $$
+begin
+  alter publication supabase_realtime add table public.lobbies;
+exception
+  when duplicate_object then null;
+end $$;

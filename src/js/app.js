@@ -786,6 +786,10 @@ function showToast(message, type = "success", rerender = true) {
 }
 
 function getFriendlyMessage(error) {
+  if (isSupabaseSetupError(error)) {
+    return t(state.settings.language, "errorSupabaseSetup");
+  }
+
   const messages = {
     "already-voted": "errorAlreadyVoted",
     "invalid-code": "errorInvalidCode",
@@ -805,6 +809,21 @@ function getFriendlyMessage(error) {
   };
 
   return t(state.settings.language, messages[error?.code] ?? "errorGeneric");
+}
+
+function isSupabaseSetupError(error) {
+  const message = String(error?.message ?? "").toLowerCase();
+  const code = String(error?.code ?? "");
+
+  return (
+    code === "PGRST204" ||
+    code === "42P01" ||
+    code === "42501" ||
+    message.includes("schema cache") ||
+    message.includes("column") && message.includes("state") ||
+    message.includes("relation") && message.includes("lobbies") ||
+    message.includes("permission denied")
+  );
 }
 
 function defaultQuestion(category) {
