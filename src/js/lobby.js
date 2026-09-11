@@ -38,16 +38,42 @@ import {
 } from "./modes.js";
 
 const channel = "BroadcastChannel" in window ? new BroadcastChannel("pickr-local-rooms") : null;
+const ROOM_SYNC_INTERVAL_MS = 1500;
 
 export function subscribeToLobby(code, onUpdate) {
   const safeCode = normalizeCode(code);
+  let lastSnapshot = getLobbySnapshot(readLobby(safeCode));
+  let isDisposed = false;
+  let isSyncing = false;
 
   const emitLatest = async (eventType) => {
-    try {
-      onUpdate(await readCloudLobby(safeCode), eventType);
-    } catch {
-      onUpdate(readLobby(safeCode), eventType);
+    if (isDisposed || isSyncing) {
+      return;
     }
+
+    isSyncing = true;
+
+    try {
+      emitIfChanged(await readCloudLobby(safeCode), eventType);
+    } catch {
+      emitIfChanged(readLobby(safeCode), eventType);
+    } finally {
+      isSyncing = false;
+    }
+  };
+
+  const emitIfChanged = (lobby, eventType) => {
+    if (isDisposed) {
+      return;
+    }
+
+    const nextSnapshot = getLobbySnapshot(lobby);
+    if (nextSnapshot === lastSnapshot) {
+      return;
+    }
+
+    lastSnapshot = nextSnapshot;
+    onUpdate(lobby, eventType);
   };
 
   const handleMessage = (event) => {
@@ -62,15 +88,38 @@ export function subscribeToLobby(code, onUpdate) {
     }
   };
 
+  const handleVisibleSync = () => {
+    if (!document.hidden) {
+      emitLatest("visible-sync");
+    }
+  };
+
   channel?.addEventListener("message", handleMessage);
   window.addEventListener("storage", handleStorage);
+  window.addEventListener("focus", handleVisibleSync);
+  document.addEventListener("visibilitychange", handleVisibleSync);
   const unsubscribeRealtime = subscribeToLobbyRealtime(safeCode, () => emitLatest("realtime"));
+  const syncInterval = window.setInterval(() => {
+    if (!document.hidden) {
+      emitLatest("poll");
+    }
+  }, ROOM_SYNC_INTERVAL_MS);
+
+  emitLatest("initial-sync");
 
   return () => {
+    isDisposed = true;
+    window.clearInterval(syncInterval);
     channel?.removeEventListener("message", handleMessage);
     window.removeEventListener("storage", handleStorage);
+    window.removeEventListener("focus", handleVisibleSync);
+    document.removeEventListener("visibilitychange", handleVisibleSync);
     unsubscribeRealtime();
   };
+}
+
+function getLobbySnapshot(lobby) {
+  return lobby ? JSON.stringify(lobby) : "";
 }
 
 export async function createLobby(nicknameInput, ideasInput = "") {
