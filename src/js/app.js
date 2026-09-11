@@ -454,6 +454,7 @@ function handleChange(event) {
 }
 
 async function submitCreateRoom(data) {
+  applyComposerFromForm(data);
   const result = await createLobby(data.get("nickname"), data.get("ideas"));
   state.settings.lastNickname = result.participant.nickname;
   saveSettings(state.settings);
@@ -461,6 +462,24 @@ async function submitCreateRoom(data) {
   state.view = "room";
   window.history.pushState({}, "", `/room/${result.lobby.code}`);
   showToast(t(state.settings.language, getLastCloudError() ? "toastRoomCreatedLocal" : "toastRoomCreated"));
+}
+
+function applyComposerFromForm(data) {
+  const category = sanitizeText(data.get("category"), 40);
+  const title = sanitizeText(data.get("title"), LIMITS.title);
+  const mode = sanitizeText(data.get("mode"), 24);
+
+  if (category) {
+    state.composer.category = category;
+  }
+
+  if (title) {
+    state.composer.title = title;
+  }
+
+  if (MODES.some((item) => item.id === mode)) {
+    state.composer.mode = mode;
+  }
 }
 
 async function submitJoinRoom(data) {

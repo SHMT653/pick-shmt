@@ -1,6 +1,6 @@
 import { CATEGORIES, DEFAULT_OPTIONS_BY_CATEGORY, MODES, WHO_PAYS_VARIANTS } from "./config.js";
 import { LANGUAGES, t } from "./i18n.js";
-import { getRealtimeLabel, getSupabaseWarning } from "./supabase.js";
+import { getSupabaseWarning } from "./supabase.js";
 import {
   escapeHTML,
   formatDateLabel,
@@ -80,7 +80,6 @@ function renderHeader(state) {
       </nav>
       <div class="top-status">
         ${room}
-        <span class="sync-chip"><i data-lucide="radio-tower"></i>${escapeHTML(getRealtimeLabel())}</span>
       </div>
     </header>
   `;
@@ -214,15 +213,34 @@ function renderCreate(state) {
     <section class="center-panel page-enter">
       <div class="panel-heading">
         <span class="eyebrow">${escapeHTML(t(lang, "createEyebrow"))}</span>
-        <h1>${escapeHTML(t(lang, "createHeadline"))}</h1>
+        <h1>${escapeHTML(t(lang, "voteSetup"))}</h1>
+        <p>${escapeHTML(t(lang, "voteSetupCopy"))}</p>
       </div>
       <form class="form-panel" data-form="create-room">
+        <div class="split-fields">
+          <label>
+            <span>${escapeHTML(t(lang, "category"))}</span>
+            <select name="category" data-composer-field="category">
+              ${CATEGORIES.map((category) => `<option value="${escapeHTML(category)}" ${category === state.composer.category ? "selected" : ""}>${escapeHTML(categoryLabel(category, lang))}</option>`).join("")}
+            </select>
+          </label>
+          <label>
+            <span>${escapeHTML(t(lang, "gameMode"))}</span>
+            <select name="mode" data-composer-field="mode">
+              ${MODES.map((mode) => `<option value="${escapeHTML(mode.id)}" ${mode.id === state.composer.mode ? "selected" : ""}>${escapeHTML(modeLabel(mode.id, lang))}</option>`).join("")}
+            </select>
+          </label>
+        </div>
+        <label>
+          <span>${escapeHTML(t(lang, "question"))}</span>
+          <input name="title" maxlength="80" data-composer-field="title" value="${escapeHTML(state.composer.title)}" placeholder="${escapeHTML(lang === "de" ? "Was essen wir heute?" : "What should we eat tonight?")}" required />
+        </label>
         <label>
           <span>${escapeHTML(t(lang, "nickname"))}</span>
           <input name="nickname" maxlength="20" autocomplete="nickname" value="${escapeHTML(state.settings.lastNickname)}" placeholder="Max" required />
         </label>
         <label>
-          <span>${escapeHTML(t(lang, "firstIdeasOptional"))}</span>
+          <span>${escapeHTML(t(lang, "hostIdeas"))}</span>
           <textarea name="ideas" maxlength="390" rows="3" placeholder="Sushi&#10;Pizza&#10;Pasta"></textarea>
         </label>
         <button class="primary-action full" type="submit">
