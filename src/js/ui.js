@@ -152,7 +152,7 @@ function renderHome(state) {
       </div>
 
       <div class="product-preview neo-logo-stage" aria-label="NEO by SHMT logo">
-        <img src="/assets/hero/neo-logo-full.png" alt="NEO by SHMT" loading="eager" decoding="async" />
+        <img src="/assets/hero/neo-logo-complete-v2.png?v=2" alt="NEO by SHMT" loading="eager" decoding="async" />
       </div>
     </section>
   `;
