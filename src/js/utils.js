@@ -101,8 +101,30 @@ export function getTimeLeftLabel(lobby) {
 }
 
 export function makeShareUrl(code) {
-  const appUrl = PICKR_CONFIG.appUrl.replace(/\/$/, "") || window.location.origin;
+  const appUrl = getCurrentOrigin() || normalizeAppUrl(PICKR_CONFIG.appUrl);
   return `${appUrl}/join/${normalizeCode(code)}`;
+}
+
+function getCurrentOrigin() {
+  if (typeof window === "undefined" || !window.location?.origin || window.location.origin === "null") {
+    return "";
+  }
+
+  return window.location.origin.replace(/\/$/, "");
+}
+
+function normalizeAppUrl(value) {
+  const rawUrl = String(value ?? "").trim().replace(/^["']|["']$/g, "");
+
+  if (!rawUrl) {
+    return "";
+  }
+
+  try {
+    return new URL(rawUrl).origin.replace(/\/$/, "");
+  } catch {
+    return `https://${rawUrl.replace(/^\/+|\/+$/g, "")}`;
+  }
 }
 
 export async function copyText(value) {
