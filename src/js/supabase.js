@@ -2,25 +2,32 @@ import { createClient } from "@supabase/supabase-js";
 import { PICKR_CONFIG } from "./config.js";
 
 let client;
+let clientError = null;
 
 export function isSupabaseConfigured() {
   return Boolean(PICKR_CONFIG.supabaseUrl && PICKR_CONFIG.supabaseAnonKey);
 }
 
 export function getSupabaseClient() {
-  if (!isSupabaseConfigured()) {
+  if (!isSupabaseConfigured() || clientError) {
     return null;
   }
 
   if (!client) {
-    client = createClient(PICKR_CONFIG.supabaseUrl, PICKR_CONFIG.supabaseAnonKey);
+    try {
+      client = createClient(PICKR_CONFIG.supabaseUrl, PICKR_CONFIG.supabaseAnonKey);
+    } catch (error) {
+      clientError = error;
+      console.error("[Pickr] Supabase client setup failed", error);
+      return null;
+    }
   }
 
   return client;
 }
 
 export function getRealtimeLabel() {
-  return isSupabaseConfigured() ? "Supabase Realtime ready" : "Local demo realtime";
+  return isSupabaseConfigured() && !clientError ? "Supabase Realtime ready" : "Local demo realtime";
 }
 
 export function getSupabaseWarning() {

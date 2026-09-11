@@ -9,6 +9,8 @@ const DEFAULT_SETTINGS = {
   lastNickname: "",
 };
 
+let lastCloudError = null;
+
 function loadJson(key, fallback) {
   try {
     const raw = window.localStorage.getItem(key);
@@ -65,15 +67,18 @@ export async function readCloudLobby(code) {
     .from("lobbies")
     .select("code,status,state")
     .eq("code", safeCode)
-    .maybeSingle();
+    .limit(1);
 
   if (error) {
-    throw error;
+    lastCloudError = error;
+    console.error("[Pickr] Supabase room read failed", error);
+    return readLobby(safeCode);
   }
 
-  const lobby = data?.state ?? null;
+  const row = data?.[0] ?? null;
+  const lobby = row?.state ?? null;
 
-  if (!lobby?.code || !Array.isArray(lobby.participants) || data.status === "closed" || isExpired(lobby)) {
+  if (!lobby?.code || !Array.isArray(lobby.participants) || row?.status === "closed" || isExpired(lobby)) {
     return null;
   }
 
@@ -108,10 +113,17 @@ export async function writeCloudLobby(lobby) {
     );
 
   if (error) {
-    throw error;
+    lastCloudError = error;
+    console.error("[Pickr] Supabase room save failed", error);
+    return lobby;
   }
 
+  lastCloudError = null;
   return lobby;
+}
+
+export function getLastCloudError() {
+  return lastCloudError;
 }
 
 export function deleteLobby(code) {
@@ -133,7 +145,8 @@ export async function closeCloudLobby(code) {
     .eq("code", safeCode);
 
   if (error) {
-    throw error;
+    lastCloudError = error;
+    console.error("[Pickr] Supabase room close failed", error);
   }
 }
 

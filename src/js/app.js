@@ -33,6 +33,7 @@ import {
   addHistoryItem,
   clearHistory,
   clearLocalData,
+  getLastCloudError,
   loadHistory,
   loadSettings,
   readCloudLobby,
@@ -405,7 +406,7 @@ async function submitCreateRoom(data) {
   state.settings.lastNickname = result.participant.nickname;
   saveSettings(state.settings);
   setCurrentRoom(result.lobby, result.participant);
-  showToast(t(state.settings.language, "toastRoomCreated"));
+  showToast(t(state.settings.language, getLastCloudError() ? "toastRoomCreatedLocal" : "toastRoomCreated"));
   window.history.pushState({}, "", `/room/${result.lobby.code}`);
   applyRoute();
 }
