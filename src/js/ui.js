@@ -151,33 +151,8 @@ function renderHome(state) {
         </button>
       </div>
 
-      <div class="product-preview" aria-label="Pickr room preview">
-        <div class="preview-phone">
-          <div class="preview-room">
-            <span>ROOM 7KFX2P</span>
-            <strong>What should we eat tonight?</strong>
-          </div>
-          <div class="preview-ideas">
-            <span>Sushi <small>Anna</small></span>
-            <span>Pizza <small>Paul</small></span>
-            <span>Pasta <small>Luca</small></span>
-            <span>Mexican <small>Marie</small></span>
-          </div>
-          <div class="preview-stack">
-            <div class="preview-card preview-card-back">Pizza</div>
-            <div class="preview-card">Sushi</div>
-          </div>
-          <div class="preview-actions">
-            <span><i data-lucide="x"></i></span>
-            <span><i data-lucide="heart"></i></span>
-          </div>
-          <div class="preview-people">
-            <span>Max</span>
-            <span>Anna</span>
-            <span>Paul</span>
-            <span>Luca</span>
-          </div>
-        </div>
+      <div class="product-preview neo-home-preview" aria-label="NEO by SHMT">
+        <img src="/assets/hero/neo-home.png" alt="NEO by SHMT" loading="eager" decoding="async" />
       </div>
     </section>
   `;
