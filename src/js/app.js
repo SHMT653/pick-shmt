@@ -12,6 +12,7 @@ import {
   createRematch,
   createSuddenDeath,
   getActiveRound,
+  isHost,
   joinLobby,
   leaveLobby,
   removeParticipant,
@@ -73,6 +74,8 @@ const state = {
 let unsubscribeRoom = () => {};
 let subscribedCode = "";
 let toastTimer = 0;
+let roomSyncTimer = 0;
+let roomSnapshot = "";
 
 state.composer.title = defaultQuestion(state.composer.category);
 
@@ -173,7 +176,7 @@ async function loadRoomRoute(code, view) {
   }
 
   setCurrentRoom(lobby, participant);
-  state.view = view;
+  state.view = shouldAutoOpenDecision(lobby, participant, view) ? "decision" : view;
   render();
 }
 
@@ -183,7 +186,13 @@ function setCurrentRoom(lobby, participant = null) {
     participant ??
     lobby.participants.find((item) => item.id === state.participant?.id) ??
     null;
+  roomSnapshot = getRoomSnapshot(lobby);
+  if (shouldAutoOpenDecision(lobby, state.participant, state.view)) {
+    state.view = "decision";
+    window.history.replaceState({}, "", `/room/${lobby.code}/pick`);
+  }
   subscribeToRoom(lobby.code);
+  startRoomAutoSync(lobby.code);
   recordCompletedResults(lobby);
 }
 
@@ -197,6 +206,7 @@ function subscribeToRoom(code) {
 
   if (!code) {
     unsubscribeRoom = () => {};
+    stopRoomAutoSync();
     return;
   }
 
@@ -213,6 +223,46 @@ function subscribeToRoom(code) {
     setCurrentRoom(lobby);
     render();
   });
+}
+
+function shouldAutoOpenDecision(lobby, participant, view) {
+  const activeRound = getActiveRound(lobby);
+  return view === "room" && !isHost(participant) && activeRound?.status === "voting";
+}
+
+function startRoomAutoSync(code) {
+  window.clearInterval(roomSyncTimer);
+  roomSyncTimer = window.setInterval(() => syncCurrentRoom(code), 1500);
+}
+
+function stopRoomAutoSync() {
+  window.clearInterval(roomSyncTimer);
+  roomSyncTimer = 0;
+  roomSnapshot = "";
+}
+
+async function syncCurrentRoom(code) {
+  if (!state.lobby || state.lobby.code !== code) {
+    return;
+  }
+
+  try {
+    const lobby = await readCloudLobby(code);
+    const nextSnapshot = getRoomSnapshot(lobby);
+
+    if (!lobby || nextSnapshot === roomSnapshot) {
+      return;
+    }
+
+    setCurrentRoom(lobby);
+    render();
+  } catch {
+    // Subscription errors are surfaced through normal room actions.
+  }
+}
+
+function getRoomSnapshot(lobby) {
+  return lobby ? JSON.stringify(lobby) : "";
 }
 
 function navigate(view) {
@@ -408,9 +458,9 @@ async function submitCreateRoom(data) {
   state.settings.lastNickname = result.participant.nickname;
   saveSettings(state.settings);
   setCurrentRoom(result.lobby, result.participant);
-  showToast(t(state.settings.language, getLastCloudError() ? "toastRoomCreatedLocal" : "toastRoomCreated"));
+  state.view = "room";
   window.history.pushState({}, "", `/room/${result.lobby.code}`);
-  applyRoute();
+  showToast(t(state.settings.language, getLastCloudError() ? "toastRoomCreatedLocal" : "toastRoomCreated"));
 }
 
 async function submitJoinRoom(data) {
@@ -418,9 +468,9 @@ async function submitJoinRoom(data) {
   state.settings.lastNickname = result.participant.nickname;
   saveSettings(state.settings);
   setCurrentRoom(result.lobby, result.participant);
-  showToast(t(state.settings.language, "toastJoinedRoom"));
+  state.view = "room";
   window.history.pushState({}, "", `/room/${result.lobby.code}`);
-  applyRoute();
+  showToast(t(state.settings.language, "toastJoinedRoom"));
 }
 
 function submitHomeJoin(data) {
@@ -439,8 +489,10 @@ async function submitStartRound() {
   const lobby = await startRound(state.lobby.code, state.participant.id, {
     ...state.composer,
   });
-  updateRoom(lobby);
-  navigate("decision");
+  setCurrentRoom(lobby);
+  state.view = "decision";
+  window.history.pushState({}, "", `/room/${lobby.code}/pick`);
+  render();
 }
 
 async function submitIdeas(data) {

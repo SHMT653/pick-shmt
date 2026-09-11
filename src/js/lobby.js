@@ -72,8 +72,8 @@ export function subscribeToLobby(code, onUpdate) {
       return;
     }
 
-    lastSnapshot = nextSnapshot;
     onUpdate(lobby, eventType);
+    lastSnapshot = nextSnapshot;
   };
 
   const handleMessage = (event) => {
@@ -89,9 +89,7 @@ export function subscribeToLobby(code, onUpdate) {
   };
 
   const handleVisibleSync = () => {
-    if (!document.hidden) {
-      emitLatest("visible-sync");
-    }
+    emitLatest("visible-sync");
   };
 
   channel?.addEventListener("message", handleMessage);
@@ -100,9 +98,7 @@ export function subscribeToLobby(code, onUpdate) {
   document.addEventListener("visibilitychange", handleVisibleSync);
   const unsubscribeRealtime = subscribeToLobbyRealtime(safeCode, () => emitLatest("realtime"));
   const syncInterval = window.setInterval(() => {
-    if (!document.hidden) {
-      emitLatest("poll");
-    }
+    emitLatest("poll");
   }, ROOM_SYNC_INTERVAL_MS);
 
   emitLatest("initial-sync");
@@ -185,7 +181,10 @@ export async function joinLobby(codeInput, nicknameInput, ideasInput = "") {
     throw createLobbyError("nickname-used", "Nickname already used.");
   }
 
-  const participant = createParticipant(nickname, false, ideas);
+  const participant = {
+    ...createParticipant(nickname, false, ideas),
+    isReady: true,
+  };
   lobby.participants.push(participant);
   await persistLobby(lobby, "participant:join");
   setActiveParticipantId(code, participant.id);

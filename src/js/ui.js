@@ -262,8 +262,8 @@ function renderJoin(state) {
           <textarea name="ideas" maxlength="390" rows="3" placeholder="Sushi&#10;Bowling&#10;Interstellar" required></textarea>
         </label>
         <button class="primary-action full" type="submit">
-          <i data-lucide="door-open"></i>
-          <span>${escapeHTML(t(lang, "joinRoom"))}</span>
+          <i data-lucide="circle-check"></i>
+          <span>${escapeHTML(t(lang, "readyAndJoin"))}</span>
         </button>
       </form>
       ${state.error ? renderInlineError(state.error) : ""}
