@@ -1049,6 +1049,16 @@ function renderSettings(state) {
             <li>${escapeHTML(t(lang, "privacyFour"))}</li>
           </ul>
           ${warning ? `<div class="inline-warning"><i data-lucide="wifi-off"></i>${escapeHTML(warning)}</div>` : ""}
+          ${state.supabaseIssue ? `
+            <div class="inline-warning cloud-diagnostic">
+              <i data-lucide="database-zap"></i>
+              <span>
+                <strong>${escapeHTML(t(lang, "supabaseIssue"))}</strong>
+                ${escapeHTML(t(lang, "supabaseIssueCopy"))}
+                <code>${escapeHTML(state.supabaseIssue)}</code>
+              </span>
+            </div>
+          ` : ""}
         </section>
       </div>
     </section>

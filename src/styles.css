@@ -746,6 +746,23 @@ select:focus {
   background: rgba(255, 190, 85, 0.28);
 }
 
+.cloud-diagnostic {
+  align-items: flex-start;
+}
+
+.cloud-diagnostic span {
+  display: grid;
+  gap: 4px;
+}
+
+.cloud-diagnostic code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
 .toast {
   position: fixed;
   z-index: 50;

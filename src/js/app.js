@@ -66,6 +66,7 @@ const state = {
   quickRound: null,
   spinning: null,
   toast: null,
+  supabaseIssue: "",
   error: "",
 };
 
@@ -239,6 +240,7 @@ function pathForView(view) {
 function render() {
   document.documentElement.dataset.theme = state.settings.theme;
   document.documentElement.classList.toggle("reduce-motion", state.settings.reduceMotion);
+  state.supabaseIssue = cloudIssueMessage();
   app.innerHTML = renderApp(state);
   createIcons({ icons });
   renderQrCode();
@@ -827,6 +829,17 @@ function isSupabaseSetupError(error) {
     message.includes("violates row-level security") ||
     message.includes("permission denied")
   );
+}
+
+function cloudIssueMessage() {
+  const error = getLastCloudError();
+
+  if (!error) {
+    return "";
+  }
+
+  const code = error.code ? `${error.code}: ` : "";
+  return sanitizeText(`${code}${error.message ?? error}`, 180);
 }
 
 function defaultQuestion(category) {

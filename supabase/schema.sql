@@ -99,10 +99,17 @@ create policy "temporary lobby read" on public.lobbies
   for select using (expires_at > now());
 
 create policy "temporary lobby insert" on public.lobbies
-  for insert with check (expires_at <= now() + interval '25 hours');
+  for insert with check (status = 'open' and expires_at > now());
 
 create policy "temporary lobby update" on public.lobbies
   for update using (expires_at > now()) with check (expires_at > now());
+
+grant usage on schema public to anon, authenticated;
+grant select, insert, update, delete on table public.lobbies to anon, authenticated;
+grant select, insert, update, delete on table public.participants to anon, authenticated;
+grant select, insert, update, delete on table public.rounds to anon, authenticated;
+grant select, insert, update, delete on table public.options to anon, authenticated;
+grant select, insert, update, delete on table public.votes to anon, authenticated;
 
 create policy "temporary participant read" on public.participants
   for select using (
