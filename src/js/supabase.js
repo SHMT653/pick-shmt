@@ -5,7 +5,7 @@ let client;
 let clientError = null;
 
 export function isSupabaseConfigured() {
-  return Boolean(PICKR_CONFIG.supabaseUrl && PICKR_CONFIG.supabaseAnonKey);
+  return Boolean(getSupabaseUrl() && getSupabaseAnonKey());
 }
 
 export function getSupabaseClient() {
@@ -15,7 +15,7 @@ export function getSupabaseClient() {
 
   if (!client) {
     try {
-      client = createClient(PICKR_CONFIG.supabaseUrl, PICKR_CONFIG.supabaseAnonKey);
+      client = createClient(getSupabaseUrl(), getSupabaseAnonKey());
     } catch (error) {
       clientError = error;
       console.error("[Pickr] Supabase client setup failed", error);
@@ -36,6 +36,37 @@ export function getSupabaseWarning() {
   }
 
   return "Supabase unavailable. This build uses temporary browser sync for local testing.";
+}
+
+function getSupabaseUrl() {
+  const rawUrl = stripQuotes(PICKR_CONFIG.supabaseUrl);
+
+  if (!rawUrl) {
+    return "";
+  }
+
+  try {
+    const url = new URL(rawUrl);
+    const servicePath = url.pathname.match(/\/(auth|functions|realtime|rest|storage)\/v\d+.*/);
+
+    if (servicePath?.index !== undefined) {
+      url.pathname = url.pathname.slice(0, servicePath.index) || "/";
+      url.search = "";
+      url.hash = "";
+    }
+
+    return url.toString().replace(/\/$/, "");
+  } catch {
+    return rawUrl;
+  }
+}
+
+function getSupabaseAnonKey() {
+  return stripQuotes(PICKR_CONFIG.supabaseAnonKey);
+}
+
+function stripQuotes(value) {
+  return String(value ?? "").trim().replace(/^["']|["']$/g, "");
 }
 
 export function subscribeToLobbyRealtime(code, onChange) {
