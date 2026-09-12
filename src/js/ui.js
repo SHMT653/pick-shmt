@@ -24,9 +24,6 @@ export function renderApp(state) {
       <main class="view-shell">
         ${renderView(state)}
       </main>
-      <div class="shmt-signature" aria-label="SHMT">
-        <img src="/assets/logo/shmt-mark.png" alt="SHMT" loading="lazy" decoding="async" />
-      </div>
       ${state.view === "decision" ? "" : renderBottomNav(state)}
       ${renderToast(state.toast)}
     </div>
