@@ -518,14 +518,15 @@ p {
 }
 
 .neo-logo-stage {
-  width: min(560px, 44vw);
+  width: min(520px, 42vw);
+  aspect-ratio: 1;
   justify-self: center;
 }
 
 .neo-logo-stage img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   object-fit: contain;
   object-position: center;
   border-radius: 8px;
