@@ -93,6 +93,23 @@ svg {
     var(--app-bg);
 }
 
+.shmt-signature {
+  position: fixed;
+  right: max(14px, env(safe-area-inset-right));
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  z-index: 30;
+  width: 68px;
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+.shmt-signature img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 10px 26px rgba(17, 28, 53, 0.14);
+}
+
 .topbar {
   position: sticky;
   z-index: 20;
@@ -1965,6 +1982,13 @@ select:focus {
 
   .bottom-nav {
     display: none;
+  }
+
+  .shmt-signature {
+    right: 18px;
+    bottom: 18px;
+    width: 78px;
+    opacity: 0.36;
   }
 
   .view-shell {
