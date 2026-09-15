@@ -307,7 +307,9 @@ function bindIntroVideo() {
 
   video.addEventListener("ended", finishIntro, { once: true });
   video.addEventListener("error", () => window.setTimeout(finishIntro, 1200), { once: true });
-  window.setTimeout(finishIntro, 8000);
+
+  const fallbackDelay = Number.isFinite(video.duration) && video.duration > 0 ? video.duration * 1000 + 900 : 14000;
+  window.setTimeout(finishIntro, fallbackDelay);
 }
 
 async function renderQrCode() {
