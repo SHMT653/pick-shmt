@@ -1,4 +1,4 @@
-import { LIMITS, PICKR_CONFIG } from "./config.js";
+import { LIMITS, MODES, PICKR_CONFIG, WHO_PAYS_VARIANTS } from "./config.js";
 import {
   clearActiveParticipantId,
   deleteExpiredLobbies,
@@ -118,7 +118,7 @@ function getLobbySnapshot(lobby) {
   return lobby ? JSON.stringify(lobby) : "";
 }
 
-export async function createLobby(nicknameInput, ideasInput = "") {
+export async function createLobby(nicknameInput, ideasInput = "", plannedRoundInput = {}) {
   deleteExpiredLobbies();
 
   const nickname = validateNickname(nicknameInput);
@@ -141,6 +141,7 @@ export async function createLobby(nicknameInput, ideasInput = "") {
     expiresAt: addHours(now, PICKR_CONFIG.lobbyLifetimeHours).toISOString(),
     activeRoundId: "",
     isLocked: false,
+    plannedRound: normalizePlannedRound(plannedRoundInput),
     participants: [host],
     rounds: [],
   };
@@ -224,6 +225,13 @@ export async function toggleLobbyLock(code, participantId) {
   return updateLobby(code, "room:lock", (lobby) => {
     assertHost(lobby, participantId);
     lobby.isLocked = !lobby.isLocked;
+  });
+}
+
+export async function updateLobbySetup(code, participantId, plannedRoundInput) {
+  return updateLobby(code, "room:setup", (lobby) => {
+    assertHost(lobby, participantId);
+    lobby.plannedRound = normalizePlannedRound(plannedRoundInput);
   });
 }
 
@@ -427,6 +435,15 @@ function createParticipant(nickname, host, ideas = []) {
     isReady: host,
     joinedAt: new Date().toISOString(),
   };
+}
+
+function normalizePlannedRound(input = {}) {
+  const category = sanitizeText(input.category, 40) || "Food";
+  const mode = MODES.some((item) => item.id === input.mode) ? input.mode : "swipe";
+  const title = sanitizeText(input.title, LIMITS.title) || "What should we pick?";
+  const variant = WHO_PAYS_VARIANTS.includes(input.variant) ? input.variant : WHO_PAYS_VARIANTS[0];
+
+  return { category, mode, title, variant };
 }
 
 function validateNickname(value) {

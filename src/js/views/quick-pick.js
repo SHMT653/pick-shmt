@@ -6,6 +6,11 @@ import { escapeHTML } from "../utils.js";
 import { getBattlePair } from "../modes.js";
 import { wheelResultCopy } from "../ui.js";
 
+const DEFAULT_QUICK_OPTIONS = {
+  en: DEFAULT_OPTIONS_BY_CATEGORY.Food.slice(0, 3),
+  de: ["Pizza", "Sushi", "Pasta"],
+};
+
 export function renderQuickPick(state) {
   const round = state.quickRound;
   const lang = state.settings.language;
@@ -87,6 +92,11 @@ function renderQuickResult(state, round) {
   `;
 }
 
-export function getDefaultQuickOptions() {
-  return DEFAULT_OPTIONS_BY_CATEGORY.Food.slice(0, 3).join("\n");
+export function getDefaultQuickOptions(language = "en") {
+  return (DEFAULT_QUICK_OPTIONS[language] ?? DEFAULT_QUICK_OPTIONS.en).join("\n");
+}
+
+export function isDefaultQuickOptions(value) {
+  const normalized = String(value ?? "").trim();
+  return Object.values(DEFAULT_QUICK_OPTIONS).some((options) => options.join("\n") === normalized);
 }

@@ -29,6 +29,7 @@ import {
   submitVote,
   subscribeToLobby,
   toggleLobbyLock,
+  updateLobbySetup,
   updateParticipantIdeas,
 } from "./lobby.js";
 import {
@@ -49,7 +50,7 @@ import {
 } from "./storage.js";
 import { renderApp } from "./ui.js";
 import { getDefaultComposer } from "./views/room.js";
-import { getDefaultQuickOptions } from "./views/quick-pick.js";
+import { getDefaultQuickOptions, isDefaultQuickOptions } from "./views/quick-pick.js";
 import {
   copyText,
   makeShareUrl,
@@ -62,16 +63,18 @@ import {
 const app = document.querySelector("#app");
 const quickParticipant = { id: "quick-user", nickname: "You", isHost: true, isReady: true };
 const recordedResults = new Set();
+const initialSettings = loadSettings();
 
 const state = {
   view: "intro",
   routeCode: "",
+  joinPreviewLobby: null,
   lobby: null,
   participant: null,
-  settings: loadSettings(),
+  settings: initialSettings,
   history: loadHistory(),
   composer: getDefaultComposer(),
-  quickOptions: getDefaultQuickOptions(),
+  quickOptions: getDefaultQuickOptions(initialSettings.language),
   quickRound: null,
   spinning: null,
   toast: null,
@@ -83,6 +86,7 @@ let unsubscribeRoom = () => {};
 let subscribedCode = "";
 let toastTimer = 0;
 let roomSyncTimer = 0;
+let setupSyncTimer = 0;
 let roomSnapshot = "";
 
 function boot() {
@@ -101,9 +105,7 @@ function applyRoute() {
   state.error = "";
 
   if (route.view === "join") {
-    state.view = "join";
-    state.routeCode = route.code ?? "";
-    render();
+    loadJoinRoute(route.code ?? "");
     return;
   }
 
@@ -116,6 +118,26 @@ function applyRoute() {
   if (route.view !== "quick") {
     state.quickRound = null;
   }
+  state.joinPreviewLobby = null;
+  render();
+}
+
+async function loadJoinRoute(code) {
+  state.view = "join";
+  state.routeCode = code;
+  state.joinPreviewLobby = null;
+  render();
+
+  if (!code) {
+    return;
+  }
+
+  try {
+    state.joinPreviewLobby = await readCloudLobby(code);
+  } catch {
+    state.joinPreviewLobby = null;
+  }
+
   render();
 }
 
@@ -174,6 +196,12 @@ function setCurrentRoom(lobby, participant = null) {
     participant ??
     lobby.participants.find((item) => item.id === state.participant?.id) ??
     null;
+  if (isHost(state.participant) && lobby.plannedRound) {
+    state.composer = {
+      ...state.composer,
+      ...lobby.plannedRound,
+    };
+  }
   roomSnapshot = getRoomSnapshot(lobby);
   if (shouldAutoOpenDecision(lobby, state.participant, state.view)) {
     state.view = "decision";
@@ -447,6 +475,7 @@ function handleInput(event) {
 
   if (field) {
     state.composer[field] = event.target.value;
+    scheduleRoomSetupSync();
   }
 
   if (event.target.name === "code") {
@@ -471,19 +500,38 @@ function handleChange(event) {
     state.composer.title = defaultQuestion(event.target.value, state.settings.language);
     render();
   }
+
+  scheduleRoomSetupSync(50);
 }
 
 // --- Formular-Aktionen ---
 
 async function submitCreateRoom(data) {
   applyComposerFromForm(data);
-  const result = await createLobby(data.get("nickname"), data.get("ideas"));
+  const result = await createLobby(data.get("nickname"), data.get("ideas"), state.composer);
   state.settings.lastNickname = result.participant.nickname;
   saveSettings(state.settings);
   setCurrentRoom(result.lobby, result.participant);
   state.view = "room";
   window.history.pushState({}, "", `/room/${result.lobby.code}`);
   showToast(t(state.settings.language, getLastCloudError() ? "toastRoomCreatedLocal" : "toastRoomCreated"));
+}
+
+function scheduleRoomSetupSync(delay = 450) {
+  window.clearTimeout(setupSyncTimer);
+
+  if (!state.lobby || !isHost(state.participant)) {
+    return;
+  }
+
+  setupSyncTimer = window.setTimeout(async () => {
+    try {
+      const lobby = await updateLobbySetup(state.lobby.code, state.participant.id, state.composer);
+      setCurrentRoom(lobby);
+    } catch {
+      // Setup preview sync is best effort; starting a round still persists the final values.
+    }
+  }, delay);
 }
 
 function applyComposerFromForm(data) {
@@ -679,7 +727,7 @@ async function startRematch() {
 
 function resetQuickPick() {
   state.quickRound = null;
-  state.quickOptions = getDefaultQuickOptions();
+  state.quickOptions = getDefaultQuickOptions(state.settings.language);
   render();
 }
 
@@ -774,7 +822,11 @@ function setLanguage(language) {
   if (shouldLocalizeQuestion) {
     state.composer.title = defaultQuestion(state.composer.category, state.settings.language);
   }
+  if (isDefaultQuickOptions(state.quickOptions)) {
+    state.quickOptions = getDefaultQuickOptions(state.settings.language);
+  }
   saveSettings(state.settings);
+  scheduleRoomSetupSync(50);
   render();
 }
 

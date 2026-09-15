@@ -85,19 +85,22 @@ export function isExpired(lobby) {
   return lobby?.expiresAt ? new Date(lobby.expiresAt).getTime() <= Date.now() : false;
 }
 
-export function getTimeLeftLabel(lobby) {
+export function getTimeLeftLabel(lobby, language = "en") {
+  const isGerman = language === "de";
+
   if (!lobby?.expiresAt) {
-    return "Temporary room";
+    return isGerman ? "Temporärer Raum" : "Temporary room";
   }
 
   const ms = new Date(lobby.expiresAt).getTime() - Date.now();
   if (ms <= 0) {
-    return "Expired";
+    return isGerman ? "Abgelaufen" : "Expired";
   }
 
   const hours = Math.floor(ms / 3600000);
   const minutes = Math.max(1, Math.floor((ms % 3600000) / 60000));
-  return hours > 0 ? `${hours}h ${minutes}m left` : `${minutes}m left`;
+  const suffix = isGerman ? "übrig" : "left";
+  return hours > 0 ? `${hours}h ${minutes}m ${suffix}` : `${minutes}m ${suffix}`;
 }
 
 export function makeShareUrl(code) {

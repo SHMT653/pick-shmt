@@ -28,7 +28,7 @@ export function renderRoom(state) {
           <div>
             <span class="eyebrow">ROOM ${escapeHTML(lobby.code)}${lobby.isLocked ? ` · ${escapeHTML(t(lang, "locked"))}` : ""}</span>
             <h1>${escapeHTML(readyCount === lobby.participants.length ? t(lang, "everyoneReady") : t(lang, "shareYourRoom"))}</h1>
-            <p>${escapeHTML(t(lang, "peopleJoined", { count: lobby.participants.length }))} · ${escapeHTML(getTimeLeftLabel(lobby))}${lobby.isLocked ? ` · ${escapeHTML(t(lang, "inviteClosedMeta"))}` : ""}</p>
+            <p>${escapeHTML(t(lang, "peopleJoined", { count: lobby.participants.length }))} · ${escapeHTML(getTimeLeftLabel(lobby, lang))}${lobby.isLocked ? ` · ${escapeHTML(t(lang, "inviteClosedMeta"))}` : ""}</p>
           </div>
           <div class="room-actions">
             ${
@@ -88,11 +88,23 @@ function renderLastResultCallout(round, lang) {
 
 function renderParticipantWaitingPanel(state) {
   const lang = state.settings.language;
+  const plannedRound = state.lobby?.plannedRound;
 
   return `
     <section class="surface room-waiting">
       <span class="eyebrow">${escapeHTML(t(lang, "readySystem"))}</span>
       <h2>${escapeHTML(state.participant.isReady ? t(lang, "youAreReady") : t(lang, "readyWhenYouAre"))}</h2>
+      ${
+        plannedRound
+          ? `
+            <div class="room-question-preview">
+              <span>${escapeHTML(t(lang, "question"))}</span>
+              <strong>${escapeHTML(plannedRound.title)}</strong>
+              <small>${escapeHTML(categoryLabel(plannedRound.category, lang))} · ${escapeHTML(modeLabel(plannedRound.mode, lang))}</small>
+            </div>
+          `
+          : ""
+      }
       <p>${escapeHTML(t(lang, "waitingParticipantCopy"))}</p>
       <button class="${state.participant.isReady ? "secondary-action" : "primary-action"} full" type="button" data-action="toggle-ready">
         <i data-lucide="${state.participant.isReady ? "circle-pause" : "circle-check"}"></i>

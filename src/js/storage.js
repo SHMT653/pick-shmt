@@ -4,7 +4,7 @@ import { isExpired, normalizeCode } from "./utils.js";
 
 const DEFAULT_SETTINGS = {
   theme: "light",
-  language: "en",
+  language: navigator.language?.toLowerCase().startsWith("de") ? "de" : "en",
   reduceMotion: false,
   lastNickname: "",
 };

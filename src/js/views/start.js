@@ -28,6 +28,11 @@ export function renderIntro(state) {
 
 export function renderHome(state) {
   const lang = state.settings.language;
+  const previewQuestion = lang === "de" ? "Was essen wir heute?" : "What should we eat tonight?";
+  const previewIdeas =
+    lang === "de"
+      ? ["Sushi", "Pizza", "Pasta", "Mexikanisch"]
+      : ["Sushi", "Pizza", "Pasta", "Mexican"];
 
   return `
     <section class="home-grid page-enter">
@@ -68,13 +73,13 @@ export function renderHome(state) {
         <div class="preview-phone">
           <div class="preview-room">
             <span>ROOM 7KFX2P</span>
-            <strong>What should we eat tonight?</strong>
+            <strong>${escapeHTML(previewQuestion)}</strong>
           </div>
           <div class="preview-ideas">
-            <span>Sushi <small>Anna</small></span>
-            <span>Pizza <small>Paul</small></span>
-            <span>Pasta <small>Luca</small></span>
-            <span>Mexican <small>Marie</small></span>
+            <span>${escapeHTML(previewIdeas[0])} <small>Anna</small></span>
+            <span>${escapeHTML(previewIdeas[1])} <small>Paul</small></span>
+            <span>${escapeHTML(previewIdeas[2])} <small>Luca</small></span>
+            <span>${escapeHTML(previewIdeas[3])} <small>Marie</small></span>
           </div>
           <div class="preview-stack">
             <div class="preview-card preview-card-back">Pizza</div>
@@ -115,6 +120,23 @@ function renderContinueRoom(lobby, lang) {
         <i data-lucide="arrow-right"></i>
         <span>${escapeHTML(t(lang, "open"))}</span>
       </button>
+    </div>
+  `;
+}
+
+function renderJoinRoomPreview(lobby, lang) {
+  const round = getActiveRound(lobby);
+  const plannedRound = round?.status === "voting" ? round : lobby?.plannedRound;
+
+  if (!plannedRound) {
+    return "";
+  }
+
+  return `
+    <div class="join-room-preview">
+      <span class="eyebrow">ROOM ${escapeHTML(lobby.code)}</span>
+      <strong>${escapeHTML(plannedRound.title)}</strong>
+      <small>${escapeHTML(categoryLabel(plannedRound.category, lang))} · ${escapeHTML(modeLabel(plannedRound.mode, lang))}</small>
     </div>
   `;
 }
@@ -183,6 +205,7 @@ export function renderJoin(state) {
         <span class="eyebrow">${escapeHTML(t(lang, "joinEyebrow"))}</span>
         <h1>${escapeHTML(t(lang, "joinHeadline"))}</h1>
       </div>
+      ${renderJoinRoomPreview(state.joinPreviewLobby, lang)}
       <form class="form-panel" data-form="join-room">
         <label>
           <span>${escapeHTML(t(lang, "lobbyCode"))}</span>
