@@ -14,7 +14,6 @@ export function renderIntro(state) {
         class="intro-video"
         data-intro-video
         src="/assets/video/pickr-logo-animation.mp4"
-        poster="/assets/logo/pickr-logo.png"
         autoplay
         muted
         playsinline

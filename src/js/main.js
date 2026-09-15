@@ -302,7 +302,7 @@ function bindIntroVideo() {
     }
     finished = true;
     markIntroSeen();
-    navigate("create");
+    navigate("home");
   };
 
   video.addEventListener("ended", finishIntro, { once: true });
@@ -345,7 +345,7 @@ async function handleClick(event) {
   try {
     if (action === "finish-intro") {
       markIntroSeen();
-      navigate("create");
+      navigate("home");
     } else if (action === "navigate") {
       navigate(button.dataset.view);
     } else if (action === "shuffle-question") {

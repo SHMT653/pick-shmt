@@ -275,7 +275,8 @@ svg {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  background: #05050a;
+  object-fit: contain;
   object-position: center;
 }
 
