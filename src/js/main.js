@@ -1,3 +1,9 @@
+// Einstiegspunkt der App. Hält den gesamten App-State an einem Ort und
+// verdrahtet DOM-Events (Klick/Submit/Input/Change) mit Aktionen, die den
+// State verändern und danach neu rendern. Am Ende der Datei folgen die
+// Frage-Vorlagen, Fehlertexte, das URL-Routing und die Swipe-Geste als eigene
+// Abschnitte, da sie ohne den State auskommen, inhaltlich aber eng zum
+// Einstiegspunkt gehören.
 import QRCode from "qrcode";
 import { createIcons, icons } from "lucide";
 import "../styles.css";
@@ -41,7 +47,9 @@ import {
   saveSettings,
   wasLobbyClosed,
 } from "./storage.js";
-import { renderApp, getDefaultComposer, getDefaultQuickOptions } from "./ui.js";
+import { renderApp } from "./ui.js";
+import { getDefaultComposer } from "./views/room.js";
+import { getDefaultQuickOptions } from "./views/quick-pick.js";
 import {
   copyText,
   makeShareUrl,
@@ -56,7 +64,7 @@ const quickParticipant = { id: "quick-user", nickname: "You", isHost: true, isRe
 const recordedResults = new Set();
 
 const state = {
-  view: "home",
+  view: "intro",
   routeCode: "",
   lobby: null,
   participant: null,
@@ -77,7 +85,7 @@ let toastTimer = 0;
 let roomSyncTimer = 0;
 let roomSnapshot = "";
 
-state.composer.title = defaultQuestion(state.composer.category);
+state.composer.title = defaultQuestion(state.composer.category, state.settings.language);
 
 boot();
 
@@ -89,6 +97,8 @@ function boot() {
   window.addEventListener("popstate", applyRoute);
   applyRoute();
 }
+
+// --- Routing ---
 
 function applyRoute() {
   const route = parseRoute();
@@ -106,37 +116,11 @@ function applyRoute() {
     return;
   }
 
-  state.view = route.view;
+  state.view = route.view === "home" && shouldShowIntro() ? "intro" : route.view;
   if (route.view !== "quick") {
     state.quickRound = null;
   }
   render();
-}
-
-function parseRoute() {
-  const path = window.location.pathname.replace(/\/+$/, "") || "/";
-  const joinMatch = path.match(/^\/join\/([A-Za-z0-9]{1,12})$/);
-  const roomMatch = path.match(/^\/room\/([A-Za-z0-9]{1,12})$/);
-  const decisionMatch = path.match(/^\/room\/([A-Za-z0-9]{1,12})\/pick$/);
-  const simpleRoutes = new Set(["/create", "/join", "/history", "/settings", "/quick"]);
-
-  if (joinMatch) {
-    return { view: "join", code: normalizeCode(joinMatch[1]) };
-  }
-
-  if (roomMatch) {
-    return { view: "room", code: normalizeCode(roomMatch[1]) };
-  }
-
-  if (decisionMatch) {
-    return { view: "decision", code: normalizeCode(decisionMatch[1]) };
-  }
-
-  if (simpleRoutes.has(path)) {
-    return { view: path.slice(1) };
-  }
-
-  return { view: "home" };
 }
 
 async function loadRoomRoute(code, view) {
@@ -150,7 +134,7 @@ async function loadRoomRoute(code, view) {
     state.view = "room";
     state.lobby = null;
     state.participant = null;
-    state.error = getFriendlyMessage(error);
+    state.error = getFriendlyMessage(error, state.settings.language);
     subscribeToRoom("");
     render();
     return;
@@ -179,6 +163,14 @@ async function loadRoomRoute(code, view) {
   state.view = shouldAutoOpenDecision(lobby, participant, view) ? "decision" : view;
   render();
 }
+
+function navigate(view) {
+  const path = pathForView(view, state.lobby?.code);
+  window.history.pushState({}, "", path);
+  applyRoute();
+}
+
+// --- Raum-Synchronisierung ---
 
 function setCurrentRoom(lobby, participant = null) {
   state.lobby = lobby;
@@ -265,27 +257,30 @@ function getRoomSnapshot(lobby) {
   return lobby ? JSON.stringify(lobby) : "";
 }
 
-function navigate(view) {
-  const path = pathForView(view);
-  window.history.pushState({}, "", path);
-  applyRoute();
+function updateRoom(lobby) {
+  setCurrentRoom(lobby);
+  render();
 }
 
-function pathForView(view) {
-  if (view === "home") {
-    return "/";
-  }
+function recordCompletedResults(lobby) {
+  lobby.rounds
+    .filter((round) => round.status === "completed" && round.result && !recordedResults.has(round.id))
+    .forEach((round) => {
+      const modeLabel = MODES.find((mode) => mode.id === round.mode)?.label ?? round.mode;
+      addHistoryItem({
+        roundId: round.id,
+        roomCode: lobby.code,
+        winner: round.result.winnerLabel,
+        mode: modeLabel,
+        createdAt: round.completedAt || new Date().toISOString(),
+      });
+      recordedResults.add(round.id);
+    });
 
-  if (view === "room" && state.lobby) {
-    return `/room/${state.lobby.code}`;
-  }
-
-  if (view === "decision" && state.lobby) {
-    return `/room/${state.lobby.code}/pick`;
-  }
-
-  return `/${view}`;
+  state.history = loadHistory();
 }
+
+// --- Rendering ---
 
 function render() {
   document.documentElement.dataset.theme = state.settings.theme;
@@ -294,7 +289,7 @@ function render() {
   app.innerHTML = renderApp(state);
   createIcons({ icons });
   renderQrCode();
-  bindSwipeGesture();
+  bindSwipeGesture({ reduceMotion: state.settings.reduceMotion, onVote: voteSwipe });
 }
 
 async function renderQrCode() {
@@ -317,6 +312,8 @@ async function renderQrCode() {
   }
 }
 
+// --- Event-Handler ---
+
 async function handleClick(event) {
   const button = event.target.closest("[data-action]");
   if (!button || button.disabled) {
@@ -326,7 +323,10 @@ async function handleClick(event) {
   const action = button.dataset.action;
 
   try {
-    if (action === "navigate") {
+    if (action === "finish-intro") {
+      markIntroSeen();
+      navigate("home");
+    } else if (action === "navigate") {
       navigate(button.dataset.view);
     } else if (action === "shuffle-question") {
       shuffleQuestion();
@@ -448,10 +448,12 @@ function handleChange(event) {
   state.composer[field] = event.target.value;
 
   if (field === "category") {
-    state.composer.title = defaultQuestion(event.target.value);
+    state.composer.title = defaultQuestion(event.target.value, state.settings.language);
     render();
   }
 }
+
+// --- Formular-Aktionen ---
 
 async function submitCreateRoom(data) {
   applyComposerFromForm(data);
@@ -569,10 +571,10 @@ function selectMode(mode) {
 
   if (mode === "whoPays") {
     state.composer.category = "Who Pays";
-    state.composer.title = defaultQuestion("Who Pays");
+    state.composer.title = defaultQuestion("Who Pays", state.settings.language);
   } else if (state.composer.category === "Who Pays") {
     state.composer.category = "Food";
-    state.composer.title = defaultQuestion("Food");
+    state.composer.title = defaultQuestion("Food", state.settings.language);
   }
 
   render();
@@ -582,9 +584,11 @@ function shuffleQuestion() {
   const templates = questionTemplates(state.composer.category, state.settings.language);
   const choices = templates.filter((question) => question !== state.composer.title);
   const pool = choices.length ? choices : templates;
-  state.composer.title = pool[randomInt(pool.length)] ?? defaultQuestion(state.composer.category);
+  state.composer.title = pool[randomInt(pool.length)] ?? defaultQuestion(state.composer.category, state.settings.language);
   render();
 }
+
+// --- Spiel-Aktionen (Voten, Spinnen, Rematch) ---
 
 async function toggleReady() {
   updateRoom(await setReady(state.lobby.code, state.participant.id, !state.participant.isReady));
@@ -653,6 +657,35 @@ async function startRematch() {
   navigate("decision");
 }
 
+function resetQuickPick() {
+  state.quickRound = null;
+  state.quickOptions = getDefaultQuickOptions();
+  render();
+}
+
+function shouldShowIntro() {
+  try {
+    return window.sessionStorage.getItem("pickr:intro-seen") !== "1";
+  } catch {
+    return true;
+  }
+}
+
+function markIntroSeen() {
+  try {
+    window.sessionStorage.setItem("pickr:intro-seen", "1");
+  } catch {
+    // Session storage is optional; the intro button still navigates.
+  }
+}
+
+function voteQuickBattle(optionId) {
+  recordBattleVote(state.quickRound, quickParticipant.id, optionId, [quickParticipant]);
+  render();
+}
+
+// --- Teilen & Kopieren ---
+
 function copyRoomLink(link) {
   copyText(link).then(
     () => showToast(t(state.settings.language, "toastLinkCopied")),
@@ -707,6 +740,8 @@ async function leaveCurrentRoom() {
   navigate("home");
 }
 
+// --- Einstellungen ---
+
 function toggleTheme() {
   state.settings.theme = state.settings.theme === "dark" ? "light" : "dark";
   saveSettings(state.settings);
@@ -717,7 +752,7 @@ function setLanguage(language) {
   const shouldLocalizeQuestion = isTemplateQuestion(state.composer.title);
   state.settings.language = language === "de" ? "de" : "en";
   if (shouldLocalizeQuestion) {
-    state.composer.title = defaultQuestion(state.composer.category);
+    state.composer.title = defaultQuestion(state.composer.category, state.settings.language);
   }
   saveSettings(state.settings);
   render();
@@ -747,41 +782,260 @@ function clearRecentHistory() {
   render();
 }
 
-function resetQuickPick() {
-  state.quickRound = null;
-  state.quickOptions = getDefaultQuickOptions();
+// --- Fehler & Toasts ---
+
+function handleUserError(error) {
+  const message = getFriendlyMessage(error, state.settings.language);
+  state.error = message;
+  showToast(message, "error");
   render();
 }
 
-function voteQuickBattle(optionId) {
-  recordBattleVote(state.quickRound, quickParticipant.id, optionId, [quickParticipant]);
-  render();
+function showToast(message, type = "success", rerender = true) {
+  window.clearTimeout(toastTimer);
+  state.toast = { message: sanitizeText(message, 120), type };
+  if (rerender) {
+    render();
+  }
+
+  toastTimer = window.setTimeout(() => {
+    state.toast = null;
+    render();
+  }, 2600);
 }
 
-function updateRoom(lobby) {
-  setCurrentRoom(lobby);
-  render();
+// === Frage-Vorlagen ===
+// Liefert Standard-/Zufallsfragen pro Kategorie und Sprache, und erkennt, ob
+// ein Fragetext eine dieser Vorlagen ist (statt frei getippt).
+
+const QUESTION_TEMPLATES = {
+  en: {
+    Food: [
+      "What should we eat tonight?",
+      "Where should we order from?",
+      "What feels worth leaving the house for?",
+    ],
+    Movies: [
+      "What should we watch?",
+      "What movie fits tonight?",
+      "What are we actually in the mood for?",
+    ],
+    Activities: [
+      "What should we do?",
+      "What should we do for the next few hours?",
+      "What plan sounds the least boring?",
+    ],
+    Travel: [
+      "Where should we go?",
+      "What should be our next trip?",
+      "Which place deserves the next weekend?",
+    ],
+    Games: [
+      "What should we play?",
+      "What game should start the night?",
+      "What are we all okay losing at?",
+    ],
+    Party: [
+      "What is the plan tonight?",
+      "Where should the night start?",
+      "What plan keeps everyone happy?",
+    ],
+    Shopping: [
+      "What should we buy?",
+      "Which option is actually worth it?",
+      "What should make it into the cart?",
+    ],
+    "Who Pays": [
+      "Who pays tonight?",
+      "Who picks up this round?",
+      "Who gets lucky tonight?",
+    ],
+    Custom: [
+      "What should we pick?",
+      "Which option wins?",
+      "What should Pickr decide?",
+    ],
+  },
+  de: {
+    Food: [
+      "Was essen wir heute?",
+      "Wo bestellen wir?",
+      "Wofür lohnt es sich, rauszugehen?",
+    ],
+    Movies: [
+      "Was schauen wir?",
+      "Welcher Film passt heute?",
+      "Worauf haben wir wirklich Lust?",
+    ],
+    Activities: [
+      "Was machen wir?",
+      "Was machen wir die nächsten Stunden?",
+      "Welcher Plan klingt am besten?",
+    ],
+    Travel: [
+      "Wo geht es hin?",
+      "Was wird unser nächster Trip?",
+      "Welcher Ort verdient das nächste Wochenende?",
+    ],
+    Games: [
+      "Was spielen wir?",
+      "Welches Spiel startet den Abend?",
+      "Worin verlieren wir alle freiwillig?",
+    ],
+    Party: [
+      "Was ist der Plan heute Abend?",
+      "Wo startet die Nacht?",
+      "Welcher Plan hält alle happy?",
+    ],
+    Shopping: [
+      "Was kaufen wir?",
+      "Welche Option lohnt sich wirklich?",
+      "Was landet im Warenkorb?",
+    ],
+    "Who Pays": [
+      "Wer zahlt heute?",
+      "Wer übernimmt diese Runde?",
+      "Wer hat heute Glück?",
+    ],
+    Custom: [
+      "Was soll Pickr entscheiden?",
+      "Welche Option gewinnt?",
+      "Was wählen wir?",
+    ],
+  },
+};
+
+function questionTemplates(category, language = "en") {
+  const localizedQuestions = QUESTION_TEMPLATES[language] ?? QUESTION_TEMPLATES.en;
+  return localizedQuestions[category] ?? localizedQuestions.Custom;
 }
 
-function recordCompletedResults(lobby) {
-  lobby.rounds
-    .filter((round) => round.status === "completed" && round.result && !recordedResults.has(round.id))
-    .forEach((round) => {
-      const modeLabel = MODES.find((mode) => mode.id === round.mode)?.label ?? round.mode;
-      addHistoryItem({
-        roundId: round.id,
-        roomCode: lobby.code,
-        winner: round.result.winnerLabel,
-        mode: modeLabel,
-        createdAt: round.completedAt || new Date().toISOString(),
-      });
-      recordedResults.add(round.id);
-    });
-
-  state.history = loadHistory();
+function defaultQuestion(category, language) {
+  return questionTemplates(category, language)[0] ?? "What should we pick?";
 }
 
-function bindSwipeGesture() {
+function isTemplateQuestion(title) {
+  const categories = ["Food", "Movies", "Activities", "Travel", "Games", "Party", "Shopping", "Who Pays", "Custom"];
+  return categories.some((category) =>
+    ["en", "de"].some((language) => questionTemplates(category, language).includes(title)),
+  );
+}
+
+// === Fehlertexte ===
+// Übersetzt technische Fehler (App- und Supabase-Fehler) in freundliche,
+// sprachabhängige Nutzer-Meldungen.
+
+function getFriendlyMessage(error, language) {
+  if (isSupabaseSetupError(error)) {
+    return t(language, "errorSupabaseSetup");
+  }
+
+  const messages = {
+    "already-voted": "errorAlreadyVoted",
+    "invalid-code": "errorInvalidCode",
+    "missing-nickname": "errorMissingNickname",
+    "missing-ideas": "errorMissingIdeas",
+    "missing-options": "errorMissingOptions",
+    "nickname-used": "errorNicknameUsed",
+    "not-ready": "errorNotReady",
+    "not-enough-people": "errorNotEnoughPeople",
+    "not-host": "errorNotHost",
+    "room-closed": "errorRoomClosed",
+    "room-expired": "errorRoomExpired",
+    "room-full": "errorRoomFull",
+    "room-locked": "errorRoomLocked",
+    "room-not-found": "errorRoomNotFound",
+    "round-limit": "errorRoundLimit",
+  };
+
+  return t(language, messages[error?.code] ?? "errorGeneric");
+}
+
+function isSupabaseSetupError(error) {
+  const message = String(error?.message ?? "").toLowerCase();
+  const code = String(error?.code ?? "");
+
+  return (
+    code === "PGRST204" ||
+    code === "42P01" ||
+    code === "42501" ||
+    message.includes("schema cache") ||
+    message.includes("column") && message.includes("state") ||
+    message.includes("relation") && message.includes("lobbies") ||
+    message.includes("row-level security") ||
+    message.includes("violates row-level security") ||
+    message.includes("permission denied")
+  );
+}
+
+function createAppError(code, message) {
+  const error = new Error(message);
+  error.code = code;
+  return error;
+}
+
+function cloudIssueMessage() {
+  const error = getLastCloudError();
+
+  if (!error) {
+    return "";
+  }
+
+  const code = error.code ? `${error.code}: ` : "";
+  return sanitizeText(`${code}${error.message ?? error}`, 180);
+}
+
+// === URL-Routing ===
+// Liest die aktuelle Browser-Adresse in eine {view, code}-Angabe ein und baut
+// umgekehrt den passenden Pfad für eine Ansicht.
+
+function parseRoute() {
+  const path = window.location.pathname.replace(/\/+$/, "") || "/";
+  const joinMatch = path.match(/^\/join\/([A-Za-z0-9]{1,12})$/);
+  const roomMatch = path.match(/^\/room\/([A-Za-z0-9]{1,12})$/);
+  const decisionMatch = path.match(/^\/room\/([A-Za-z0-9]{1,12})\/pick$/);
+  const simpleRoutes = new Set(["/intro", "/create", "/join", "/history", "/settings", "/quick", "/impressum", "/datenschutz"]);
+
+  if (joinMatch) {
+    return { view: "join", code: normalizeCode(joinMatch[1]) };
+  }
+
+  if (roomMatch) {
+    return { view: "room", code: normalizeCode(roomMatch[1]) };
+  }
+
+  if (decisionMatch) {
+    return { view: "decision", code: normalizeCode(decisionMatch[1]) };
+  }
+
+  if (simpleRoutes.has(path)) {
+    return { view: path.slice(1) };
+  }
+
+  return { view: "home" };
+}
+
+function pathForView(view, lobbyCode) {
+  if (view === "home") {
+    return "/";
+  }
+
+  if (view === "room" && lobbyCode) {
+    return `/room/${lobbyCode}`;
+  }
+
+  if (view === "decision" && lobbyCode) {
+    return `/room/${lobbyCode}/pick`;
+  }
+
+  return `/${view}`;
+}
+
+// === Swipe-Geste ===
+// Bindet Pointer-Events an die aktuell sichtbare Swipe-Karte, so dass man sie
+// ziehen und per Wurf (statt nur per Klick) abstimmen kann.
+
+function bindSwipeGesture({ reduceMotion, onVote }) {
   const card = document.querySelector("[data-swipe-card]");
   if (!card) {
     return;
@@ -829,7 +1083,7 @@ function bindSwipeGesture() {
 
     const vote = currentX > 0 ? "yes" : "no";
     card.classList.add(vote === "yes" ? "fly-right" : "fly-left");
-    window.setTimeout(() => voteSwipe(card.dataset.optionId, vote), state.settings.reduceMotion ? 20 : 180);
+    window.setTimeout(() => onVote(card.dataset.optionId, vote), reduceMotion ? 20 : 180);
   });
 
   card.addEventListener("pointercancel", () => {
@@ -837,197 +1091,4 @@ function bindSwipeGesture() {
     card.classList.remove("is-dragging");
     reset();
   });
-}
-
-function handleUserError(error) {
-  const message = getFriendlyMessage(error);
-  state.error = message;
-  showToast(message, "error");
-  render();
-}
-
-function showToast(message, type = "success", rerender = true) {
-  window.clearTimeout(toastTimer);
-  state.toast = { message: sanitizeText(message, 120), type };
-  if (rerender) {
-    render();
-  }
-
-  toastTimer = window.setTimeout(() => {
-    state.toast = null;
-    render();
-  }, 2600);
-}
-
-function getFriendlyMessage(error) {
-  if (isSupabaseSetupError(error)) {
-    return t(state.settings.language, "errorSupabaseSetup");
-  }
-
-  const messages = {
-    "already-voted": "errorAlreadyVoted",
-    "invalid-code": "errorInvalidCode",
-    "missing-nickname": "errorMissingNickname",
-    "missing-ideas": "errorMissingIdeas",
-    "missing-options": "errorMissingOptions",
-    "nickname-used": "errorNicknameUsed",
-    "not-ready": "errorNotReady",
-    "not-enough-people": "errorNotEnoughPeople",
-    "not-host": "errorNotHost",
-    "room-closed": "errorRoomClosed",
-    "room-expired": "errorRoomExpired",
-    "room-full": "errorRoomFull",
-    "room-locked": "errorRoomLocked",
-    "room-not-found": "errorRoomNotFound",
-    "round-limit": "errorRoundLimit",
-  };
-
-  return t(state.settings.language, messages[error?.code] ?? "errorGeneric");
-}
-
-function isSupabaseSetupError(error) {
-  const message = String(error?.message ?? "").toLowerCase();
-  const code = String(error?.code ?? "");
-
-  return (
-    code === "PGRST204" ||
-    code === "42P01" ||
-    code === "42501" ||
-    message.includes("schema cache") ||
-    message.includes("column") && message.includes("state") ||
-    message.includes("relation") && message.includes("lobbies") ||
-    message.includes("row-level security") ||
-    message.includes("violates row-level security") ||
-    message.includes("permission denied")
-  );
-}
-
-function cloudIssueMessage() {
-  const error = getLastCloudError();
-
-  if (!error) {
-    return "";
-  }
-
-  const code = error.code ? `${error.code}: ` : "";
-  return sanitizeText(`${code}${error.message ?? error}`, 180);
-}
-
-function defaultQuestion(category) {
-  return questionTemplates(category, state.settings.language)[0] ?? "What should we pick?";
-}
-
-function questionTemplates(category, language = "en") {
-  const questions = {
-    en: {
-      Food: [
-        "What should we eat tonight?",
-        "Where should we order from?",
-        "What feels worth leaving the house for?",
-      ],
-      Movies: [
-        "What should we watch?",
-        "What movie fits tonight?",
-        "What are we actually in the mood for?",
-      ],
-      Activities: [
-        "What should we do?",
-        "What should we do for the next few hours?",
-        "What plan sounds the least boring?",
-      ],
-      Travel: [
-        "Where should we go?",
-        "What should be our next trip?",
-        "Which place deserves the next weekend?",
-      ],
-      Games: [
-        "What should we play?",
-        "What game should start the night?",
-        "What are we all okay losing at?",
-      ],
-      Party: [
-        "What is the plan tonight?",
-        "Where should the night start?",
-        "What plan keeps everyone happy?",
-      ],
-      Shopping: [
-        "What should we buy?",
-        "Which option is actually worth it?",
-        "What should make it into the cart?",
-      ],
-      "Who Pays": [
-        "Who pays tonight?",
-        "Who picks up this round?",
-        "Who gets lucky tonight?",
-      ],
-      Custom: [
-        "What should we pick?",
-        "Which option wins?",
-        "What should Pickr decide?",
-      ],
-    },
-    de: {
-      Food: [
-        "Was essen wir heute?",
-        "Wo bestellen wir?",
-        "Wofür lohnt es sich, rauszugehen?",
-      ],
-      Movies: [
-        "Was schauen wir?",
-        "Welcher Film passt heute?",
-        "Worauf haben wir wirklich Lust?",
-      ],
-      Activities: [
-        "Was machen wir?",
-        "Was machen wir die nächsten Stunden?",
-        "Welcher Plan klingt am besten?",
-      ],
-      Travel: [
-        "Wo geht es hin?",
-        "Was wird unser nächster Trip?",
-        "Welcher Ort verdient das nächste Wochenende?",
-      ],
-      Games: [
-        "Was spielen wir?",
-        "Welches Spiel startet den Abend?",
-        "Worin verlieren wir alle freiwillig?",
-      ],
-      Party: [
-        "Was ist der Plan heute Abend?",
-        "Wo startet die Nacht?",
-        "Welcher Plan hält alle happy?",
-      ],
-      Shopping: [
-        "Was kaufen wir?",
-        "Welche Option lohnt sich wirklich?",
-        "Was landet im Warenkorb?",
-      ],
-      "Who Pays": [
-        "Wer zahlt heute?",
-        "Wer übernimmt diese Runde?",
-        "Wer hat heute Glück?",
-      ],
-      Custom: [
-        "Was soll Pickr entscheiden?",
-        "Welche Option gewinnt?",
-        "Was wählen wir?",
-      ],
-    },
-  };
-
-  const localizedQuestions = questions[language] ?? questions.en;
-  return localizedQuestions[category] ?? localizedQuestions.Custom;
-}
-
-function isTemplateQuestion(title) {
-  const categories = ["Food", "Movies", "Activities", "Travel", "Games", "Party", "Shopping", "Who Pays", "Custom"];
-  return categories.some((category) =>
-    ["en", "de"].some((language) => questionTemplates(category, language).includes(title)),
-  );
-}
-
-function createAppError(code, message) {
-  const error = new Error(message);
-  error.code = code;
-  return error;
 }
