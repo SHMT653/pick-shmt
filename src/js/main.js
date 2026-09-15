@@ -285,7 +285,29 @@ function render() {
   app.innerHTML = renderApp(state);
   createIcons({ icons });
   renderQrCode();
+  bindIntroVideo();
   bindSwipeGesture({ reduceMotion: state.settings.reduceMotion, onVote: voteSwipe });
+}
+
+function bindIntroVideo() {
+  const video = document.querySelector("[data-intro-video]");
+  if (!video) {
+    return;
+  }
+
+  let finished = false;
+  const finishIntro = () => {
+    if (finished || state.view !== "intro") {
+      return;
+    }
+    finished = true;
+    markIntroSeen();
+    navigate("create");
+  };
+
+  video.addEventListener("ended", finishIntro, { once: true });
+  video.addEventListener("error", () => window.setTimeout(finishIntro, 1200), { once: true });
+  window.setTimeout(finishIntro, 8000);
 }
 
 async function renderQrCode() {
@@ -321,7 +343,7 @@ async function handleClick(event) {
   try {
     if (action === "finish-intro") {
       markIntroSeen();
-      navigate("home");
+      navigate("create");
     } else if (action === "navigate") {
       navigate(button.dataset.view);
     } else if (action === "shuffle-question") {

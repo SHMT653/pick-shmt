@@ -8,27 +8,21 @@ import { categoryLabel, modeLabel, renderBrandLockup } from "../ui.js";
 // === Home-Bildschirm ===
 
 export function renderIntro(state) {
-  const lang = state.settings.language;
-
   return `
     <section class="intro-screen" aria-label="Pickr Logo Animation">
-      <div class="intro-orbit" aria-hidden="true">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-      <div class="intro-content">
-        <div class="intro-logo">
-          ${renderBrandLockup("intro-lockup")}
-        </div>
-        <p class="intro-kicker">Pickr Logo Animation</p>
-        <h1>${escapeHTML(t(lang, "introHeadline"))}</h1>
-        <p>${escapeHTML(t(lang, "introCopy"))}</p>
-        <button class="primary-action intro-start" type="button" data-action="finish-intro">
-          <i data-lucide="arrow-right"></i>
-          <span>${escapeHTML(t(lang, "introStart"))}</span>
-        </button>
-      </div>
+      <video
+        class="intro-video"
+        data-intro-video
+        src="/assets/video/pickr-logo-animation.mp4"
+        poster="/assets/logo/pickr-logo.png"
+        autoplay
+        muted
+        playsinline
+        preload="auto"
+      ></video>
+      <button class="intro-skip" type="button" data-action="finish-intro" aria-label="Intro überspringen">
+        <i data-lucide="arrow-right"></i>
+      </button>
     </section>
   `;
 }
