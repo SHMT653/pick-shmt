@@ -85,10 +85,6 @@ let toastTimer = 0;
 let roomSyncTimer = 0;
 let roomSnapshot = "";
 
-state.composer.title = defaultQuestion(state.composer.category, state.settings.language);
-
-boot();
-
 function boot() {
   app.addEventListener("click", handleClick);
   app.addEventListener("submit", handleSubmit);
@@ -1092,3 +1088,6 @@ function bindSwipeGesture({ reduceMotion, onVote }) {
     reset();
   });
 }
+
+state.composer.title = defaultQuestion(state.composer.category, state.settings.language);
+boot();
