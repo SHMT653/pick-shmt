@@ -908,13 +908,9 @@ p {
 }
 
 .dev-idea-pool .is-dragged {
-  position: relative;
-  left: 22px;
-  top: -8px;
   z-index: 1;
   border-color: rgba(102, 87, 245, 0.46);
   background: rgba(102, 87, 245, 0.1);
-  transform: rotate(4deg);
 }
 
 .dev-action-row {
@@ -925,9 +921,7 @@ p {
 }
 
 .dev-action-row .secondary-action {
-  position: relative;
-  top: 18px;
-  left: -24px;
+  opacity: 0.84;
 }
 
 .dev-glitch-note {
@@ -946,7 +940,7 @@ p {
 }
 
 .dev-side-panel.is-offset {
-  transform: translateY(20px) translateX(-10px);
+  margin-top: 10px;
 }
 
 .dev-side-panel p {
@@ -973,8 +967,9 @@ p {
 }
 
 .dev-lower-row {
-  position: relative;
-  min-height: 270px;
+  display: grid;
+  gap: 12px;
+  align-items: start;
 }
 
 .dev-mini-phone {
@@ -986,7 +981,6 @@ p {
   border-radius: 8px;
   background: var(--surface);
   box-shadow: var(--shadow);
-  transform: rotate(-2deg);
 }
 
 .dev-mini-phone span {
@@ -1008,9 +1002,7 @@ p {
 }
 
 .dev-floating-bug {
-  position: absolute;
-  right: 6%;
-  bottom: 28px;
+  margin-top: 12px;
   display: flex;
   align-items: center;
   gap: 9px;
@@ -1022,7 +1014,6 @@ p {
   background: color-mix(in srgb, var(--pickr-purple) 9%, var(--surface));
   box-shadow: var(--shadow);
   font-weight: 900;
-  transform: rotate(3deg);
 }
 
 @media (min-width: 860px) {
@@ -1032,6 +1023,10 @@ p {
 
   .dev-main-panel {
     grid-row: span 2;
+  }
+
+  .dev-lower-row {
+    grid-template-columns: minmax(260px, 0.42fr) minmax(0, 1fr);
   }
 }
 
