@@ -28,75 +28,32 @@ export function renderIntro(state) {
 
 export function renderHome(state) {
   const lang = state.settings.language;
-  const demoCopy =
+  const previewQuestion = lang === "de" ? "Was essen wir heute?" : "What should we eat tonight?";
+  const previewIdeas =
     lang === "de"
-      ? {
-          badge: "Demo-Zwischenstand",
-          eyebrow: "Vercel + Supabase Integration",
-          headline: "Pickr wird gerade als Live-Prototyp aufgebaut.",
-          copy:
-            "Der aktuelle Stand zeigt den geplanten Ablauf und die technische Basis. Wir testen im Moment besonders Deployment, Datenbank-Sync und den Mehrpersonen-Flow.",
-          create: "Demo-Raum anlegen",
-          join: "Join-Flow testen",
-          quick: "Lokalen Quick Pick testen",
-          codeLabel: "Test mit vorhandenem Raumcode",
-          boardTitle: "Aktueller Fokus",
-          boardSubtitle: "Kein finales Produkt, sondern ein laufender Entwicklungsstand.",
-          statusTitle: "Build-Status",
-          statusText: "Vercel Preview/Production wird genutzt, um Änderungen schnell online zu prüfen.",
-          dataTitle: "Datenbank",
-          dataText: "Supabase speichert Räume, Teilnehmer und Ideen. Live-Sync und Fehlerfälle werden gerade optimiert.",
-          flowTitle: "Lobby-Flow",
-          flowText: "Host legt Thema und Modus fest, Gäste bringen eigene Vorschläge ein und warten auf den Start.",
-          nextTitle: "Nächste Schritte",
-          nextItems: ["Realtime stabilisieren", "Mobile Join-Flow glätten", "Datenmodell final prüfen"],
-        }
-      : {
-          badge: "Demo checkpoint",
-          eyebrow: "Vercel + Supabase integration",
-          headline: "Pickr is being shaped as a live prototype.",
-          copy:
-            "This build shows the intended flow and the technical foundation. Right now we are testing deployment, database sync, and the multi-user room flow.",
-          create: "Create demo room",
-          join: "Test join flow",
-          quick: "Try local quick pick",
-          codeLabel: "Test with an existing room code",
-          boardTitle: "Current focus",
-          boardSubtitle: "Not a final product yet, but an active development checkpoint.",
-          statusTitle: "Build status",
-          statusText: "Vercel Preview/Production is used to validate changes online quickly.",
-          dataTitle: "Database",
-          dataText: "Supabase stores rooms, participants, and ideas. Live sync and edge cases are being refined.",
-          flowTitle: "Lobby flow",
-          flowText: "The host defines topic and mode, guests contribute ideas, then wait for the start.",
-          nextTitle: "Next steps",
-          nextItems: ["Stabilize realtime sync", "Polish mobile join flow", "Review final data model"],
-        };
+      ? ["Sushi", "Pizza", "Pasta", "Mexikanisch"]
+      : ["Sushi", "Pizza", "Pasta", "Mexican"];
 
   return `
     <section class="home-grid page-enter">
       <div class="home-copy">
         ${renderBrandLockup("hero-lockup")}
         ${state.lobby ? renderContinueRoom(state.lobby, lang) : ""}
-        <span class="demo-badge"><i data-lucide="flask-conical"></i>${escapeHTML(demoCopy.badge)}</span>
-        <div class="prototype-headline">
-          <span class="eyebrow">${escapeHTML(demoCopy.eyebrow)}</span>
-          <h1>${escapeHTML(demoCopy.headline)}</h1>
-          <p>${escapeHTML(demoCopy.copy)}</p>
-        </div>
+        <h1>Swipe. Pick. Done.</h1>
+        <p>${escapeHTML(t(lang, "heroCopy"))}</p>
         <div class="hero-actions">
           <button class="primary-action" type="button" data-action="navigate" data-view="create">
             <i data-lucide="plus"></i>
-            <span>${escapeHTML(demoCopy.create)}</span>
+            <span>${escapeHTML(t(lang, "createRoom"))}</span>
           </button>
           <button class="secondary-action" type="button" data-action="navigate" data-view="join">
             <i data-lucide="log-in"></i>
-            <span>${escapeHTML(demoCopy.join)}</span>
+            <span>${escapeHTML(t(lang, "joinRoom"))}</span>
           </button>
         </div>
         <form class="home-code-join" data-form="home-join">
           <label>
-            <span>${escapeHTML(demoCopy.codeLabel)}</span>
+            <span>${escapeHTML(t(lang, "roomCodeQuestion"))}</span>
             <div class="code-join-row">
               <input name="code" maxlength="6" autocapitalize="characters" placeholder="7KFX2P" />
               <button class="secondary-action" type="submit">
@@ -108,39 +65,117 @@ export function renderHome(state) {
         </form>
         <button class="quick-link" type="button" data-action="navigate" data-view="quick">
           <i data-lucide="zap"></i>
-          <span>${escapeHTML(demoCopy.quick)}</span>
+          <span>${escapeHTML(t(lang, "quickPickLink"))}</span>
         </button>
       </div>
 
-      <div class="product-preview prototype-board" aria-label="Pickr prototype status">
-        <div class="prototype-board-head">
-          <span class="eyebrow">${escapeHTML(demoCopy.boardTitle)}</span>
-          <p>${escapeHTML(demoCopy.boardSubtitle)}</p>
+      <div class="product-preview" aria-label="Pickr room preview">
+        <div class="preview-phone">
+          <div class="preview-room">
+            <span>ROOM 7KFX2P</span>
+            <strong>${escapeHTML(previewQuestion)}</strong>
+          </div>
+          <div class="preview-ideas">
+            <span>${escapeHTML(previewIdeas[0])} <small>Anna</small></span>
+            <span>${escapeHTML(previewIdeas[1])} <small>Paul</small></span>
+            <span>${escapeHTML(previewIdeas[2])} <small>Luca</small></span>
+            <span>${escapeHTML(previewIdeas[3])} <small>Marie</small></span>
+          </div>
+          <div class="preview-stack">
+            <div class="preview-card preview-card-back">Pizza</div>
+            <div class="preview-card">Sushi</div>
+          </div>
+          <div class="preview-actions">
+            <span><i data-lucide="x"></i></span>
+            <span><i data-lucide="heart"></i></span>
+          </div>
+          <div class="preview-people">
+            <span>Max</span>
+            <span>Anna</span>
+            <span>Paul</span>
+            <span>Luca</span>
+          </div>
         </div>
-        <div class="prototype-card is-live">
-          <span><i data-lucide="triangle"></i> Vercel</span>
-          <strong>${escapeHTML(demoCopy.statusTitle)}</strong>
-          <p>${escapeHTML(demoCopy.statusText)}</p>
+      </div>
+    </section>
+  `;
+}
+
+export function renderDevDemo(state) {
+  const lang = state.settings.language;
+  const copy =
+    lang === "de"
+      ? {
+          title: "Pickr Zwischenstand",
+          intro:
+            "Hier sammeln wir gerade, was technisch schon probiert wird. Die Seite ist extra nicht final poliert, eher wie ein Arbeitsstand fuer die Abgabe-Besprechung.",
+          back: "zur echten App",
+          notes: ["Vercel Deployment klappt, Preview ist noch Testgebiet", "Supabase Tabellen sind da, Sync wird noch sauberer gemacht", "Join per QR/Code geht, Fehlertexte muessen wir noch testen"],
+          cards: [
+            ["Vercel", "Deployment", "GitHub Push -> Vercel Build -> online testen. Gerade schauen wir uns noch an, wann Preview und Production sinnvoll sind."],
+            ["Supabase", "Datenbank", "Raeume, Teilnehmer und Ideen liegen nicht nur lokal. Realtime/Polling ist noch im Feinschliff."],
+            ["Lobby", "Flow", "Host erstellt Raum, Leute treten bei und geben Ideen ein. Start/Ready ist schon grob verbunden."],
+          ],
+          todo: "naechste Baustellen",
+          todoItems: ["SQL nochmal pruefen", "2 Handys parallel testen", "UI auf Mobile weniger eng machen", "Fehlerfaelle dokumentieren"],
+        }
+      : {
+          title: "Pickr checkpoint",
+          intro:
+            "This is a rough working page for the current technical state. It is intentionally not fully polished.",
+          back: "back to the real app",
+          notes: ["Vercel deployment works, Preview is still being tested", "Supabase tables exist, sync still needs polish", "QR/code join works, error messages still need tests"],
+          cards: [
+            ["Vercel", "Deployment", "GitHub push -> Vercel build -> online testing. We are still comparing Preview and Production usage."],
+            ["Supabase", "Database", "Rooms, participants, and ideas are not only local. Realtime/polling is still being refined."],
+            ["Lobby", "Flow", "Host creates a room, guests join and add ideas. Start/ready is roughly wired."],
+          ],
+          todo: "next rough tasks",
+          todoItems: ["Review SQL again", "Test with 2 phones", "Make mobile UI less cramped", "Document error cases"],
+        };
+
+  return `
+    <section class="dev-demo page-enter">
+      <button class="ghost-action dev-back" type="button" data-action="navigate" data-view="home">
+        <i data-lucide="arrow-left"></i>
+        <span>${escapeHTML(copy.back)}</span>
+      </button>
+      <div class="dev-paper">
+        <div class="dev-paper-head">
+          <span>dev / prototyp / nicht final</span>
+          <h1>${escapeHTML(copy.title)}</h1>
+          <p>${escapeHTML(copy.intro)}</p>
         </div>
-        <div class="prototype-card">
-          <span><i data-lucide="database"></i> Supabase</span>
-          <strong>${escapeHTML(demoCopy.dataTitle)}</strong>
-          <p>${escapeHTML(demoCopy.dataText)}</p>
+        <div class="dev-note-list">
+          ${copy.notes.map((note) => `<p><i data-lucide="pin"></i>${escapeHTML(note)}</p>`).join("")}
         </div>
-        <div class="prototype-card">
-          <span><i data-lucide="users-round"></i> Multiplayer</span>
-          <strong>${escapeHTML(demoCopy.flowTitle)}</strong>
-          <p>${escapeHTML(demoCopy.flowText)}</p>
+        <div class="dev-card-grid">
+          ${copy.cards
+            .map(
+              ([tool, title, text]) => `
+                <article class="dev-card">
+                  <span>${escapeHTML(tool)}</span>
+                  <strong>${escapeHTML(title)}</strong>
+                  <p>${escapeHTML(text)}</p>
+                </article>
+              `,
+            )
+            .join("")}
         </div>
-        <div class="prototype-next">
-          <strong>${escapeHTML(demoCopy.nextTitle)}</strong>
+        <div class="dev-todo">
+          <strong>${escapeHTML(copy.todo)}</strong>
           <ul>
-            ${demoCopy.nextItems.map((item) => `<li><i data-lucide="loader-circle"></i>${escapeHTML(item)}</li>`).join("")}
+            ${copy.todoItems.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}
           </ul>
         </div>
-        <div class="prototype-footer">
-          <span>pickr-shmt.vercel.app</span>
-          <span>Supabase schema in review</span>
+        <div class="dev-mini-diagram">
+          <span>GitHub</span>
+          <i data-lucide="arrow-right"></i>
+          <span>Vercel</span>
+          <i data-lucide="arrow-right"></i>
+          <span>Supabase</span>
+          <i data-lucide="arrow-right"></i>
+          <span>Room UI</span>
         </div>
       </div>
     </section>

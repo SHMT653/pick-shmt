@@ -221,6 +221,22 @@ svg {
   grid-column: 2;
 }
 
+.dev-access {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--text-soft) 22%, transparent);
+  cursor: pointer;
+  opacity: 0.42;
+}
+
+.dev-access:hover {
+  background: var(--pickr-purple);
+  opacity: 0.9;
+}
+
 .legal-link {
   border: 0;
   background: transparent;
@@ -401,26 +417,6 @@ svg {
 
 .hero-lockup {
   margin-bottom: 2px;
-}
-
-.demo-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 32px;
-  padding: 0 11px;
-  border: 1px solid color-mix(in srgb, var(--pickr-purple) 22%, var(--border));
-  border-radius: 999px;
-  color: var(--pickr-purple);
-  background: color-mix(in srgb, var(--pickr-purple) 10%, var(--surface));
-  font-size: 0.76rem;
-  font-weight: 950;
-  text-transform: uppercase;
-}
-
-.prototype-headline {
-  display: grid;
-  gap: 12px;
 }
 
 h1,
@@ -630,105 +626,6 @@ p {
   place-items: center;
 }
 
-.prototype-board {
-  align-content: start;
-  place-items: stretch;
-  gap: 12px;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--pickr-purple) 9%, transparent), transparent 180px),
-    color-mix(in srgb, var(--surface) 92%, transparent);
-  box-shadow: var(--shadow-strong);
-}
-
-.prototype-board-head {
-  display: grid;
-  gap: 8px;
-  padding: 4px 2px 8px;
-}
-
-.prototype-board-head p,
-.prototype-card p {
-  font-size: 0.88rem;
-  line-height: 1.45;
-}
-
-.prototype-card {
-  display: grid;
-  gap: 7px;
-  padding: 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--surface) 88%, var(--surface-strong));
-}
-
-.prototype-card.is-live {
-  border-color: color-mix(in srgb, var(--pickr-mint) 58%, var(--border));
-  background:
-    linear-gradient(135deg, rgba(85, 230, 181, 0.16), transparent 64%),
-    color-mix(in srgb, var(--surface) 90%, transparent);
-}
-
-.prototype-card > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--text-soft);
-  font-size: 0.75rem;
-  font-weight: 950;
-  text-transform: uppercase;
-}
-
-.prototype-card strong,
-.prototype-next strong {
-  color: var(--text);
-  font-size: 1rem;
-  font-weight: 950;
-}
-
-.prototype-next {
-  display: grid;
-  gap: 9px;
-  padding: 14px;
-  border: 1px dashed color-mix(in srgb, var(--pickr-purple) 42%, var(--border));
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--pickr-purple) 7%, transparent);
-}
-
-.prototype-next ul {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.prototype-next li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-soft);
-  font-size: 0.88rem;
-  font-weight: 800;
-}
-
-.prototype-next li svg {
-  color: var(--pickr-purple);
-}
-
-.prototype-footer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: space-between;
-  padding: 2px 2px 0;
-  color: var(--text-soft);
-  font-size: 0.74rem;
-  font-weight: 850;
-}
-
 .preview-phone {
   width: min(360px, 100%);
   padding: 18px;
@@ -846,6 +743,145 @@ p {
   background: var(--surface-strong);
   font-size: 0.78rem;
   font-weight: 800;
+}
+
+.dev-demo {
+  min-height: calc(100vh - 142px);
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.dev-back {
+  justify-self: start;
+}
+
+.dev-paper {
+  display: grid;
+  gap: 18px;
+  max-width: 940px;
+  padding: clamp(18px, 4vw, 34px);
+  border: 2px dashed color-mix(in srgb, var(--pickr-purple) 38%, var(--border));
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 27px, color-mix(in srgb, var(--border) 38%, transparent) 28px),
+    color-mix(in srgb, var(--surface) 94%, var(--app-bg));
+  box-shadow: 8px 10px 0 color-mix(in srgb, var(--pickr-purple) 13%, transparent);
+  transform: rotate(-0.25deg);
+}
+
+.dev-paper-head {
+  display: grid;
+  gap: 9px;
+}
+
+.dev-paper-head > span {
+  width: max-content;
+  max-width: 100%;
+  padding: 4px 8px;
+  color: #ffffff;
+  background: var(--pickr-purple);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.dev-paper-head h1 {
+  font-size: clamp(2rem, 5vw, 4rem);
+}
+
+.dev-note-list {
+  display: grid;
+  gap: 8px;
+}
+
+.dev-note-list p {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: none;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--warning) 10%, var(--surface));
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.dev-card-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.dev-card {
+  display: grid;
+  gap: 7px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.dev-card:nth-child(2) {
+  transform: translateX(10px);
+}
+
+.dev-card:nth-child(3) {
+  transform: translateX(-6px);
+}
+
+.dev-card span {
+  color: var(--pickr-purple);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.dev-card strong,
+.dev-todo strong {
+  font-size: 1.04rem;
+  font-weight: 950;
+}
+
+.dev-card p {
+  max-width: none;
+  font-size: 0.92rem;
+}
+
+.dev-todo {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--danger) 34%, var(--border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+}
+
+.dev-todo ul {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding-left: 22px;
+  color: var(--text-soft);
+  font-weight: 800;
+}
+
+.dev-mini-diagram {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-soft);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.dev-mini-diagram span {
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-strong);
 }
 
 .center-panel,
@@ -2180,15 +2216,6 @@ select:focus {
 
   .product-preview {
     display: none;
-  }
-
-  .prototype-board {
-    display: grid;
-    margin-top: 4px;
-  }
-
-  .prototype-footer {
-    display: grid;
   }
 }
 

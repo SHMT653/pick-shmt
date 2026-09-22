@@ -3,7 +3,7 @@
 // welcher Screen aus views/ gerendert wird.
 import { t } from "./i18n.js";
 import { escapeHTML } from "./utils.js";
-import { renderHome, renderCreate, renderJoin, renderIntro } from "./views/start.js";
+import { renderHome, renderCreate, renderJoin, renderIntro, renderDevDemo } from "./views/start.js";
 import { renderRoom } from "./views/room.js";
 import { renderDecision } from "./views/decision.js";
 import { renderHistory } from "./views/history.js";
@@ -34,6 +34,7 @@ export function renderHeader(state) {
         ${navButton("settings", t(lang, "navSettings"), "settings", state.view)}
       </nav>
       <div class="top-status">
+        <button class="dev-access" type="button" data-action="navigate" data-view="dev" aria-label="Development notes"></button>
         ${room}
         <button class="legal-link" type="button" data-action="navigate" data-view="impressum">${escapeHTML(t(lang, "imprint"))}</button>
         <button class="legal-link" type="button" data-action="navigate" data-view="datenschutz">${escapeHTML(t(lang, "privacy"))}</button>
@@ -234,6 +235,10 @@ export function renderView(state) {
 
   if (state.view === "quick") {
     return renderQuickPick(state);
+  }
+
+  if (state.view === "dev") {
+    return renderDevDemo(state);
   }
 
   if (state.view === "impressum") {

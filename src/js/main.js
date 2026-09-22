@@ -1059,7 +1059,7 @@ function parseRoute() {
   const joinMatch = path.match(/^\/join\/([A-Za-z0-9]{1,12})$/);
   const roomMatch = path.match(/^\/room\/([A-Za-z0-9]{1,12})$/);
   const decisionMatch = path.match(/^\/room\/([A-Za-z0-9]{1,12})\/pick$/);
-  const simpleRoutes = new Set(["/intro", "/create", "/join", "/history", "/settings", "/quick", "/impressum", "/datenschutz"]);
+  const simpleRoutes = new Set(["/intro", "/create", "/join", "/history", "/settings", "/quick", "/dev", "/impressum", "/datenschutz"]);
 
   if (joinMatch) {
     return { view: "join", code: normalizeCode(joinMatch[1]) };
