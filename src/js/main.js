@@ -88,6 +88,7 @@ let toastTimer = 0;
 let roomSyncTimer = 0;
 let setupSyncTimer = 0;
 let roomSnapshot = "";
+let introSeenThisPage = false;
 
 function boot() {
   app.addEventListener("click", handleClick);
@@ -732,19 +733,11 @@ function resetQuickPick() {
 }
 
 function shouldShowIntro() {
-  try {
-    return window.sessionStorage.getItem("pickr:intro-seen") !== "1";
-  } catch {
-    return true;
-  }
+  return !introSeenThisPage;
 }
 
 function markIntroSeen() {
-  try {
-    window.sessionStorage.setItem("pickr:intro-seen", "1");
-  } catch {
-    // Session storage is optional; the intro button still navigates.
-  }
+  introSeenThisPage = true;
 }
 
 function voteQuickBattle(optionId) {

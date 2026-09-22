@@ -403,6 +403,26 @@ svg {
   margin-bottom: 2px;
 }
 
+.demo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1px solid color-mix(in srgb, var(--pickr-purple) 22%, var(--border));
+  border-radius: 999px;
+  color: var(--pickr-purple);
+  background: color-mix(in srgb, var(--pickr-purple) 10%, var(--surface));
+  font-size: 0.76rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.prototype-headline {
+  display: grid;
+  gap: 12px;
+}
+
 h1,
 h2,
 p {
@@ -608,6 +628,105 @@ p {
 .product-preview {
   display: grid;
   place-items: center;
+}
+
+.prototype-board {
+  align-content: start;
+  place-items: stretch;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--pickr-purple) 9%, transparent), transparent 180px),
+    color-mix(in srgb, var(--surface) 92%, transparent);
+  box-shadow: var(--shadow-strong);
+}
+
+.prototype-board-head {
+  display: grid;
+  gap: 8px;
+  padding: 4px 2px 8px;
+}
+
+.prototype-board-head p,
+.prototype-card p {
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.prototype-card {
+  display: grid;
+  gap: 7px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 88%, var(--surface-strong));
+}
+
+.prototype-card.is-live {
+  border-color: color-mix(in srgb, var(--pickr-mint) 58%, var(--border));
+  background:
+    linear-gradient(135deg, rgba(85, 230, 181, 0.16), transparent 64%),
+    color-mix(in srgb, var(--surface) 90%, transparent);
+}
+
+.prototype-card > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-soft);
+  font-size: 0.75rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.prototype-card strong,
+.prototype-next strong {
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.prototype-next {
+  display: grid;
+  gap: 9px;
+  padding: 14px;
+  border: 1px dashed color-mix(in srgb, var(--pickr-purple) 42%, var(--border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--pickr-purple) 7%, transparent);
+}
+
+.prototype-next ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prototype-next li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.prototype-next li svg {
+  color: var(--pickr-purple);
+}
+
+.prototype-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+  padding: 2px 2px 0;
+  color: var(--text-soft);
+  font-size: 0.74rem;
+  font-weight: 850;
 }
 
 .preview-phone {
@@ -2061,6 +2180,15 @@ select:focus {
 
   .product-preview {
     display: none;
+  }
+
+  .prototype-board {
+    display: grid;
+    margin-top: 4px;
+  }
+
+  .prototype-footer {
+    display: grid;
   }
 }
 
