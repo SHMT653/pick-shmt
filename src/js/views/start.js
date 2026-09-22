@@ -113,10 +113,11 @@ export function renderDevDemo(state) {
           question: "Was essen wir heute?",
           host: "Host Setup wird verbunden",
           join: "Raum beitreten",
-          sync: "Supabase Sync verbindet",
-          deploy: "Vercel Build aktiv",
           room: "ROOM 7KFX2P",
-          rough: "Preview und Production werden gerade abgeglichen.",
+          people: "3/5 bereit",
+          roomState: "Raum wartet",
+          peopleCopy: "Teilnehmerliste kommt schon rein, aber der Ready-Status wird noch geglaettet.",
+          roomCopy: "Frage und Spielmodus sind gesetzt. QR und Teilen werden noch in die Seitenleiste gezogen.",
           broken: "Start-Button und QR-Box muessen noch ins finale Layout.",
           missing: "QR-Link, Realtime-Status und Fehlertexte sind noch offen.",
         }
@@ -128,10 +129,11 @@ export function renderDevDemo(state) {
           question: "What should we eat tonight?",
           host: "Host setup is being connected",
           join: "Join room",
-          sync: "Supabase sync connecting",
-          deploy: "Vercel build active",
           room: "ROOM 7KFX2P",
-          rough: "Preview and Production are being aligned.",
+          people: "3/5 ready",
+          roomState: "Room waiting",
+          peopleCopy: "Participants are coming in, but the ready state still needs polish.",
+          roomCopy: "Question and mode are set. QR and sharing still move into the sidebar.",
           broken: "Start button and QR box still need their final layout.",
           missing: "QR link, realtime status, and error texts are still open.",
         };
@@ -178,17 +180,25 @@ export function renderDevDemo(state) {
           </section>
 
           <aside class="dev-app-panel dev-side-panel">
-            <span class="eyebrow">Vercel</span>
-            <strong>${escapeHTML(copy.deploy)}</strong>
-            <div class="dev-progress"><span style="width: 72%"></span></div>
-            <p>${escapeHTML(copy.rough)}</p>
+            <span class="eyebrow">${escapeHTML(lang === "de" ? "Teilnehmer" : "People")}</span>
+            <strong>${escapeHTML(copy.people)}</strong>
+            <div class="dev-mini-list">
+              <span>Anna <small>ready</small></span>
+              <span>Paul <small>waiting</small></span>
+              <span>Luca <small>ready</small></span>
+            </div>
+            <p>${escapeHTML(copy.peopleCopy)}</p>
           </aside>
 
           <aside class="dev-app-panel dev-side-panel is-offset">
-            <span class="eyebrow">Supabase</span>
-            <strong>${escapeHTML(copy.sync)}</strong>
-            <div class="dev-progress warning"><span style="width: 44%"></span></div>
-            <p>${escapeHTML(copy.missing)}</p>
+            <span class="eyebrow">${escapeHTML(lang === "de" ? "Raumstatus" : "Room status")}</span>
+            <strong>${escapeHTML(copy.roomState)}</strong>
+            <div class="dev-room-tags">
+              <span>Swipe</span>
+              <span>Food</span>
+              <span>QR</span>
+            </div>
+            <p>${escapeHTML(copy.roomCopy)}</p>
           </aside>
         </div>
 

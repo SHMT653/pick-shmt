@@ -948,22 +948,34 @@ p {
   font-size: 0.88rem;
 }
 
-.dev-progress {
-  height: 10px;
-  overflow: hidden;
-  border-radius: 999px;
+.dev-mini-list,
+.dev-room-tags {
+  display: grid;
+  gap: 7px;
+}
+
+.dev-mini-list span,
+.dev-room-tags span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   background: var(--surface-strong);
+  font-weight: 900;
 }
 
-.dev-progress span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--pickr-mint);
+.dev-mini-list small {
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  font-weight: 850;
 }
 
-.dev-progress.warning span {
-  background: var(--warning);
+.dev-room-tags {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .dev-lower-row {
