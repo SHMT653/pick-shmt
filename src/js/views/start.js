@@ -106,32 +106,34 @@ export function renderDevDemo(state) {
   const copy =
     lang === "de"
       ? {
-          title: "Pickr Zwischenstand",
-          intro:
-            "Hier sammeln wir gerade, was technisch schon probiert wird. Die Seite ist extra nicht final poliert, eher wie ein Arbeitsstand fuer die Abgabe-Besprechung.",
+          title: "Swipe. Pick. Done.",
+          intro: "Interner Demo-Build. Der Videostart sitzt schon, der Rest ist gerade noch Baustelle.",
           back: "zur echten App",
-          notes: ["Vercel Deployment klappt, Preview ist noch Testgebiet", "Supabase Tabellen sind da, Sync wird noch sauberer gemacht", "Join per QR/Code geht, Fehlertexte muessen wir noch testen"],
-          cards: [
-            ["Vercel", "Deployment", "GitHub Push -> Vercel Build -> online testen. Gerade schauen wir uns noch an, wann Preview und Production sinnvoll sind."],
-            ["Supabase", "Datenbank", "Raeume, Teilnehmer und Ideen liegen nicht nur lokal. Realtime/Polling ist noch im Feinschliff."],
-            ["Lobby", "Flow", "Host erstellt Raum, Leute treten bei und geben Ideen ein. Start/Ready ist schon grob verbunden."],
-          ],
-          todo: "naechste Baustellen",
-          todoItems: ["SQL nochmal pruefen", "2 Handys parallel testen", "UI auf Mobile weniger eng machen", "Fehlerfaelle dokumentieren"],
+          stage: "student preview build",
+          question: "Was essen wir heute?",
+          host: "Host Setup fast drin",
+          join: "Join Screen haengt noch",
+          sync: "Supabase Sync: manchmal spaet",
+          deploy: "Vercel Preview laeuft",
+          room: "ROOM 7KFX2P",
+          rough: "noch nicht final verbunden",
+          broken: "Start-Button absichtlich noch nicht da wo er hin soll",
+          missing: "QR Platzhalter / Realtime Test / Error States",
         }
       : {
-          title: "Pickr checkpoint",
-          intro:
-            "This is a rough working page for the current technical state. It is intentionally not fully polished.",
+          title: "Swipe. Pick. Done.",
+          intro: "Internal demo build. The video intro is solid, the rest is still under construction.",
           back: "back to the real app",
-          notes: ["Vercel deployment works, Preview is still being tested", "Supabase tables exist, sync still needs polish", "QR/code join works, error messages still need tests"],
-          cards: [
-            ["Vercel", "Deployment", "GitHub push -> Vercel build -> online testing. We are still comparing Preview and Production usage."],
-            ["Supabase", "Database", "Rooms, participants, and ideas are not only local. Realtime/polling is still being refined."],
-            ["Lobby", "Flow", "Host creates a room, guests join and add ideas. Start/ready is roughly wired."],
-          ],
-          todo: "next rough tasks",
-          todoItems: ["Review SQL again", "Test with 2 phones", "Make mobile UI less cramped", "Document error cases"],
+          stage: "student preview build",
+          question: "What should we eat tonight?",
+          host: "Host setup almost wired",
+          join: "Join screen still rough",
+          sync: "Supabase sync: sometimes late",
+          deploy: "Vercel Preview runs",
+          room: "ROOM 7KFX2P",
+          rough: "not fully connected yet",
+          broken: "Start button is intentionally not where it belongs yet",
+          missing: "QR placeholder / realtime test / error states",
         };
 
   return `
@@ -140,42 +142,63 @@ export function renderDevDemo(state) {
         <i data-lucide="arrow-left"></i>
         <span>${escapeHTML(copy.back)}</span>
       </button>
-      <div class="dev-paper">
-        <div class="dev-paper-head">
-          <span>dev / prototyp / nicht final</span>
-          <h1>${escapeHTML(copy.title)}</h1>
-          <p>${escapeHTML(copy.intro)}</p>
+
+      <div class="dev-app-frame">
+        <div class="dev-hero-video">
+          <video src="/assets/video/pickr-logo-animation.mp4" autoplay muted playsinline loop></video>
         </div>
-        <div class="dev-note-list">
-          ${copy.notes.map((note) => `<p><i data-lucide="pin"></i>${escapeHTML(note)}</p>`).join("")}
+
+        <div class="dev-topline">
+          ${renderBrandLockup("dev-lockup")}
+          <span>${escapeHTML(copy.stage)}</span>
         </div>
-        <div class="dev-card-grid">
-          ${copy.cards
-            .map(
-              ([tool, title, text]) => `
-                <article class="dev-card">
-                  <span>${escapeHTML(tool)}</span>
-                  <strong>${escapeHTML(title)}</strong>
-                  <p>${escapeHTML(text)}</p>
-                </article>
-              `,
-            )
-            .join("")}
+
+        <div class="dev-builder-grid">
+          <section class="dev-app-panel dev-main-panel">
+            <div class="dev-panel-head">
+              <span>${escapeHTML(copy.room)}</span>
+              <strong>${escapeHTML(copy.question)}</strong>
+            </div>
+            <div class="dev-idea-pool">
+              <span>Sushi <small>Anna</small></span>
+              <span>Pizza <small>Paul</small></span>
+              <span class="is-empty">...</span>
+              <span>Bowling <small>Luca</small></span>
+              <span class="is-dragged">Interstellar <small>Marie</small></span>
+            </div>
+            <div class="dev-action-row">
+              <button class="primary-action" type="button"><i data-lucide="play"></i><span>Start Pick</span></button>
+              <button class="secondary-action" type="button"><i data-lucide="qr-code"></i><span>QR fehlt</span></button>
+            </div>
+            <p class="dev-glitch-note">${escapeHTML(copy.broken)}</p>
+          </section>
+
+          <aside class="dev-app-panel dev-side-panel">
+            <span class="eyebrow">Vercel</span>
+            <strong>${escapeHTML(copy.deploy)}</strong>
+            <div class="dev-progress"><span style="width: 72%"></span></div>
+            <p>${escapeHTML(copy.rough)}</p>
+          </aside>
+
+          <aside class="dev-app-panel dev-side-panel is-offset">
+            <span class="eyebrow">Supabase</span>
+            <strong>${escapeHTML(copy.sync)}</strong>
+            <div class="dev-progress warning"><span style="width: 44%"></span></div>
+            <p>${escapeHTML(copy.missing)}</p>
+          </aside>
         </div>
-        <div class="dev-todo">
-          <strong>${escapeHTML(copy.todo)}</strong>
-          <ul>
-            ${copy.todoItems.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}
-          </ul>
-        </div>
-        <div class="dev-mini-diagram">
-          <span>GitHub</span>
-          <i data-lucide="arrow-right"></i>
-          <span>Vercel</span>
-          <i data-lucide="arrow-right"></i>
-          <span>Supabase</span>
-          <i data-lucide="arrow-right"></i>
-          <span>Room UI</span>
+
+        <div class="dev-lower-row">
+          <div class="dev-mini-phone">
+            <span>${escapeHTML(copy.join)}</span>
+            <input value="7KFX2P" readonly />
+            <textarea readonly>Sushi&#10;Bowling&#10;...</textarea>
+            <button class="primary-action" type="button">Bereit?</button>
+          </div>
+          <div class="dev-floating-bug">
+            <i data-lucide="wrench"></i>
+            <span>${escapeHTML(copy.host)}</span>
+          </div>
         </div>
       </div>
     </section>
