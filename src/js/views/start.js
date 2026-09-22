@@ -107,33 +107,33 @@ export function renderDevDemo(state) {
     lang === "de"
       ? {
           title: "Swipe. Pick. Done.",
-          intro: "Interner Demo-Build. Der Videostart sitzt schon, der Rest ist gerade noch Baustelle.",
+          intro: "Der neue Start und der Raum-Flow werden gerade zusammengesetzt.",
           back: "zur echten App",
-          stage: "student preview build",
+          stage: "laufender Aufbau",
           question: "Was essen wir heute?",
-          host: "Host Setup fast drin",
-          join: "Join Screen haengt noch",
-          sync: "Supabase Sync: manchmal spaet",
-          deploy: "Vercel Preview laeuft",
+          host: "Host Setup wird verbunden",
+          join: "Raum beitreten",
+          sync: "Supabase Sync verbindet",
+          deploy: "Vercel Build aktiv",
           room: "ROOM 7KFX2P",
-          rough: "noch nicht final verbunden",
-          broken: "Start-Button absichtlich noch nicht da wo er hin soll",
-          missing: "QR Platzhalter / Realtime Test / Error States",
+          rough: "Preview und Production werden gerade abgeglichen.",
+          broken: "Start-Button und QR-Box muessen noch ins finale Layout.",
+          missing: "QR-Link, Realtime-Status und Fehlertexte sind noch offen.",
         }
       : {
           title: "Swipe. Pick. Done.",
-          intro: "Internal demo build. The video intro is solid, the rest is still under construction.",
+          intro: "The new start and room flow are being assembled.",
           back: "back to the real app",
-          stage: "student preview build",
+          stage: "work in progress",
           question: "What should we eat tonight?",
-          host: "Host setup almost wired",
-          join: "Join screen still rough",
-          sync: "Supabase sync: sometimes late",
-          deploy: "Vercel Preview runs",
+          host: "Host setup is being connected",
+          join: "Join room",
+          sync: "Supabase sync connecting",
+          deploy: "Vercel build active",
           room: "ROOM 7KFX2P",
-          rough: "not fully connected yet",
-          broken: "Start button is intentionally not where it belongs yet",
-          missing: "QR placeholder / realtime test / error states",
+          rough: "Preview and Production are being aligned.",
+          broken: "Start button and QR box still need their final layout.",
+          missing: "QR link, realtime status, and error texts are still open.",
         };
 
   return `
@@ -146,6 +146,10 @@ export function renderDevDemo(state) {
       <div class="dev-app-frame">
         <div class="dev-hero-video">
           <video src="/assets/video/pickr-logo-animation.mp4" autoplay muted playsinline loop></video>
+          <div class="dev-video-copy">
+            <h1>${escapeHTML(copy.title)}</h1>
+            <p>${escapeHTML(copy.intro)}</p>
+          </div>
         </div>
 
         <div class="dev-topline">
@@ -168,7 +172,7 @@ export function renderDevDemo(state) {
             </div>
             <div class="dev-action-row">
               <button class="primary-action" type="button"><i data-lucide="play"></i><span>Start Pick</span></button>
-              <button class="secondary-action" type="button"><i data-lucide="qr-code"></i><span>QR fehlt</span></button>
+              <button class="secondary-action" type="button"><i data-lucide="qr-code"></i><span>QR Link</span></button>
             </div>
             <p class="dev-glitch-note">${escapeHTML(copy.broken)}</p>
           </section>
@@ -193,7 +197,7 @@ export function renderDevDemo(state) {
             <span>${escapeHTML(copy.join)}</span>
             <input value="7KFX2P" readonly />
             <textarea readonly>Sushi&#10;Bowling&#10;...</textarea>
-            <button class="primary-action" type="button">Bereit?</button>
+            <button class="primary-action" type="button">${escapeHTML(lang === "de" ? "Bereit & beitreten" : "Ready & join")}</button>
           </div>
           <div class="dev-floating-bug">
             <i data-lucide="wrench"></i>
