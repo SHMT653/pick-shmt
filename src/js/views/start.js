@@ -255,20 +255,12 @@ export function renderCreate(state) {
         <p>${escapeHTML(t(lang, "voteSetupCopy"))}</p>
       </div>
       <form class="form-panel" data-form="create-room">
-        <div class="split-fields">
-          <label>
-            <span>${escapeHTML(t(lang, "category"))}</span>
-            <select name="category" data-composer-field="category">
-              ${CATEGORIES.map((category) => `<option value="${escapeHTML(category)}" ${category === state.composer.category ? "selected" : ""}>${escapeHTML(categoryLabel(category, lang))}</option>`).join("")}
-            </select>
-          </label>
-          <label>
-            <span>${escapeHTML(t(lang, "gameMode"))}</span>
-            <select name="mode" data-composer-field="mode">
-              ${MODES.map((mode) => `<option value="${escapeHTML(mode.id)}" ${mode.id === state.composer.mode ? "selected" : ""}>${escapeHTML(modeLabel(mode.id, lang))}</option>`).join("")}
-            </select>
-          </label>
-        </div>
+        <label>
+          <span>${escapeHTML(t(lang, "category"))}</span>
+          <select name="category" data-composer-field="category">
+            ${CATEGORIES.map((category) => `<option value="${escapeHTML(category)}" ${category === state.composer.category ? "selected" : ""}>${escapeHTML(categoryLabel(category, lang))}</option>`).join("")}
+          </select>
+        </label>
         <label>
           <span>${escapeHTML(t(lang, "question"))}</span>
           <input name="title" maxlength="80" data-composer-field="title" value="${escapeHTML(state.composer.title)}" placeholder="${escapeHTML(lang === "de" ? "Was essen wir heute?" : "What should we eat tonight?")}" required />

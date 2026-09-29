@@ -524,7 +524,6 @@ async function submitCreateRoom(data) {
 function applyComposerFromForm(data) {
   const category = sanitizeText(data.get("category"), 40);
   const title = sanitizeText(data.get("title"), LIMITS.title);
-  const mode = sanitizeText(data.get("mode"), 24);
 
   if (category) {
     state.composer.category = category;
@@ -534,9 +533,10 @@ function applyComposerFromForm(data) {
     state.composer.title = title;
   }
 
-  if (MODES.some((item) => item.id === mode)) {
-    state.composer.mode = mode;
-  }
+  // Der Spielmodus wird erst im Raum gewaehlt (dort gibt es die vollstaendige
+  // Auswahl mit Vorschau) - eine neu erstellte Lobby startet deshalb immer
+  // neutral und nicht mit dem Modus einer fruehreren Runde.
+  state.composer.mode = "swipe";
 }
 
 async function submitJoinRoom(data) {
