@@ -30,7 +30,6 @@ import {
   submitVote,
   subscribeToLobby,
   toggleLobbyLock,
-  updateLobbySetup,
   updateParticipantIdeas,
 } from "./lobby.js";
 import {
@@ -86,10 +85,9 @@ const state = {
 let unsubscribeRoom = () => {};
 let subscribedCode = "";
 let toastTimer = 0;
-let roomSyncTimer = 0;
-let setupSyncTimer = 0;
 let roomSnapshot = "";
 let introSeenThisPage = false;
+let pendingFormType = "";
 let tapRaceQueue = {
   roundId: "",
   count: 0,
@@ -220,7 +218,6 @@ function setCurrentRoom(lobby, participant = null) {
     window.history.replaceState({}, "", `/room/${lobby.code}/pick`);
   }
   subscribeToRoom(lobby.code);
-  startRoomAutoSync(lobby.code);
   recordCompletedResults(lobby);
   return true;
 }
@@ -235,7 +232,7 @@ function subscribeToRoom(code) {
 
   if (!code) {
     unsubscribeRoom = () => {};
-    stopRoomAutoSync();
+    roomSnapshot = "";
     return;
   }
 
@@ -258,38 +255,6 @@ function subscribeToRoom(code) {
 function shouldAutoOpenDecision(lobby, participant, view) {
   const activeRound = getActiveRound(lobby);
   return view === "room" && !isHost(participant) && activeRound?.status === "voting";
-}
-
-function startRoomAutoSync(code) {
-  window.clearInterval(roomSyncTimer);
-  roomSyncTimer = window.setInterval(() => syncCurrentRoom(code), 1500);
-}
-
-function stopRoomAutoSync() {
-  window.clearInterval(roomSyncTimer);
-  roomSyncTimer = 0;
-  roomSnapshot = "";
-}
-
-async function syncCurrentRoom(code) {
-  if (!state.lobby || state.lobby.code !== code) {
-    return;
-  }
-
-  try {
-    const lobby = await readCloudLobby(code);
-    const nextSnapshot = getRoomSnapshot(lobby);
-
-    if (!lobby || nextSnapshot === roomSnapshot) {
-      return;
-    }
-
-    if (setCurrentRoom(lobby)) {
-      render();
-    }
-  } catch {
-    // Subscription errors are surfaced through normal room actions.
-  }
 }
 
 function getRoomSnapshot(lobby) {
@@ -483,6 +448,13 @@ async function handleSubmit(event) {
   const formType = form.dataset.form;
   const data = new FormData(form);
 
+  if (pendingFormType === formType) {
+    return;
+  }
+
+  pendingFormType = formType;
+  event.submitter?.setAttribute("disabled", "");
+
   try {
     if (formType === "create-room") {
       await submitCreateRoom(data);
@@ -499,6 +471,8 @@ async function handleSubmit(event) {
     }
   } catch (error) {
     handleUserError(error);
+  } finally {
+    pendingFormType = "";
   }
 }
 
@@ -507,7 +481,6 @@ function handleInput(event) {
 
   if (field) {
     state.composer[field] = event.target.value;
-    scheduleRoomSetupSync();
   }
 
   if (event.target.name === "code") {
@@ -532,8 +505,6 @@ function handleChange(event) {
     state.composer.title = defaultQuestion(event.target.value, state.settings.language);
     render();
   }
-
-  scheduleRoomSetupSync(50);
 }
 
 // --- Formular-Aktionen ---
@@ -547,23 +518,6 @@ async function submitCreateRoom(data) {
   state.view = "room";
   window.history.pushState({}, "", `/room/${result.lobby.code}`);
   showToast(t(state.settings.language, getLastCloudError() ? "toastRoomCreatedLocal" : "toastRoomCreated"));
-}
-
-function scheduleRoomSetupSync(delay = 450) {
-  window.clearTimeout(setupSyncTimer);
-
-  if (!state.lobby || !isHost(state.participant)) {
-    return;
-  }
-
-  setupSyncTimer = window.setTimeout(async () => {
-    try {
-      const lobby = await updateLobbySetup(state.lobby.code, state.participant.id, state.composer);
-      setCurrentRoom(lobby);
-    } catch {
-      // Setup preview sync is best effort; starting a round still persists the final values.
-    }
-  }, delay);
 }
 
 function applyComposerFromForm(data) {
@@ -917,7 +871,6 @@ function setLanguage(language) {
     state.quickOptions = getDefaultQuickOptions(state.settings.language);
   }
   saveSettings(state.settings);
-  scheduleRoomSetupSync(50);
   render();
 }
 
