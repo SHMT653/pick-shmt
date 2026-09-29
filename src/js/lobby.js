@@ -32,6 +32,8 @@ import {
   recordBattleVote,
   recordBlindVote,
   recordSwipeVote,
+  recordTapRaceTap,
+  runFingerPickResult,
   runWhoPaysResult,
   simulateMissingVotes,
   spinWheelResult,
@@ -335,6 +337,8 @@ export async function submitVote(code, participantId, roundId, payload) {
       recordBlindVote(round, participantId, payload.optionId);
     } else if (round.mode === "battle") {
       recordBattleVote(round, participantId, payload.optionId, lobby.participants);
+    } else if (round.mode === "tapRace") {
+      recordTapRaceTap(round, participantId, lobby.participants);
     }
 
     finishRoundIfReady(round, lobby.participants);
@@ -356,6 +360,15 @@ export async function completeWhoPaysRound(code, participantId, roundId, variant
     const round = getRound(lobby, roundId);
     assertRoundVoting(round);
     runWhoPaysResult(round, lobby.participants, variant);
+  });
+}
+
+export async function completeFingerPickRound(code, participantId, roundId, fingerCount) {
+  return updateLobby(code, "round:finger-pick", (lobby) => {
+    assertHost(lobby, participantId);
+    const round = getRound(lobby, roundId);
+    assertRoundVoting(round);
+    runFingerPickResult(round, fingerCount);
   });
 }
 

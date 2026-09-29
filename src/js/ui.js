@@ -123,6 +123,8 @@ export function modeLabel(mode, lang) {
       wheel: "Random Wheel",
       battle: "Battle",
       whoPays: "Who Pays",
+      fingerPick: "Finger Pick",
+      tapRace: "Tap Race",
       random: "Random",
     },
     de: {
@@ -131,6 +133,8 @@ export function modeLabel(mode, lang) {
       wheel: "Zufallsrad",
       battle: "Battle",
       whoPays: "Wer zahlt?",
+      fingerPick: "Fingerwahl",
+      tapRace: "Tap-Rennen",
       random: "Zufall",
     },
   };

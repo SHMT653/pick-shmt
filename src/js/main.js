@@ -12,6 +12,7 @@ import { t } from "./i18n.js";
 import {
   addDemoGroup,
   closeLobby,
+  completeFingerPickRound,
   completeWheelRound,
   completeWhoPaysRound,
   createLobby,
@@ -316,6 +317,7 @@ function render() {
   renderQrCode();
   bindIntroVideo();
   bindSwipeGesture({ reduceMotion: state.settings.reduceMotion, onVote: voteSwipe });
+  bindFingerPicker();
 }
 
 function bindIntroVideo() {
@@ -416,6 +418,10 @@ async function handleClick(event) {
       await runSpinAnimation("wheel");
     } else if (action === "run-who-pays") {
       await runSpinAnimation("whoPays");
+    } else if (action === "finger-pick") {
+      await runFingerPick(Number(button.dataset.fingerCount || 2));
+    } else if (action === "tap-race") {
+      await voteTapRace();
     } else if (action === "simulate-votes") {
       await simulateVotes();
     } else if (action === "sudden-death") {
@@ -641,6 +647,12 @@ function selectMode(mode) {
   if (mode === "whoPays") {
     state.composer.category = "Who Pays";
     state.composer.title = defaultQuestion("Who Pays", state.settings.language);
+  } else if (mode === "fingerPick") {
+    state.composer.category = "Custom";
+    state.composer.title = state.settings.language === "de" ? "Wer entscheidet?" : "Who decides?";
+  } else if (mode === "tapRace") {
+    state.composer.category = "Games";
+    state.composer.title = state.settings.language === "de" ? "Wer ist am schnellsten?" : "Who is fastest?";
   } else if (state.composer.category === "Who Pays") {
     state.composer.category = "Food";
     state.composer.title = defaultQuestion("Food", state.settings.language);
@@ -685,6 +697,10 @@ async function voteBattle(optionId) {
   updateRoom(await submitVote(state.lobby.code, state.participant.id, state.lobby.activeRoundId, { optionId }));
 }
 
+async function voteTapRace() {
+  updateRoom(await submitVote(state.lobby.code, state.participant.id, state.lobby.activeRoundId, { tap: true }));
+}
+
 async function simulateVotes() {
   updateRoom(await simulateRoomVotes(state.lobby.code, state.participant.id, state.lobby.activeRoundId));
 }
@@ -714,6 +730,16 @@ async function runSpinAnimation(mode) {
     state.spinning = null;
     handleUserError(error);
   }
+}
+
+async function runFingerPick(fingerCount = 2) {
+  const round = getActiveRound(state.lobby);
+
+  if (!round) {
+    return;
+  }
+
+  updateRoom(await completeFingerPickRound(state.lobby.code, state.participant.id, round.id, fingerCount));
 }
 
 async function startSuddenDeath() {
@@ -1156,6 +1182,92 @@ function bindSwipeGesture({ reduceMotion, onVote }) {
     card.classList.remove("is-dragging");
     reset();
   });
+}
+
+function bindFingerPicker() {
+  const pad = document.querySelector("[data-finger-pad]");
+  const rings = document.querySelector("[data-finger-rings]");
+  const label = document.querySelector("[data-finger-label]");
+  const fallbackButton = document.querySelector("[data-action='finger-pick']");
+
+  if (!pad || !rings || !label) {
+    return;
+  }
+
+  const activePointers = new Map();
+  let pickTimer = 0;
+
+  const renderFingers = () => {
+    const points = [...activePointers.values()];
+    fallbackButton?.setAttribute("data-finger-count", String(Math.max(2, points.length)));
+
+    if (!points.length) {
+      rings.innerHTML = `
+        <span style="--x: 34%; --y: 48%"></span>
+        <span style="--x: 66%; --y: 48%"></span>
+      `;
+      label.textContent = state.settings.language === "de" ? "Finger auflegen" : "Place fingers";
+      return;
+    }
+
+    rings.innerHTML = points
+      .map((point) => `<span class="is-live" style="--x: ${point.x}%; --y: ${point.y}%"></span>`)
+      .join("");
+    label.textContent = `${points.length} ${state.settings.language === "de" ? "Finger erkannt" : "fingers detected"}`;
+  };
+
+  const clearPickTimer = () => {
+    if (pickTimer) {
+      window.clearTimeout(pickTimer);
+      pickTimer = 0;
+    }
+  };
+
+  const schedulePick = () => {
+    clearPickTimer();
+
+    if (activePointers.size < 2) {
+      return;
+    }
+
+    pickTimer = window.setTimeout(() => {
+      runFingerPick(activePointers.size).catch(handleUserError);
+    }, state.settings.reduceMotion ? 250 : 850);
+  };
+
+  pad.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    const rect = pad.getBoundingClientRect();
+    pad.setPointerCapture(event.pointerId);
+    activePointers.set(event.pointerId, {
+      x: Math.min(88, Math.max(12, ((event.clientX - rect.left) / rect.width) * 100)),
+      y: Math.min(82, Math.max(18, ((event.clientY - rect.top) / rect.height) * 100)),
+    });
+    renderFingers();
+    schedulePick();
+  });
+
+  pad.addEventListener("pointermove", (event) => {
+    if (!activePointers.has(event.pointerId)) {
+      return;
+    }
+
+    const rect = pad.getBoundingClientRect();
+    activePointers.set(event.pointerId, {
+      x: Math.min(88, Math.max(12, ((event.clientX - rect.left) / rect.width) * 100)),
+      y: Math.min(82, Math.max(18, ((event.clientY - rect.top) / rect.height) * 100)),
+    });
+    renderFingers();
+  });
+
+  const removePointer = (event) => {
+    activePointers.delete(event.pointerId);
+    renderFingers();
+    schedulePick();
+  };
+
+  pad.addEventListener("pointerup", removePointer);
+  pad.addEventListener("pointercancel", removePointer);
 }
 
 state.composer.title = defaultQuestion(state.composer.category, state.settings.language);

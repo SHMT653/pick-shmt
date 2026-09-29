@@ -63,6 +63,14 @@ function renderModeDecision(state, round) {
     return renderBattleMode(state, round);
   }
 
+  if (round.mode === "fingerPick") {
+    return renderFingerPickMode(state, round);
+  }
+
+  if (round.mode === "tapRace") {
+    return renderTapRaceMode(state, round);
+  }
+
   return renderWhoPaysMode(state, round);
 }
 
@@ -210,6 +218,76 @@ function renderWhoPaysMode(state, round) {
   `;
 }
 
+function renderFingerPickMode(state, round) {
+  const lang = state.settings.language;
+
+  if (!isHost(state.participant)) {
+    return `
+      <div class="waiting-panel">
+        <span class="eyebrow">${escapeHTML(lang === "de" ? "Fingerwahl" : "Finger Pick")}</span>
+        <h2>${escapeHTML(t(lang, "waitingForHost"))}</h2>
+        <p class="waiting-copy">${escapeHTML(lang === "de" ? "Der Host legt das Handy in die Mitte und startet die Auswahl." : "The host puts the phone in the middle and starts the pick.")}</p>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="finger-stage">
+      <div class="finger-pad" data-finger-pad>
+        <div class="finger-rings" data-finger-rings>
+          <span style="--x: 34%; --y: 48%"></span>
+          <span style="--x: 66%; --y: 48%"></span>
+        </div>
+        <i data-lucide="fingerprint"></i>
+        <strong data-finger-label>${escapeHTML(lang === "de" ? "Finger auflegen" : "Place fingers")}</strong>
+        <small>${escapeHTML(lang === "de" ? "Alle legen einen Finger aufs Handy. Ab zwei Fingern waehlt Pickr automatisch einen Kreis." : "Everyone places one finger on the phone. Pickr chooses automatically from two fingers.")}</small>
+      </div>
+      <button class="primary-action full" type="button" data-action="finger-pick" data-finger-count="2">
+        <i data-lucide="sparkles"></i>
+        <span>${escapeHTML(lang === "de" ? "Fingerwahl starten" : "Start finger pick")}</span>
+      </button>
+    </div>
+  `;
+}
+
+function renderTapRaceMode(state, round) {
+  const lang = state.settings.language;
+  const target = round.tapRace?.target ?? 20;
+  const rows = state.lobby.participants.map((participant) => ({
+    participant,
+    count: round.tapRace?.taps?.find((item) => item.participantId === participant.id)?.count ?? 0,
+  }));
+  const ownCount = rows.find((row) => row.participant.id === state.participant.id)?.count ?? 0;
+
+  return `
+    <div class="tap-race-stage">
+      <div class="tap-race-hero">
+        <span class="eyebrow">${escapeHTML(lang === "de" ? "Reaktionstest" : "Reaction test")}</span>
+        <strong>${ownCount} / ${target}</strong>
+        <small>${escapeHTML(lang === "de" ? "Wer zuerst voll ist, entscheidet." : "First to fill the counter decides.")}</small>
+      </div>
+      <button class="tap-race-button" type="button" data-action="tap-race">
+        <i data-lucide="mouse-pointer-click"></i>
+        <span>${escapeHTML(lang === "de" ? "Tippen" : "Tap")}</span>
+      </button>
+      <div class="tap-score-list">
+        ${rows
+          .sort((first, second) => second.count - first.count)
+          .map(
+            ({ participant, count }) => `
+              <div>
+                <span>${escapeHTML(participant.nickname)}</span>
+                <strong>${count}</strong>
+                <em style="width: ${Math.min(100, (count / target) * 100)}%"></em>
+              </div>
+            `,
+          )
+          .join("")}
+      </div>
+    </div>
+  `;
+}
+
 function renderWaitingForGroup(state, round) {
   const progress = getRoundProgress(round, state.lobby.participants);
   const waiting = getWaitingParticipants(round, state.lobby.participants);
@@ -279,7 +357,9 @@ function renderResult(state, round) {
   const result = round.result;
   const isTie = round.status === "tie";
   const lang = state.settings.language;
-  const resultMeta = result.type === "payer"
+  const resultMeta = ["fingerPick", "tapRace"].includes(result.type)
+    ? result.copy
+    : result.type === "payer"
     ? payerResultCopy(result, lang)
     : result.type === "wheel"
       ? wheelResultCopy(result, lang)

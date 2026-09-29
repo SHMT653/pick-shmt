@@ -98,6 +98,20 @@ export function createRoundFromInput(input, createdBy, participants) {
     };
   }
 
+  if (mode === "fingerPick") {
+    round.fingerPick = {
+      winnerIndex: 0,
+      fingerCount: 0,
+    };
+  }
+
+  if (mode === "tapRace") {
+    round.tapRace = {
+      target: 20,
+      taps: [],
+    };
+  }
+
   return round;
 }
 
@@ -147,6 +161,43 @@ export function recordBattleVote(round, participantId, optionId, participants) {
 
   if (round.battle.duelVotes.length >= participants.length) {
     finishBattleDuel(round);
+  }
+}
+
+export function recordTapRaceTap(round, participantId, participants) {
+  round.tapRace = round.tapRace ?? { target: 20, taps: [] };
+  const target = round.tapRace.target ?? 20;
+  const existing = round.tapRace.taps.find((item) => item.participantId === participantId);
+
+  if (existing) {
+    existing.count += 1;
+  } else {
+    round.tapRace.taps.push({
+      participantId,
+      count: 1,
+    });
+  }
+
+  const current = round.tapRace.taps.find((item) => item.participantId === participantId);
+
+  if (current.count >= target) {
+    const winner = participants.find((participant) => participant.id === participantId);
+    round.result = {
+      type: "tapRace",
+      headline: "FASTEST FINGER",
+      winnerLabel: winner?.nickname ?? "Winner",
+      agreed: current.count,
+      total: target,
+      agreementPercent: 100,
+      consensus: "Pickr decided",
+      copy: `${winner?.nickname ?? "Someone"} gewinnt das Tap-Rennen.`,
+      counts: participants.map((participant) => ({
+        option: { title: participant.nickname },
+        score: round.tapRace.taps.find((item) => item.participantId === participant.id)?.count ?? 0,
+      })),
+    };
+    round.status = "completed";
+    round.completedAt = new Date().toISOString();
   }
 }
 
@@ -203,6 +254,12 @@ export function getRoundProgress(round, participants) {
   if (round.mode === "battle") {
     const finished = round.battle?.duelVotes?.length ?? 0;
     return { finished, total, label: `${finished} / ${total} picked this battle` };
+  }
+
+  if (round.mode === "tapRace") {
+    const target = round.tapRace?.target ?? 20;
+    const best = Math.max(0, ...(round.tapRace?.taps ?? []).map((item) => item.count));
+    return { finished: Math.min(best, target), total: target, label: `${Math.min(best, target)} / ${target} taps` };
   }
 
   return {
@@ -305,6 +362,29 @@ export function runWhoPaysResult(round, participants, variant) {
   round.completedAt = new Date().toISOString();
 }
 
+export function runFingerPickResult(round, fingerCount) {
+  const safeFingerCount = Math.max(2, Math.min(10, Number(fingerCount) || 2));
+  const winnerIndex = randomInt(safeFingerCount) + 1;
+
+  round.fingerPick = {
+    winnerIndex,
+    fingerCount: safeFingerCount,
+  };
+  round.result = {
+    type: "fingerPick",
+    headline: "PICKED",
+    winnerLabel: `Finger ${winnerIndex}`,
+    agreed: 1,
+    total: safeFingerCount,
+    agreementPercent: 100,
+    consensus: "Pickr decided",
+    copy: `Finger ${winnerIndex} entscheidet.`,
+    counts: null,
+  };
+  round.status = "completed";
+  round.completedAt = new Date().toISOString();
+}
+
 export function simulateMissingVotes(round, participants) {
   if (round.status !== "voting") {
     return;
@@ -365,6 +445,14 @@ export function createRematchRound(sourceRound, createdBy, participants) {
 function defaultTitleForMode(mode) {
   if (mode === "whoPays") {
     return "Who pays tonight?";
+  }
+
+  if (mode === "fingerPick") {
+    return "Who decides?";
+  }
+
+  if (mode === "tapRace") {
+    return "Who is fastest?";
   }
 
   if (mode === "battle") {

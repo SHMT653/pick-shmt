@@ -315,7 +315,8 @@ function renderRoundComposer(state) {
             ? `
               ${renderIdeaPreview(ideaPool)}
             `
-            : `
+            : mode.id === "whoPays"
+              ? `
               <label>
                 <span>${escapeHTML(t(lang, "variant"))}</span>
                 <select name="variant" data-composer-field="variant">
@@ -323,6 +324,7 @@ function renderRoundComposer(state) {
                 </select>
               </label>
             `
+              : ""
         }
 
         <div class="composer-note ${canStart ? "" : "needs-ideas"}">

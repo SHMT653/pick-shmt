@@ -69,6 +69,18 @@ export const MODES = [
     icon: "wallet-cards",
     needsOptions: false,
   },
+  {
+    id: "fingerPick",
+    label: "Finger Pick",
+    icon: "fingerprint",
+    needsOptions: false,
+  },
+  {
+    id: "tapRace",
+    label: "Tap Race",
+    icon: "mouse-pointer-click",
+    needsOptions: false,
+  },
 ];
 
 export const DEFAULT_OPTIONS_BY_CATEGORY = {
