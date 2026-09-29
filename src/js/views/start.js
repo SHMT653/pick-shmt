@@ -221,9 +221,13 @@ function renderContinueRoom(lobby, lang) {
   `;
 }
 
-function renderJoinRoomPreview(lobby, lang) {
+function getPlannedRound(lobby) {
   const round = getActiveRound(lobby);
-  const plannedRound = round?.status === "voting" ? round : lobby?.plannedRound;
+  return round?.status === "voting" ? round : lobby?.plannedRound ?? null;
+}
+
+function renderJoinRoomPreview(lobby, lang) {
+  const plannedRound = getPlannedRound(lobby);
 
   if (!plannedRound) {
     return "";
@@ -295,6 +299,8 @@ export function renderCreate(state) {
 
 export function renderJoin(state) {
   const lang = state.settings.language;
+  const plannedRound = getPlannedRound(state.joinPreviewLobby);
+  const needsOptions = MODES.find((item) => item.id === plannedRound?.mode)?.needsOptions ?? true;
 
   return `
     <section class="center-panel page-enter">
@@ -312,10 +318,16 @@ export function renderJoin(state) {
           <span>${escapeHTML(t(lang, "nickname"))}</span>
           <input name="nickname" maxlength="20" autocomplete="nickname" value="${escapeHTML(state.settings.lastNickname)}" placeholder="Anna" required />
         </label>
-        <label>
-          <span>${escapeHTML(t(lang, "yourIdeas"))}</span>
-          <textarea name="ideas" maxlength="390" rows="3" placeholder="Sushi&#10;Bowling&#10;Interstellar" required></textarea>
-        </label>
+        ${
+          needsOptions
+            ? `
+              <label>
+                <span>${escapeHTML(t(lang, "yourIdeas"))}</span>
+                <textarea name="ideas" maxlength="390" rows="3" placeholder="Sushi&#10;Bowling&#10;Interstellar" required></textarea>
+              </label>
+            `
+            : `<p class="waiting-copy">${escapeHTML(t(lang, "noIdeasNeededCopy"))}</p>`
+        }
         <button class="primary-action full" type="submit">
           <i data-lucide="circle-check"></i>
           <span>${escapeHTML(t(lang, "readyAndJoin"))}</span>

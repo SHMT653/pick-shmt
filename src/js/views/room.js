@@ -115,8 +115,25 @@ function renderParticipantWaitingPanel(state) {
 }
 
 function renderYourIdeasPanel(state) {
-  const ideas = state.participant?.ideas ?? [];
   const lang = state.settings.language;
+  const plannedMode = state.lobby?.plannedRound?.mode;
+  const needsOptions = MODES.find((item) => item.id === plannedMode)?.needsOptions ?? true;
+
+  if (!needsOptions) {
+    return `
+      <section class="surface own-ideas-panel">
+        <div class="section-title">
+          <div>
+            <span class="eyebrow">${escapeHTML(t(lang, "yourIdeasTitle"))}</span>
+            <h2>${escapeHTML(t(lang, "noIdeasNeeded"))}</h2>
+          </div>
+        </div>
+        <p class="waiting-copy">${escapeHTML(t(lang, "noIdeasNeededCopy"))}</p>
+      </section>
+    `;
+  }
+
+  const ideas = state.participant?.ideas ?? [];
 
   return `
     <section class="surface own-ideas-panel">

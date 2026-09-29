@@ -231,6 +231,28 @@ function renderFingerPickMode(state, round) {
     `;
   }
 
+  const revealing = state.spinning?.roundId === round.id && state.spinning.mode === "fingerPick" && round.fingerPick;
+
+  if (revealing) {
+    const { winnerIndex, fingerCount } = round.fingerPick;
+
+    return `
+      <div class="finger-stage">
+        <div class="finger-pad is-revealing" data-finger-pad>
+          <div class="finger-rings" data-finger-rings>
+            ${Array.from({ length: fingerCount }, (_, index) => {
+              const position = fingerRingPosition(index, fingerCount);
+              return `<span class="${index + 1 === winnerIndex ? "is-winner" : ""}" style="--x: ${position.x}%; --y: ${position.y}%"></span>`;
+            }).join("")}
+          </div>
+          <i data-lucide="fingerprint"></i>
+          <strong>${escapeHTML(lang === "de" ? `Finger ${winnerIndex} gewinnt!` : `Finger ${winnerIndex} wins!`)}</strong>
+          <small>${escapeHTML(lang === "de" ? "Gleich geht's zum Ergebnis." : "Heading to the result in a moment.")}</small>
+        </div>
+      </div>
+    `;
+  }
+
   return `
     <div class="finger-stage">
       <div class="finger-pad" data-finger-pad>
@@ -248,6 +270,14 @@ function renderFingerPickMode(state, round) {
       </button>
     </div>
   `;
+}
+
+function fingerRingPosition(index, total) {
+  const angle = ((360 / total) * index - 90) * (Math.PI / 180);
+  return {
+    x: 50 + 28 * Math.cos(angle),
+    y: 50 + 24 * Math.sin(angle),
+  };
 }
 
 function renderTapRaceMode(state, round) {

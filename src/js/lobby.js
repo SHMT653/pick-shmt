@@ -158,7 +158,6 @@ export async function joinLobby(codeInput, nicknameInput, ideasInput = "") {
 
   const code = normalizeCode(codeInput);
   const nickname = validateNickname(nicknameInput);
-  const ideas = parseIdeas(ideasInput, true);
 
   if (code.length !== LIMITS.code) {
     throw createLobbyError("invalid-code", "Invalid code.");
@@ -184,6 +183,11 @@ export async function joinLobby(codeInput, nicknameInput, ideasInput = "") {
     throw createLobbyError("nickname-used", "Nickname already used.");
   }
 
+  // Der geplante Modus entscheidet ob Ideen ueberhaupt gebraucht werden -
+  // bei "Wer zahlt", Fingerwahl & Co. muss niemand etwas eintragen.
+  const plannedRoundNeedsOptions = MODES.find((item) => item.id === lobby.plannedRound?.mode)?.needsOptions ?? true;
+  const ideas = parseIdeas(ideasInput, plannedRoundNeedsOptions);
+
   const participant = {
     ...createParticipant(nickname, false, ideas),
     isReady: true,
@@ -204,7 +208,9 @@ export async function restoreParticipant(code) {
 export async function setReady(code, participantId, isReady) {
   return updateLobby(code, "participant:ready", (lobby) => {
     const participant = getParticipant(lobby, participantId);
-    if (isReady && !participant.isHost && !participant.ideas?.length) {
+    const plannedRoundNeedsOptions = MODES.find((item) => item.id === lobby.plannedRound?.mode)?.needsOptions ?? true;
+
+    if (isReady && !participant.isHost && plannedRoundNeedsOptions && !participant.ideas?.length) {
       throw createLobbyError("missing-ideas", "Add at least one idea.");
     }
 

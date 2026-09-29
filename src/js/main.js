@@ -30,6 +30,7 @@ import {
   submitVote,
   subscribeToLobby,
   toggleLobbyLock,
+  updateLobbySetup,
   updateParticipantIdeas,
 } from "./lobby.js";
 import {
@@ -620,7 +621,7 @@ function submitQuickPick(form, submitter) {
   render();
 }
 
-function selectMode(mode) {
+async function selectMode(mode) {
   state.composer.mode = mode;
 
   if (mode === "whoPays") {
@@ -638,6 +639,17 @@ function selectMode(mode) {
   }
 
   render();
+
+  // Einmaliger Sync (nur bei Moduswahl, nicht bei jedem Tastendruck), damit
+  // Mitspieler:innen sehen ob der naechste Modus ueberhaupt Ideen braucht -
+  // z.B. bei "Wer zahlt" muss dann niemand mehr etwas eintragen.
+  if (state.lobby && isHost(state.participant)) {
+    try {
+      updateRoom(await updateLobbySetup(state.lobby.code, state.participant.id, state.composer));
+    } catch {
+      // Bestmoeglich: der finale Modus wird spaetestens beim Rundenstart uebernommen.
+    }
+  }
 }
 
 function shuffleQuestion() {
@@ -765,7 +777,21 @@ async function runFingerPick(fingerCount = 2) {
     return;
   }
 
-  updateRoom(await completeFingerPickRound(state.lobby.code, state.participant.id, round.id, fingerCount));
+  try {
+    // Der gewinnende Finger blinkt erst ein paar Sekunden, bevor das
+    // Ergebnis-Screen aufgeht (state.spinning haelt renderDecision davon ab,
+    // schon umzuschalten - selbes Prinzip wie beim Rad und "Wer zahlt").
+    state.spinning = { roundId: round.id, mode: "fingerPick" };
+    updateRoom(await completeFingerPickRound(state.lobby.code, state.participant.id, round.id, fingerCount));
+
+    window.setTimeout(() => {
+      state.spinning = null;
+      render();
+    }, state.settings.reduceMotion ? 300 : 5000);
+  } catch (error) {
+    state.spinning = null;
+    handleUserError(error);
+  }
 }
 
 async function startSuddenDeath() {
