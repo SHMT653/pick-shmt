@@ -164,17 +164,18 @@ export function recordBattleVote(round, participantId, optionId, participants) {
   }
 }
 
-export function recordTapRaceTap(round, participantId, participants) {
+export function recordTapRaceTap(round, participantId, participants, amount = 1) {
   round.tapRace = round.tapRace ?? { target: 20, taps: [] };
   const target = round.tapRace.target ?? 20;
+  const safeAmount = Math.max(1, Math.min(10, Number(amount) || 1));
   const existing = round.tapRace.taps.find((item) => item.participantId === participantId);
 
   if (existing) {
-    existing.count += 1;
+    existing.count += safeAmount;
   } else {
     round.tapRace.taps.push({
       participantId,
-      count: 1,
+      count: safeAmount,
     });
   }
 

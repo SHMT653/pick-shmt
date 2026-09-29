@@ -338,7 +338,7 @@ export async function submitVote(code, participantId, roundId, payload) {
     } else if (round.mode === "battle") {
       recordBattleVote(round, participantId, payload.optionId, lobby.participants);
     } else if (round.mode === "tapRace") {
-      recordTapRaceTap(round, participantId, lobby.participants);
+      recordTapRaceTap(round, participantId, lobby.participants, payload.count);
     }
 
     finishRoundIfReady(round, lobby.participants);

@@ -90,6 +90,12 @@ let roomSyncTimer = 0;
 let setupSyncTimer = 0;
 let roomSnapshot = "";
 let introSeenThisPage = false;
+let tapRaceQueue = {
+  roundId: "",
+  count: 0,
+  flushing: false,
+  timer: 0,
+};
 
 function boot() {
   app.addEventListener("click", handleClick);
@@ -193,6 +199,10 @@ function navigate(view) {
 // --- Raum-Synchronisierung ---
 
 function setCurrentRoom(lobby, participant = null) {
+  if (isStaleLobbyUpdate(lobby, state.lobby)) {
+    return false;
+  }
+
   state.lobby = lobby;
   state.participant =
     participant ??
@@ -212,6 +222,7 @@ function setCurrentRoom(lobby, participant = null) {
   subscribeToRoom(lobby.code);
   startRoomAutoSync(lobby.code);
   recordCompletedResults(lobby);
+  return true;
 }
 
 function subscribeToRoom(code) {
@@ -238,8 +249,9 @@ function subscribeToRoom(code) {
       return;
     }
 
-    setCurrentRoom(lobby);
-    render();
+    if (setCurrentRoom(lobby)) {
+      render();
+    }
   });
 }
 
@@ -272,8 +284,9 @@ async function syncCurrentRoom(code) {
       return;
     }
 
-    setCurrentRoom(lobby);
-    render();
+    if (setCurrentRoom(lobby)) {
+      render();
+    }
   } catch {
     // Subscription errors are surfaced through normal room actions.
   }
@@ -284,8 +297,20 @@ function getRoomSnapshot(lobby) {
 }
 
 function updateRoom(lobby) {
-  setCurrentRoom(lobby);
-  render();
+  if (setCurrentRoom(lobby)) {
+    render();
+  }
+}
+
+function isStaleLobbyUpdate(nextLobby, currentLobby) {
+  if (!nextLobby || !currentLobby || nextLobby.code !== currentLobby.code) {
+    return false;
+  }
+
+  const nextTime = Date.parse(nextLobby.updatedAt ?? nextLobby.createdAt ?? "");
+  const currentTime = Date.parse(currentLobby.updatedAt ?? currentLobby.createdAt ?? "");
+
+  return Number.isFinite(nextTime) && Number.isFinite(currentTime) && nextTime < currentTime;
 }
 
 function recordCompletedResults(lobby) {
@@ -698,7 +723,54 @@ async function voteBattle(optionId) {
 }
 
 async function voteTapRace() {
-  updateRoom(await submitVote(state.lobby.code, state.participant.id, state.lobby.activeRoundId, { tap: true }));
+  const roundId = state.lobby?.activeRoundId ?? "";
+
+  if (!roundId) {
+    return;
+  }
+
+  if (tapRaceQueue.roundId !== roundId) {
+    window.clearTimeout(tapRaceQueue.timer);
+    tapRaceQueue = {
+      roundId,
+      count: 0,
+      flushing: false,
+      timer: 0,
+    };
+  }
+
+  tapRaceQueue.count += 1;
+  window.clearTimeout(tapRaceQueue.timer);
+
+  if (tapRaceQueue.count >= 3) {
+    await flushTapRaceQueue();
+    return;
+  }
+
+  tapRaceQueue.timer = window.setTimeout(() => {
+    flushTapRaceQueue().catch(handleUserError);
+  }, 140);
+}
+
+async function flushTapRaceQueue() {
+  if (tapRaceQueue.flushing || !tapRaceQueue.count || !state.lobby || !state.participant) {
+    return;
+  }
+
+  tapRaceQueue.flushing = true;
+  const count = tapRaceQueue.count;
+  const roundId = tapRaceQueue.roundId;
+  tapRaceQueue.count = 0;
+
+  try {
+    updateRoom(await submitVote(state.lobby.code, state.participant.id, roundId, { tap: true, count }));
+  } finally {
+    tapRaceQueue.flushing = false;
+  }
+
+  if (tapRaceQueue.count) {
+    await flushTapRaceQueue();
+  }
 }
 
 async function simulateVotes() {
