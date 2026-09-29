@@ -984,6 +984,25 @@ p {
   gap: 7px;
 }
 
+.dev-empty-room {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  min-height: 118px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  color: var(--text-soft);
+  background: color-mix(in srgb, var(--surface-strong) 52%, transparent);
+  font-weight: 900;
+  text-align: center;
+}
+
+.dev-empty-room svg {
+  width: 26px;
+  height: 26px;
+  opacity: 0.72;
+}
+
 .dev-mini-list span,
 .dev-room-tags span {
   display: flex;

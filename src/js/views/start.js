@@ -182,10 +182,9 @@ export function renderDevDemo(state) {
           <aside class="dev-app-panel dev-preview-panel">
             <span class="eyebrow">${escapeHTML(copy.room)}</span>
             <strong>Warteraum</strong>
-            <div class="dev-mini-list">
-              <span>Anna <small>bereit</small></span>
-              <span>Paul <small>wartet</small></span>
-              <span>Luca <small>bereit</small></span>
+            <div class="dev-empty-room">
+              <i data-lucide="users-round"></i>
+              <span>Noch keine Teilnehmer</span>
             </div>
             <div class="dev-room-tags">
               <span>Swipe</span>
