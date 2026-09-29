@@ -14,7 +14,7 @@ import { renderPrivacy, renderImprint } from "./views/legal.js";
 // === App-Rahmen: Header, Navigation, Toast ===
 
 export function renderHeader(state) {
-  if (state.view === "intro") {
+  if (state.view === "intro" || state.view === "dev") {
     return "";
   }
 
@@ -198,7 +198,7 @@ export function renderApp(state) {
       <main class="view-shell">
         ${renderView(state)}
       </main>
-      ${["decision", "intro", "impressum", "datenschutz"].includes(state.view) ? "" : renderBottomNav(state)}
+      ${["decision", "intro", "dev", "impressum", "datenschutz"].includes(state.view) ? "" : renderBottomNav(state)}
       ${renderToast(state.toast)}
     </div>
   `;

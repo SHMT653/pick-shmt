@@ -102,49 +102,23 @@ export function renderHome(state) {
 }
 
 export function renderDevDemo(state) {
-  const lang = state.settings.language;
-  const copy =
-    lang === "de"
-      ? {
-          title: "Swipe. Pick. Done.",
-          intro: "Raum erstellen, Ideen sammeln und gemeinsam entscheiden.",
-          back: "zur echten App",
-          stage: "Arbeitsstand",
-          question: "Was essen wir heute?",
-          createTitle: "Raum erstellen",
-          joinTitle: "Raum beitreten",
-          createCopy: "Host waehlt Frage und Spielmodus. Die Ideen kommen spaeter von allen dazu.",
-          joinCopy: "Code eingeben, Namen setzen und erste Ideen mitschicken.",
-          room: "ROOM 7KFX2P",
-          note: "Einige Aktionen sind noch Platzhalter, damit wir zuerst den Ablauf testen koennen.",
-          start: "Raum anlegen",
-          joinButton: "Beitreten",
-          mode: "Swipe",
-        }
-      : {
-          title: "Swipe. Pick. Done.",
-          intro: "Create a room, collect ideas, decide together.",
-          back: "back to the real app",
-          stage: "work in progress",
-          question: "What should we eat tonight?",
-          createTitle: "Create room",
-          joinTitle: "Join room",
-          createCopy: "The host picks question and mode. Ideas are added by everyone later.",
-          joinCopy: "Enter a code, add a name, and send first ideas.",
-          room: "ROOM 7KFX2P",
-          note: "Some actions are still placeholders while the flow is being tested.",
-          start: "Create room",
-          joinButton: "Join",
-          mode: "Swipe",
-        };
+  const copy = {
+    title: "Swipe. Pick. Done.",
+    intro: "Raum erstellen, Ideen sammeln und gemeinsam entscheiden.",
+    stage: "Raum vorbereiten",
+    question: "Was essen wir heute?",
+    createTitle: "Raum erstellen",
+    joinTitle: "Raum beitreten",
+    createCopy: "Der Host waehlt Frage und Spielmodus. Die Ideen kommen von allen Teilnehmern dazu.",
+    joinCopy: "Code eingeben, Namen setzen und erste Ideen mitschicken.",
+    room: "ROOM 7KFX2P",
+    start: "Raum anlegen",
+    joinButton: "Beitreten",
+    mode: "Swipe",
+  };
 
   return `
     <section class="dev-demo page-enter">
-      <button class="ghost-action dev-back" type="button" data-action="navigate" data-view="home">
-        <i data-lucide="arrow-left"></i>
-        <span>${escapeHTML(copy.back)}</span>
-      </button>
-
       <div class="dev-app-frame">
         <div class="dev-hero-video">
           <video src="/assets/video/pickr-logo-animation.mp4" autoplay muted playsinline loop></video>
@@ -165,39 +139,38 @@ export function renderDevDemo(state) {
             <h2>${escapeHTML(copy.question)}</h2>
             <p>${escapeHTML(copy.createCopy)}</p>
             <label>
-              <span>${escapeHTML(lang === "de" ? "Frage" : "Question")}</span>
+              <span>Frage</span>
               <input value="${escapeHTML(copy.question)}" readonly />
             </label>
             <div class="split-fields">
               <label>
-                <span>${escapeHTML(lang === "de" ? "Modus" : "Mode")}</span>
+                <span>Modus</span>
                 <select disabled><option>${escapeHTML(copy.mode)}</option></select>
               </label>
               <label>
-                <span>${escapeHTML(lang === "de" ? "Kategorie" : "Category")}</span>
-                <select disabled><option>${escapeHTML(lang === "de" ? "Essen" : "Food")}</option></select>
+                <span>Kategorie</span>
+                <select disabled><option>Essen</option></select>
               </label>
             </div>
             <div class="dev-action-row">
               <button class="primary-action" type="button"><i data-lucide="plus"></i><span>${escapeHTML(copy.start)}</span></button>
               <button class="ghost-action" type="button"><i data-lucide="qr-code"></i><span>QR</span></button>
             </div>
-            <p class="dev-muted-note">${escapeHTML(copy.note)}</p>
           </section>
 
           <section class="dev-app-panel dev-work-card">
             <span class="eyebrow">${escapeHTML(copy.joinTitle)}</span>
             <p>${escapeHTML(copy.joinCopy)}</p>
             <label>
-              <span>${escapeHTML(lang === "de" ? "Raumcode" : "Room code")}</span>
+              <span>Raumcode</span>
               <input value="7KFX2P" readonly />
             </label>
             <label>
-              <span>${escapeHTML(lang === "de" ? "Name" : "Name")}</span>
+              <span>Name</span>
               <input value="Anna" readonly />
             </label>
             <label>
-              <span>${escapeHTML(lang === "de" ? "Erste Ideen" : "First ideas")}</span>
+              <span>Erste Ideen</span>
               <textarea readonly>Sushi&#10;Bowling&#10;Interstellar</textarea>
             </label>
             <button class="primary-action full" type="button">
@@ -208,15 +181,15 @@ export function renderDevDemo(state) {
 
           <aside class="dev-app-panel dev-preview-panel">
             <span class="eyebrow">${escapeHTML(copy.room)}</span>
-            <strong>${escapeHTML(lang === "de" ? "Warteraum" : "Waiting room")}</strong>
+            <strong>Warteraum</strong>
             <div class="dev-mini-list">
-              <span>Anna <small>${escapeHTML(lang === "de" ? "bereit" : "ready")}</small></span>
-              <span>Paul <small>${escapeHTML(lang === "de" ? "wartet" : "waiting")}</small></span>
-              <span>Luca <small>${escapeHTML(lang === "de" ? "bereit" : "ready")}</small></span>
+              <span>Anna <small>bereit</small></span>
+              <span>Paul <small>wartet</small></span>
+              <span>Luca <small>bereit</small></span>
             </div>
             <div class="dev-room-tags">
               <span>Swipe</span>
-              <span>${escapeHTML(lang === "de" ? "Essen" : "Food")}</span>
+              <span>Essen</span>
               <span>QR</span>
             </div>
           </aside>

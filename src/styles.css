@@ -752,10 +752,6 @@ p {
   align-content: start;
 }
 
-.dev-back {
-  justify-self: start;
-}
-
 .dev-app-frame {
   position: relative;
   display: grid;
@@ -881,17 +877,6 @@ p {
 .dev-work-card textarea,
 .dev-work-card select {
   background: color-mix(in srgb, var(--surface) 70%, var(--surface-strong));
-}
-
-.dev-muted-note {
-  max-width: none;
-  padding: 10px 12px;
-  border: 1px dashed var(--border);
-  border-radius: 8px;
-  color: var(--text-soft);
-  background: color-mix(in srgb, var(--surface-strong) 60%, transparent);
-  font-size: 0.84rem;
-  font-weight: 800;
 }
 
 .dev-preview-panel {
