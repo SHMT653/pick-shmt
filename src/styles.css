@@ -846,6 +846,13 @@ p {
   align-items: start;
 }
 
+.dev-start-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
 .dev-app-panel {
   display: grid;
   gap: 12px;
@@ -855,6 +862,44 @@ p {
   border-radius: 8px;
   background: color-mix(in srgb, var(--surface) 86%, transparent);
   box-shadow: 0 12px 34px rgba(17, 28, 53, 0.08);
+}
+
+.dev-work-card {
+  align-content: start;
+}
+
+.dev-work-card h2 {
+  font-size: clamp(1.45rem, 4vw, 2.4rem);
+}
+
+.dev-work-card p {
+  max-width: none;
+  font-size: 0.92rem;
+}
+
+.dev-work-card input,
+.dev-work-card textarea,
+.dev-work-card select {
+  background: color-mix(in srgb, var(--surface) 70%, var(--surface-strong));
+}
+
+.dev-muted-note {
+  max-width: none;
+  padding: 10px 12px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  color: var(--text-soft);
+  background: color-mix(in srgb, var(--surface-strong) 60%, transparent);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.dev-preview-panel {
+  align-content: start;
+}
+
+.dev-preview-panel strong {
+  font-size: 1.15rem;
 }
 
 .dev-main-panel {
@@ -1031,6 +1076,10 @@ p {
 @media (min-width: 860px) {
   .dev-builder-grid {
     grid-template-columns: minmax(0, 1.25fr) minmax(220px, 0.55fr);
+  }
+
+  .dev-start-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(230px, 0.72fr);
   }
 
   .dev-main-panel {

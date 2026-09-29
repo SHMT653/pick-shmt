@@ -107,35 +107,35 @@ export function renderDevDemo(state) {
     lang === "de"
       ? {
           title: "Swipe. Pick. Done.",
-          intro: "Der neue Start und der Raum-Flow werden gerade zusammengesetzt.",
+          intro: "Raum erstellen, Ideen sammeln und gemeinsam entscheiden.",
           back: "zur echten App",
-          stage: "laufender Aufbau",
+          stage: "Arbeitsstand",
           question: "Was essen wir heute?",
-          host: "Host Setup wird verbunden",
-          join: "Raum beitreten",
+          createTitle: "Raum erstellen",
+          joinTitle: "Raum beitreten",
+          createCopy: "Host waehlt Frage und Spielmodus. Die Ideen kommen spaeter von allen dazu.",
+          joinCopy: "Code eingeben, Namen setzen und erste Ideen mitschicken.",
           room: "ROOM 7KFX2P",
-          people: "3/5 bereit",
-          roomState: "Raum wartet",
-          peopleCopy: "Teilnehmerliste kommt schon rein, aber der Ready-Status wird noch geglaettet.",
-          roomCopy: "Frage und Spielmodus sind gesetzt. QR und Teilen werden noch in die Seitenleiste gezogen.",
-          broken: "Start-Button und QR-Box muessen noch ins finale Layout.",
-          missing: "QR-Link, Realtime-Status und Fehlertexte sind noch offen.",
+          note: "Einige Aktionen sind noch Platzhalter, damit wir zuerst den Ablauf testen koennen.",
+          start: "Raum anlegen",
+          joinButton: "Beitreten",
+          mode: "Swipe",
         }
       : {
           title: "Swipe. Pick. Done.",
-          intro: "The new start and room flow are being assembled.",
+          intro: "Create a room, collect ideas, decide together.",
           back: "back to the real app",
           stage: "work in progress",
           question: "What should we eat tonight?",
-          host: "Host setup is being connected",
-          join: "Join room",
+          createTitle: "Create room",
+          joinTitle: "Join room",
+          createCopy: "The host picks question and mode. Ideas are added by everyone later.",
+          joinCopy: "Enter a code, add a name, and send first ideas.",
           room: "ROOM 7KFX2P",
-          people: "3/5 ready",
-          roomState: "Room waiting",
-          peopleCopy: "Participants are coming in, but the ready state still needs polish.",
-          roomCopy: "Question and mode are set. QR and sharing still move into the sidebar.",
-          broken: "Start button and QR box still need their final layout.",
-          missing: "QR link, realtime status, and error texts are still open.",
+          note: "Some actions are still placeholders while the flow is being tested.",
+          start: "Create room",
+          joinButton: "Join",
+          mode: "Swipe",
         };
 
   return `
@@ -159,60 +159,67 @@ export function renderDevDemo(state) {
           <span>${escapeHTML(copy.stage)}</span>
         </div>
 
-        <div class="dev-builder-grid">
-          <section class="dev-app-panel dev-main-panel">
-            <div class="dev-panel-head">
-              <span>${escapeHTML(copy.room)}</span>
-              <strong>${escapeHTML(copy.question)}</strong>
-            </div>
-            <div class="dev-idea-pool">
-              <span>Sushi <small>Anna</small></span>
-              <span>Pizza <small>Paul</small></span>
-              <span class="is-empty">...</span>
-              <span>Bowling <small>Luca</small></span>
-              <span class="is-dragged">Interstellar <small>Marie</small></span>
+        <div class="dev-start-grid">
+          <section class="dev-app-panel dev-work-card">
+            <span class="eyebrow">${escapeHTML(copy.createTitle)}</span>
+            <h2>${escapeHTML(copy.question)}</h2>
+            <p>${escapeHTML(copy.createCopy)}</p>
+            <label>
+              <span>${escapeHTML(lang === "de" ? "Frage" : "Question")}</span>
+              <input value="${escapeHTML(copy.question)}" readonly />
+            </label>
+            <div class="split-fields">
+              <label>
+                <span>${escapeHTML(lang === "de" ? "Modus" : "Mode")}</span>
+                <select disabled><option>${escapeHTML(copy.mode)}</option></select>
+              </label>
+              <label>
+                <span>${escapeHTML(lang === "de" ? "Kategorie" : "Category")}</span>
+                <select disabled><option>${escapeHTML(lang === "de" ? "Essen" : "Food")}</option></select>
+              </label>
             </div>
             <div class="dev-action-row">
-              <button class="primary-action" type="button"><i data-lucide="play"></i><span>Start Pick</span></button>
-              <button class="secondary-action" type="button"><i data-lucide="qr-code"></i><span>QR Link</span></button>
+              <button class="primary-action" type="button"><i data-lucide="plus"></i><span>${escapeHTML(copy.start)}</span></button>
+              <button class="ghost-action" type="button"><i data-lucide="qr-code"></i><span>QR</span></button>
             </div>
-            <p class="dev-glitch-note">${escapeHTML(copy.broken)}</p>
+            <p class="dev-muted-note">${escapeHTML(copy.note)}</p>
           </section>
 
-          <aside class="dev-app-panel dev-side-panel">
-            <span class="eyebrow">${escapeHTML(lang === "de" ? "Teilnehmer" : "People")}</span>
-            <strong>${escapeHTML(copy.people)}</strong>
-            <div class="dev-mini-list">
-              <span>Anna <small>ready</small></span>
-              <span>Paul <small>waiting</small></span>
-              <span>Luca <small>ready</small></span>
-            </div>
-            <p>${escapeHTML(copy.peopleCopy)}</p>
-          </aside>
+          <section class="dev-app-panel dev-work-card">
+            <span class="eyebrow">${escapeHTML(copy.joinTitle)}</span>
+            <p>${escapeHTML(copy.joinCopy)}</p>
+            <label>
+              <span>${escapeHTML(lang === "de" ? "Raumcode" : "Room code")}</span>
+              <input value="7KFX2P" readonly />
+            </label>
+            <label>
+              <span>${escapeHTML(lang === "de" ? "Name" : "Name")}</span>
+              <input value="Anna" readonly />
+            </label>
+            <label>
+              <span>${escapeHTML(lang === "de" ? "Erste Ideen" : "First ideas")}</span>
+              <textarea readonly>Sushi&#10;Bowling&#10;Interstellar</textarea>
+            </label>
+            <button class="primary-action full" type="button">
+              <i data-lucide="circle-check"></i>
+              <span>${escapeHTML(copy.joinButton)}</span>
+            </button>
+          </section>
 
-          <aside class="dev-app-panel dev-side-panel is-offset">
-            <span class="eyebrow">${escapeHTML(lang === "de" ? "Raumstatus" : "Room status")}</span>
-            <strong>${escapeHTML(copy.roomState)}</strong>
+          <aside class="dev-app-panel dev-preview-panel">
+            <span class="eyebrow">${escapeHTML(copy.room)}</span>
+            <strong>${escapeHTML(lang === "de" ? "Warteraum" : "Waiting room")}</strong>
+            <div class="dev-mini-list">
+              <span>Anna <small>${escapeHTML(lang === "de" ? "bereit" : "ready")}</small></span>
+              <span>Paul <small>${escapeHTML(lang === "de" ? "wartet" : "waiting")}</small></span>
+              <span>Luca <small>${escapeHTML(lang === "de" ? "bereit" : "ready")}</small></span>
+            </div>
             <div class="dev-room-tags">
               <span>Swipe</span>
-              <span>Food</span>
+              <span>${escapeHTML(lang === "de" ? "Essen" : "Food")}</span>
               <span>QR</span>
             </div>
-            <p>${escapeHTML(copy.roomCopy)}</p>
           </aside>
-        </div>
-
-        <div class="dev-lower-row">
-          <div class="dev-mini-phone">
-            <span>${escapeHTML(copy.join)}</span>
-            <input value="7KFX2P" readonly />
-            <textarea readonly>Sushi&#10;Bowling&#10;...</textarea>
-            <button class="primary-action" type="button">${escapeHTML(lang === "de" ? "Bereit & beitreten" : "Ready & join")}</button>
-          </div>
-          <div class="dev-floating-bug">
-            <i data-lucide="wrench"></i>
-            <span>${escapeHTML(copy.host)}</span>
-          </div>
         </div>
       </div>
     </section>
