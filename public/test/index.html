@@ -10,6 +10,14 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<header class="topbar">
+  <a class="topbar-brand" href="index.html"><img src="assets/logo/pickr-logo-transparent.png" alt="Pickr"></a>
+  <nav class="topbar-links">
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
+  </nav>
+</header>
+
 <main class="page">
   <section id="intro" class="card intro-card">
     <video id="intro-video" class="intro-video" src="assets/video/pickr-logo-animation.mp4" autoplay muted playsinline></video>
@@ -17,7 +25,6 @@
   </section>
 
   <section id="start" class="card" hidden>
-    <img class="logo" src="assets/logo/pickr-logo-transparent.png" alt="Pickr">
     <p>Erstellt gemeinsam einen Raum und entscheidet zusammen, was ihr essen, schauen oder tun wollt.</p>
     <div class="button-stack">
       <a id="raum-erstellen-link" class="btn btn-primary btn-big" href="erstellen.html">Raum erstellen</a>
@@ -25,11 +32,6 @@
     </div>
   </section>
 </main>
-
-<footer class="footer">
-  <a href="impressum.html">Impressum</a>
-  <a href="datenschutz.html">Datenschutz</a>
-</footer>
 
 <script src="js/intro.js"></script>
 </body>

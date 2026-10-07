@@ -49,6 +49,46 @@ h2 {
   letter-spacing: -0.01em;
 }
 
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(246, 248, 251, 0.85);
+  border-bottom: 1px solid var(--rand);
+  backdrop-filter: blur(14px);
+}
+
+.topbar-brand {
+  display: inline-flex;
+  align-items: center;
+}
+
+.topbar-brand img {
+  display: block;
+  height: 34px;
+}
+
+.topbar-links {
+  display: flex;
+  gap: 16px;
+}
+
+.topbar-links a {
+  color: var(--text-hell);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.topbar-links a:hover {
+  color: var(--lila);
+}
+
 .page {
   flex: 1;
   display: flex;
@@ -56,13 +96,6 @@ h2 {
   align-items: center;
   justify-content: center;
   padding: 32px 16px;
-}
-
-.logo {
-  display: block;
-  width: 44px;
-  height: 44px;
-  margin: 0 auto 14px;
 }
 
 .card {
@@ -232,20 +265,6 @@ textarea {
   color: var(--text-hell);
   text-decoration: none;
   font-weight: 700;
-}
-
-.footer {
-  text-align: center;
-  padding: 8px 0 32px;
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-}
-
-.footer a {
-  color: var(--text-hell);
-  text-decoration: none;
-  font-size: 0.82rem;
 }
 
 /* Intro (index.html) */
