@@ -33,7 +33,7 @@ async function erstellenAbsenden(event) {
   const ideenRoh = document.getElementById("ideen").value.trim();
 
   if (!frage || !name) {
-    zeigeFehler("Bitte Frage und Namen ausfuellen.");
+    zeigeFehler("Bitte Frage und Namen ausfüllen.");
     return;
   }
 

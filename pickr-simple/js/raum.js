@@ -81,11 +81,11 @@ function aktualisiereStartKnopf() {
   rundeStartenButton.disabled = !kannStarten;
 
   if (!ausgewaehlterModus) {
-    hostHinweis.textContent = "Waehle einen Modus.";
+    hostHinweis.textContent = "Wähle einen Modus.";
   } else if (!alleBereit) {
     hostHinweis.textContent = "Warte, bis alle Teilnehmer:innen bereit sind.";
   } else if (!genugIdeen) {
-    hostHinweis.textContent = "Es werden mindestens 2 Ideen benoetigt.";
+    hostHinweis.textContent = "Es werden mindestens 2 Ideen benötigt.";
   } else if (!frageVorhanden) {
     hostHinweis.textContent = "Bitte eine Frage eingeben.";
   } else {
@@ -178,6 +178,6 @@ bereitButton.addEventListener("click", bereitUmschalten);
 rundeStartenButton.addEventListener("click", rundeStarten);
 
 ladeUndRendere();
-// Live-Sync ohne Realtime/WebSockets, weil Polling einfacher zu erklaeren ist: alle 2s neu laden
-// und nur neu rendern, wenn sich wirklich etwas geaendert hat.
+// Live-Sync ohne Realtime/WebSockets, weil Polling einfacher zu erklären ist: alle 2s neu laden
+// und nur neu rendern, wenn sich wirklich etwas geändert hat.
 setInterval(ladeUndRendere, 2000);

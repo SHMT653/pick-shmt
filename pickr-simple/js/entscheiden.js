@@ -39,12 +39,12 @@ let raum = null;
 let letzterStand = "";
 let aktuelleSwipeOptionId = null;
 
-// Zahler-Modus ist rein lokal auf dem Host-Geraet, bis das Ergebnis feststeht.
+// Zahler-Modus ist rein lokal auf dem Host-Gerät, bis das Ergebnis feststeht.
 const fingerPositionen = new Map();
 let fingerTimer = null;
 let fingerGewinnerIndex = null;
 
-// Tipprennen: lokal sofort hochzaehlen, aber nur gesammelt alle 300ms synchronisieren,
+// Tipprennen: lokal sofort hochzählen, aber nur gesammelt alle 300ms synchronisieren,
 // damit nicht bei jedem einzelnen Klick ein Request raus geht.
 let meinTippZaehler = 0;
 let tippSyncTimer = null;
@@ -199,7 +199,7 @@ function radDrehen() {
 // --- Zahler (Finger-Methode) -------------------------------------------------
 
 function rendereZahler() {
-  // Keine Server-Daten noetig, das Finger-Auflegen ist rein lokal auf diesem Geraet.
+  // Keine Server-Daten nötig, das Finger-Auflegen ist rein lokal auf diesem Gerät.
 }
 
 function fingerPositionBerechnen(event) {
@@ -231,7 +231,7 @@ function fingerEntfernt(event) {
 
 function fingerTimerNeuStarten() {
   clearTimeout(fingerTimer);
-  // Erst wenn sich 800ms nichts mehr aendert (keine neuen/entfernten Finger), wird gewertet.
+  // Erst wenn sich 800ms nichts mehr ändert (keine neuen/entfernten Finger), wird gewertet.
   if (fingerPositionen.size >= 2) {
     fingerTimer = setTimeout(fingerGewinnerErmitteln, 800);
   }

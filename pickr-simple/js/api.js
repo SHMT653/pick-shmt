@@ -1,5 +1,5 @@
 // Alle Zugriffe auf die Datenbank laufen roh per fetch() gegen die Supabase-REST-API (PostgREST),
-// bewusst ohne Supabase-JS-SDK - das ist transparenter zu erklaeren.
+// bewusst ohne Supabase-JS-SDK - das ist transparenter zu erklären.
 
 const SUPABASE_URL = "https://tjodkygosuxrlvzvlgos.supabase.co";
 const SUPABASE_ANON_KEY =
@@ -10,7 +10,7 @@ const supabaseHeaders = {
   Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
 };
 
-// Gibt das Raum-Objekt zurueck oder null, wenn der Code nicht existiert (abgelaufene Raeume
+// Gibt das Raum-Objekt zurück oder null, wenn der Code nicht existiert (abgelaufene Räume
 // sind durch die Row-Level-Security in Supabase ebenfalls unsichtbar und liefern dann auch null).
 async function holeRaum(code) {
   const url = `${SUPABASE_URL}/rest/v1/lobbies?code=eq.${code}&select=*`;
@@ -24,7 +24,7 @@ async function holeRaum(code) {
   return raeume.length > 0 ? raeume[0] : null;
 }
 
-// Schreibt das komplette state-Objekt des Raums zurueck (kein Teil-Update einzelner Felder noetig).
+// Schreibt das komplette state-Objekt des Raums zurück (kein Teil-Update einzelner Felder nötig).
 async function speichereRaum(raum) {
   const url = `${SUPABASE_URL}/rest/v1/lobbies?code=eq.${raum.code}`;
   const antwort = await fetch(url, {
@@ -40,7 +40,7 @@ async function speichereRaum(raum) {
   return antwort.ok;
 }
 
-// Legt eine neue Raum-Zeile an und gibt den angelegten Raum zurueck.
+// Legt eine neue Raum-Zeile an und gibt den angelegten Raum zurück.
 async function legeRaumAn(raum) {
   const url = `${SUPABASE_URL}/rest/v1/lobbies`;
   const antwort = await fetch(url, {
@@ -57,6 +57,6 @@ async function legeRaumAn(raum) {
     return null;
   }
 
-  const angelegteRaeume = await antwort.json();
-  return angelegteRaeume[0];
+  const angelegteRäume = await antwort.json();
+  return angelegteRäume[0];
 }

@@ -1,4 +1,4 @@
-/* Pickr (simple) - eine gemeinsame, bewusst einfache CSS-Datei fuer alle Seiten */
+/* Pickr (simple) - eine gemeinsame, bewusst einfache CSS-Datei für alle Seiten */
 
 :root {
   --lila: #6657f5;
@@ -19,8 +19,8 @@
   box-sizing: border-box;
 }
 
-/* Sorgt dafuer, dass das hidden-Attribut immer gewinnt, auch bei Elementen mit eigener
-   display-Regel (z.B. Buttons/.btn oder .banner) - sonst wuerde z.B. ein per JS verstecktes
+/* Sorgt dafür, dass das hidden-Attribut immer gewinnt, auch bei Elementen mit eigener
+   display-Regel (z.B. Buttons/.btn oder .banner) - sonst würde z.B. ein per JS verstecktes
    .btn-Element trotzdem sichtbar bleiben. */
 [hidden] {
   display: none !important;
@@ -33,16 +33,36 @@ body {
 }
 
 body {
-  background: var(--hintergrund);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: radial-gradient(circle at 15% -10%, rgba(102, 87, 245, 0.08), transparent 45%), var(--hintergrund);
   color: var(--text);
-  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2 {
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 
 .page {
+  flex: 1;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  padding: 24px 16px 32px;
+  padding: 32px 16px;
+}
+
+.logo {
+  display: block;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 14px;
 }
 
 .card {
@@ -50,9 +70,9 @@ body {
   max-width: 480px;
   background: var(--flaeche);
   border: 1px solid var(--rand);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 10px 30px rgba(23, 33, 58, 0.06);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 20px 48px rgba(23, 33, 58, 0.1);
 }
 
 h1 {
@@ -92,17 +112,20 @@ textarea {
   display: block;
   width: 100%;
   margin-top: 6px;
-  padding: 12px;
+  padding: 12px 14px;
   border: 1px solid var(--rand);
-  border-radius: 10px;
+  border-radius: 12px;
   font: inherit;
   background: var(--hintergrund);
   color: var(--text);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
 input:focus,
 textarea:focus {
-  outline: 2px solid var(--lila);
+  outline: none;
+  border-color: var(--lila);
+  box-shadow: 0 0 0 4px rgba(102, 87, 245, 0.14);
 }
 
 textarea {
@@ -122,13 +145,14 @@ textarea {
   justify-content: center;
   padding: 12px 20px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 12px;
   font: inherit;
-  font-weight: 700;
+  font-weight: 800;
   text-decoration: none;
   cursor: pointer;
   color: #ffffff;
   background: var(--lila);
+  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
 }
 
 .btn-big {
@@ -141,28 +165,41 @@ textarea {
 .btn-primary {
   background: var(--lila);
   color: #ffffff;
+  box-shadow: 0 14px 28px rgba(102, 87, 245, 0.32);
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--lila-dunkel);
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px rgba(102, 87, 245, 0.38);
 }
 
 .btn-secondary {
   background: var(--flaeche-hell);
   color: var(--text);
+  box-shadow: none;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e4e9f3;
+  transform: translateY(-1px);
 }
 
 .btn-ja {
   background: var(--gruen);
+  box-shadow: 0 14px 28px rgba(66, 211, 146, 0.32);
 }
 
 .btn-nein {
   background: var(--rot);
+  box-shadow: 0 14px 28px rgba(255, 99, 125, 0.32);
 }
 
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
 .button-stack {
@@ -335,18 +372,25 @@ textarea {
 .modus-kachel {
   padding: 16px 8px;
   border: 1px solid var(--rand);
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--flaeche-hell);
   font-weight: 700;
   font: inherit;
   cursor: pointer;
   color: var(--text);
+  transition: border-color 150ms ease, transform 150ms ease, background 150ms ease;
+}
+
+.modus-kachel:hover {
+  border-color: rgba(102, 87, 245, 0.45);
+  transform: translateY(-1px);
 }
 
 .modus-kachel.ist-ausgewaehlt {
   border-color: var(--lila);
   background: rgba(102, 87, 245, 0.12);
   color: var(--lila);
+  box-shadow: 0 8px 20px rgba(102, 87, 245, 0.18);
 }
 
 /* Entscheiden (entscheiden.html) */

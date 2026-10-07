@@ -23,7 +23,7 @@ function zerlegeIdeenText(text) {
 }
 
 // Vorschau sobald der Code eingegeben ist: nur wenn der schon geplante Modus Optionen braucht,
-// wird das Ideen-Feld ueberhaupt angezeigt.
+// wird das Ideen-Feld überhaupt angezeigt.
 async function ideenFeldAktualisieren() {
   const code = codeInput.value.trim().toUpperCase();
   if (code.length !== 6) {
@@ -44,7 +44,7 @@ async function beitretenAbsenden(event) {
   const ideenRoh = document.getElementById("ideen").value.trim();
 
   if (!code || !name) {
-    zeigeFehler("Bitte Code und Namen ausfuellen.");
+    zeigeFehler("Bitte Code und Namen ausfüllen.");
     return;
   }
 
@@ -60,8 +60,8 @@ async function beitretenAbsenden(event) {
   const ideen = ideenRoh ? zerlegeIdeenText(ideenRoh) : [];
   const teilnehmerId = crypto.randomUUID();
 
-  // Bereit per Default, ausser es laeuft schon eine Runde in einem Modus, der Optionen/Ideen
-  // braucht - dann soll man erst noch Ideen einreichen koennen, bevor man "bereit" ist.
+  // Bereit per Default, außer es läuft schon eine Runde in einem Modus, der Optionen/Ideen
+  // braucht - dann soll man erst noch Ideen einreichen können, bevor man "bereit" ist.
   const istBereit = !raum.state.runde || !MODI_MIT_OPTIONEN.includes(raum.state.runde.modus);
 
   raum.state.teilnehmer.push({ id: teilnehmerId, name, istHost: false, istBereit, ideen });
