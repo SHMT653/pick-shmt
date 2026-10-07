@@ -244,6 +244,7 @@ svg {
   font: inherit;
   font-size: 0.76rem;
   font-weight: 850;
+  text-decoration: none;
   cursor: pointer;
 }
 

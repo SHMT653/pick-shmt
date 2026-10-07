@@ -9,7 +9,6 @@ import { renderDecision } from "./views/decision.js";
 import { renderHistory } from "./views/history.js";
 import { renderSettings } from "./views/settings.js";
 import { renderQuickPick } from "./views/quick-pick.js";
-import { renderPrivacy, renderImprint } from "./views/legal.js";
 
 // === App-Rahmen: Header, Navigation, Toast ===
 
@@ -36,8 +35,8 @@ export function renderHeader(state) {
       <div class="top-status">
         <button class="dev-access" type="button" data-action="navigate" data-view="dev" aria-label="Development notes"></button>
         ${room}
-        <button class="legal-link" type="button" data-action="navigate" data-view="impressum">${escapeHTML(t(lang, "imprint"))}</button>
-        <button class="legal-link" type="button" data-action="navigate" data-view="datenschutz">${escapeHTML(t(lang, "privacy"))}</button>
+        <a class="legal-link" href="/impressum.html">${escapeHTML(t(lang, "imprint"))}</a>
+        <a class="legal-link" href="/datenschutz.html">${escapeHTML(t(lang, "privacy"))}</a>
       </div>
     </header>
   `;
@@ -202,7 +201,7 @@ export function renderApp(state) {
       <main class="view-shell">
         ${renderView(state)}
       </main>
-      ${["decision", "intro", "dev", "impressum", "datenschutz"].includes(state.view) ? "" : renderBottomNav(state)}
+      ${["decision", "intro", "dev"].includes(state.view) ? "" : renderBottomNav(state)}
       ${renderToast(state.toast)}
     </div>
   `;
@@ -243,14 +242,6 @@ export function renderView(state) {
 
   if (state.view === "dev") {
     return renderDevDemo(state);
-  }
-
-  if (state.view === "impressum") {
-    return renderImprint(state);
-  }
-
-  if (state.view === "datenschutz") {
-    return renderPrivacy(state);
   }
 
   return renderHome(state);
