@@ -19,34 +19,45 @@
 </header>
 
 <main class="page">
-  <section class="card">
-    <a class="back-link" href="/test/index.html">&larr; Zurück</a>
-    <h1>Raum beitreten</h1>
-    <p>Gib den 6-stelligen Code ein, den du von der Gruppe bekommen hast.</p>
+  <div class="layout-zweispaltig">
+    <section class="card">
+      <a class="back-link" href="/test/index.html">&larr; Zurück</a>
+      <h1>Raum beitreten</h1>
+      <p>Gib den 6-stelligen Code ein, den du von der Gruppe bekommen hast.</p>
 
-    <form id="beitreten-form">
-      <label for="code">
-        Raum-Code
-        <input type="text" id="code" name="code" class="code-eingabe" required maxlength="6" placeholder="z. B. 7KFX2P">
-      </label>
-
-      <label for="name">
-        Dein Name
-        <input type="text" id="name" name="name" required placeholder="z. B. Ben">
-      </label>
-
-      <div id="ideen-feld" hidden>
-        <label for="ideen">
-          Deine Ideen <span class="hinweis">(optional, eine pro Zeile)</span>
-          <textarea id="ideen" name="ideen" placeholder="Pizza&#10;Sushi"></textarea>
+      <form id="beitreten-form">
+        <label for="code">
+          Raum-Code
+          <input type="text" id="code" name="code" class="code-eingabe" required maxlength="6" placeholder="z. B. 7KFX2P">
         </label>
-      </div>
 
-      <p id="fehler" class="fehler" hidden></p>
+        <label for="name">
+          Dein Name
+          <input type="text" id="name" name="name" required placeholder="z. B. Ben">
+        </label>
 
-      <button type="submit" class="btn btn-primary btn-big" id="beitreten-button">Beitreten</button>
-    </form>
-  </section>
+        <div id="ideen-feld" hidden>
+          <label for="ideen">
+            Deine Ideen <span class="hinweis">(optional, eine pro Zeile)</span>
+            <textarea id="ideen" name="ideen" placeholder="Pizza&#10;Sushi"></textarea>
+          </label>
+        </div>
+
+        <p id="fehler" class="fehler" hidden></p>
+
+        <button type="submit" class="btn btn-primary btn-big" id="beitreten-button">Beitreten</button>
+      </form>
+    </section>
+
+    <aside class="info-panel">
+      <span class="eyebrow">So funktioniert's</span>
+      <ol class="schritte">
+        <li><strong>Code eingeben</strong><span>Den 6-stelligen Code von deiner Gruppe eintragen.</span></li>
+        <li><strong>Name wählen</strong><span>So erkennen dich die anderen im Raum.</span></li>
+        <li><strong>Gemeinsam entscheiden</strong><span>Alle stimmen ab, Pickr liefert das Ergebnis.</span></li>
+      </ol>
+    </aside>
+  </div>
 </main>
 
 
