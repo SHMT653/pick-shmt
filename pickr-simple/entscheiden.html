@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entscheiden – Pickr</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page">
+  <section class="card entscheiden-card">
+    <h1 id="frage-anzeige"></h1>
+
+    <section id="ergebnis-bereich" hidden>
+      <p class="label">Ergebnis</p>
+      <p id="ergebnis-text" class="ergebnis-text"></p>
+      <div class="button-stack">
+        <a id="zurueck-link" class="btn btn-secondary btn-big" href="#">Zurueck zum Raum</a>
+        <button id="neue-runde-button" class="btn btn-primary btn-big" type="button">Neue Runde</button>
+      </div>
+    </section>
+
+    <section id="modus-swipe" class="modus-bereich" hidden>
+      <p id="swipe-fortschritt" class="hinweis"></p>
+      <div id="swipe-inhalt">
+        <div class="swipe-karte">
+          <p id="swipe-titel"></p>
+        </div>
+        <div class="button-row">
+          <button id="swipe-nein" class="btn btn-nein btn-big" type="button">Nein</button>
+          <button id="swipe-ja" class="btn btn-ja btn-big" type="button">Ja</button>
+        </div>
+      </div>
+      <p id="swipe-warten" class="hinweis" hidden>Du hast fertig bewertet. Warte auf die anderen ...</p>
+    </section>
+
+    <section id="modus-rad" class="modus-bereich" hidden>
+      <div id="rad">
+        <ul id="rad-liste" class="rad-liste"></ul>
+      </div>
+      <button id="rad-drehen-button" class="btn btn-primary btn-big" type="button">Drehen</button>
+      <p id="rad-warten" class="hinweis" hidden>Warte, bis der Host/die Hostin dreht ...</p>
+    </section>
+
+    <section id="modus-zahler" class="modus-bereich" hidden>
+      <p class="hinweis">Alle legen gleichzeitig einen Finger auf das Feld.</p>
+      <div id="finger-feld" class="finger-feld"></div>
+      <p id="finger-status" class="hinweis"></p>
+    </section>
+
+    <section id="modus-tipprennen" class="modus-bereich" hidden>
+      <p id="tipprennen-ziel" class="hinweis">Ziel: 20 Klicks. Schnellste Person gewinnt.</p>
+      <button id="tipprennen-button" class="btn btn-primary tipp-button" type="button">Tippen!</button>
+      <ul id="tipprennen-liste" class="tipprennen-liste"></ul>
+    </section>
+
+    <section id="modus-battle" class="modus-bereich" hidden>
+      <div class="battle-reihe">
+        <button id="battle-option-0" class="btn battle-karte" type="button"></button>
+        <span class="vs">VS</span>
+        <button id="battle-option-1" class="btn battle-karte" type="button"></button>
+      </div>
+      <p id="battle-warten" class="hinweis" hidden>Du hast abgestimmt. Warte auf die anderen ...</p>
+    </section>
+  </section>
+</main>
+
+<footer class="footer">
+  <a href="impressum.html">Impressum</a>
+  <a href="datenschutz.html">Datenschutz</a>
+</footer>
+
+<script src="js/api.js"></script>
+<script src="js/entscheiden.js"></script>
+</body>
+</html>

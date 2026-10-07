@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raum erstellen – Pickr</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page">
+  <section class="card">
+    <a class="back-link" href="index.html">&larr; Zurueck</a>
+    <h1>Raum erstellen</h1>
+    <p>Lege einen neuen Entscheidungsraum an und teile den Code gleich mit deiner Gruppe.</p>
+
+    <form id="erstellen-form">
+      <label for="frage">
+        Frage / Titel
+        <input type="text" id="frage" name="frage" required placeholder="Was essen wir heute?">
+      </label>
+
+      <label for="name">
+        Dein Name
+        <input type="text" id="name" name="name" required placeholder="z. B. Anna">
+      </label>
+
+      <label for="ideen">
+        Erste Ideen <span class="hinweis">(optional, eine pro Zeile)</span>
+        <textarea id="ideen" name="ideen" placeholder="Pizza&#10;Sushi&#10;Burger"></textarea>
+      </label>
+
+      <p id="fehler" class="fehler" hidden></p>
+
+      <button type="submit" class="btn btn-primary btn-big" id="erstellen-button">Raum erstellen</button>
+    </form>
+  </section>
+</main>
+
+<footer class="footer">
+  <a href="impressum.html">Impressum</a>
+  <a href="datenschutz.html">Datenschutz</a>
+</footer>
+
+<script src="js/api.js"></script>
+<script src="js/erstellen.js"></script>
+</body>
+</html>

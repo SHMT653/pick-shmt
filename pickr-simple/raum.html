@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raum – Pickr</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page">
+  <section class="card">
+    <div class="raum-kopf">
+      <div>
+        <p class="label">Raum-Code</p>
+        <p id="raum-code-anzeige" class="code-gross"></p>
+      </div>
+      <img id="qr-bild" class="qr-bild" alt="QR-Code zum Beitreten">
+    </div>
+
+    <p id="einladungs-link" class="einladungs-link"></p>
+
+    <div id="laufende-runde-banner" class="banner" hidden>
+      <p>Es laeuft schon eine Entscheidung.</p>
+      <a id="zur-entscheidung-link" class="btn btn-primary" href="#">Zur laufenden Entscheidung</a>
+    </div>
+
+    <h2>Teilnehmer:innen</h2>
+    <ul id="teilnehmer-liste" class="teilnehmer-liste"></ul>
+
+    <button id="bereit-button" class="btn btn-secondary btn-big" type="button">Bereit</button>
+
+    <section id="host-bereich" class="host-bereich" hidden>
+      <h2>Modus waehlen</h2>
+      <div id="modus-kacheln" class="modus-kacheln">
+        <button type="button" class="modus-kachel" data-modus="swipe">Swipe</button>
+        <button type="button" class="modus-kachel" data-modus="rad">Zufallsrad</button>
+        <button type="button" class="modus-kachel" data-modus="zahler">Wer zahlt</button>
+        <button type="button" class="modus-kachel" data-modus="tipprennen">Tipprennen</button>
+        <button type="button" class="modus-kachel" data-modus="battle">Battle</button>
+      </div>
+
+      <label for="runden-frage">
+        Frage
+        <input type="text" id="runden-frage" placeholder="Was entscheiden wir?">
+      </label>
+
+      <p id="host-hinweis" class="hinweis"></p>
+
+      <button id="runde-starten-button" class="btn btn-primary btn-big" type="button" disabled>Runde starten</button>
+    </section>
+  </section>
+</main>
+
+<footer class="footer">
+  <a href="impressum.html">Impressum</a>
+  <a href="datenschutz.html">Datenschutz</a>
+</footer>
+
+<script src="js/api.js"></script>
+<script src="js/raum.js"></script>
+</body>
+</html>

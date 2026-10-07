@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raum beitreten – Pickr</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page">
+  <section class="card">
+    <a class="back-link" href="index.html">&larr; Zurueck</a>
+    <h1>Raum beitreten</h1>
+    <p>Gib den 6-stelligen Code ein, den du von der Gruppe bekommen hast.</p>
+
+    <form id="beitreten-form">
+      <label for="code">
+        Raum-Code
+        <input type="text" id="code" name="code" class="code-eingabe" required maxlength="6" placeholder="z. B. 7KFX2P">
+      </label>
+
+      <label for="name">
+        Dein Name
+        <input type="text" id="name" name="name" required placeholder="z. B. Ben">
+      </label>
+
+      <div id="ideen-feld" hidden>
+        <label for="ideen">
+          Deine Ideen <span class="hinweis">(optional, eine pro Zeile)</span>
+          <textarea id="ideen" name="ideen" placeholder="Pizza&#10;Sushi"></textarea>
+        </label>
+      </div>
+
+      <p id="fehler" class="fehler" hidden></p>
+
+      <button type="submit" class="btn btn-primary btn-big" id="beitreten-button">Beitreten</button>
+    </form>
+  </section>
+</main>
+
+<footer class="footer">
+  <a href="impressum.html">Impressum</a>
+  <a href="datenschutz.html">Datenschutz</a>
+</footer>
+
+<script src="js/api.js"></script>
+<script src="js/beitreten.js"></script>
+</body>
+</html>

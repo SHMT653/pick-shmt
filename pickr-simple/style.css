@@ -1,0 +1,519 @@
+/* Pickr (simple) - eine gemeinsame, bewusst einfache CSS-Datei fuer alle Seiten */
+
+:root {
+  --lila: #6657f5;
+  --lila-dunkel: #5546ee;
+  --mint: #55e6b5;
+  --rot: #ff637d;
+  --gruen: #42d392;
+  --gelb: #ffbe55;
+  --text: #17213a;
+  --text-hell: #66748a;
+  --rand: #dfe6ef;
+  --flaeche: #ffffff;
+  --flaeche-hell: #eef3f8;
+  --hintergrund: #f6f8fb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Sorgt dafuer, dass das hidden-Attribut immer gewinnt, auch bei Elementen mit eigener
+   display-Regel (z.B. Buttons/.btn oder .banner) - sonst wuerde z.B. ein per JS verstecktes
+   .btn-Element trotzdem sichtbar bleiben. */
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--hintergrund);
+  color: var(--text);
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+}
+
+.page {
+  display: flex;
+  justify-content: center;
+  padding: 24px 16px 32px;
+}
+
+.card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--flaeche);
+  border: 1px solid var(--rand);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(23, 33, 58, 0.06);
+}
+
+h1 {
+  font-size: 1.8rem;
+  margin: 0 0 8px;
+}
+
+h2 {
+  font-size: 1.15rem;
+  margin: 20px 0 10px;
+}
+
+p {
+  margin: 0 0 12px;
+  color: var(--text-hell);
+}
+
+a {
+  color: var(--lila);
+}
+
+label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.hinweis {
+  font-weight: 600;
+  color: var(--text-hell);
+  font-size: 0.85rem;
+}
+
+input,
+textarea {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px;
+  border: 1px solid var(--rand);
+  border-radius: 10px;
+  font: inherit;
+  background: var(--hintergrund);
+  color: var(--text);
+}
+
+input:focus,
+textarea:focus {
+  outline: 2px solid var(--lila);
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.code-eingabe {
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  color: #ffffff;
+  background: var(--lila);
+}
+
+.btn-big {
+  width: 100%;
+  min-height: 54px;
+  font-size: 1.05rem;
+  margin-bottom: 10px;
+}
+
+.btn-primary {
+  background: var(--lila);
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--lila-dunkel);
+}
+
+.btn-secondary {
+  background: var(--flaeche-hell);
+  color: var(--text);
+}
+
+.btn-ja {
+  background: var(--gruen);
+}
+
+.btn-nein {
+  background: var(--rot);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.button-row {
+  display: flex;
+  gap: 12px;
+}
+
+.button-row .btn {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.fehler {
+  color: #9f1239;
+  background: rgba(255, 99, 125, 0.12);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--text-hell);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.footer {
+  text-align: center;
+  padding: 8px 0 32px;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.footer a {
+  color: var(--text-hell);
+  text-decoration: none;
+  font-size: 0.82rem;
+}
+
+/* Intro (index.html) */
+.intro-card {
+  text-align: center;
+}
+
+.intro-video {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  background: #05050a;
+}
+
+/* Raum (raum.html) */
+.raum-kopf {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.label {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  color: var(--text-hell);
+  font-weight: 800;
+  margin: 0;
+}
+
+.code-gross {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  margin: 4px 0 0;
+}
+
+.qr-bild {
+  width: 120px;
+  height: 120px;
+  border: 1px solid var(--rand);
+  border-radius: 8px;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.einladungs-link {
+  font-size: 0.78rem;
+  word-break: break-all;
+  background: var(--flaeche-hell);
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--text-hell);
+}
+
+.banner {
+  background: rgba(102, 87, 245, 0.1);
+  border: 1px solid rgba(102, 87, 245, 0.3);
+  border-radius: 10px;
+  padding: 12px;
+  margin: 16px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.banner p {
+  margin: 0;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.teilnehmer-liste {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.teilnehmer-eintrag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--rand);
+  border-radius: 10px;
+  background: var(--flaeche-hell);
+}
+
+.bereit-punkt {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gelb);
+  flex-shrink: 0;
+}
+
+.bereit-punkt.ist-bereit {
+  background: var(--gruen);
+}
+
+.teilnehmer-name {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.host-bereich {
+  margin-top: 20px;
+  border-top: 1px solid var(--rand);
+  padding-top: 20px;
+}
+
+.modus-kacheln {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.modus-kachel {
+  padding: 16px 8px;
+  border: 1px solid var(--rand);
+  border-radius: 10px;
+  background: var(--flaeche-hell);
+  font-weight: 700;
+  font: inherit;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.modus-kachel.ist-ausgewaehlt {
+  border-color: var(--lila);
+  background: rgba(102, 87, 245, 0.12);
+  color: var(--lila);
+}
+
+/* Entscheiden (entscheiden.html) */
+.entscheiden-card {
+  text-align: center;
+}
+
+.swipe-karte {
+  background: var(--lila);
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 50px 20px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-wrap: anywhere;
+}
+
+#rad {
+  margin-bottom: 16px;
+}
+
+.rad-liste {
+  list-style: none;
+  padding: 16px;
+  margin: 0;
+  border: 4px solid var(--flaeche-hell);
+  border-radius: 50%;
+  background: var(--flaeche-hell);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 220px;
+  justify-content: center;
+  transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+#rad.dreht-sich .rad-liste {
+  transform: rotate(1440deg);
+}
+
+.rad-liste li {
+  font-weight: 700;
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+
+.finger-feld {
+  position: relative;
+  width: 100%;
+  min-height: 320px;
+  border: 2px dashed var(--rand);
+  border-radius: 16px;
+  background: var(--flaeche-hell);
+  touch-action: none;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.finger-ring {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  margin: -35px 0 0 -35px;
+  border-radius: 50%;
+  border: 3px solid var(--lila);
+  background: rgba(102, 87, 245, 0.15);
+}
+
+.finger-ring.gewinner {
+  border-color: var(--gelb);
+  background: rgba(255, 190, 85, 0.3);
+  animation: blinken 0.9s ease-in-out infinite;
+}
+
+@keyframes blinken {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(1.15);
+  }
+}
+
+.tipp-button {
+  font-size: 1.3rem;
+  border-radius: 50%;
+  width: 180px;
+  height: 180px;
+  margin: 16px auto;
+}
+
+.tipprennen-liste {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  display: grid;
+  gap: 8px;
+  text-align: left;
+}
+
+.tipprennen-liste li {
+  background: var(--flaeche-hell);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.battle-reihe {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.battle-karte {
+  flex: 1;
+  min-height: 140px;
+  border: 1px solid var(--rand);
+  border-radius: 14px;
+  background: var(--flaeche-hell);
+  color: var(--text);
+  font-weight: 800;
+  font-size: 1.15rem;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+  padding: 10px;
+}
+
+.battle-karte:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.vs {
+  font-weight: 800;
+  color: var(--text-hell);
+}
+
+.ergebnis-text {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--lila);
+  margin: 16px 0;
+  overflow-wrap: anywhere;
+}
+
+/* Legal-Seiten */
+.legal-section {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rand);
+}
+
+@media (min-width: 680px) {
+  .card {
+    padding: 32px;
+  }
+}
