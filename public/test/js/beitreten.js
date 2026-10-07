@@ -76,7 +76,7 @@ async function beitretenAbsenden(event) {
   }
 
   localStorage.setItem("pickrIch", JSON.stringify({ code, teilnehmerId, name }));
-  location.href = `raum.html?code=${code}`;
+  location.href = `/test/raum.html?code=${code}`;
 }
 
 codeInput.addEventListener("blur", ideenFeldAktualisieren);

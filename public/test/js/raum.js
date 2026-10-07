@@ -5,7 +5,7 @@ const code = params.get("code");
 const ich = JSON.parse(localStorage.getItem("pickrIch") || "null");
 
 if (!code || !ich || ich.code !== code) {
-  location.href = "beitreten.html";
+  location.href = "/test/beitreten.html";
 }
 
 const codeAnzeige = document.getElementById("raum-code-anzeige");
@@ -62,7 +62,7 @@ function rendereRaum() {
 
   laufendeRundeBanner.hidden = !raum.state.runde;
   if (raum.state.runde) {
-    zurEntscheidungLink.href = `entscheiden.html?code=${raum.code}`;
+    zurEntscheidungLink.href = `/test/entscheiden.html?code=${raum.code}`;
   }
 
   if (binHost) {
@@ -165,7 +165,7 @@ async function rundeStarten() {
   };
 
   await speichereRaum(aktuellerRaum);
-  location.href = `entscheiden.html?code=${code}`;
+  location.href = `/test/entscheiden.html?code=${code}`;
 }
 
 modusKacheln.forEach((kachel) => kachel.addEventListener("click", modusAuswaehlen));

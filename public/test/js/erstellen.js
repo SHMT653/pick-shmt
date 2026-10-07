@@ -67,7 +67,7 @@ async function erstellenAbsenden(event) {
     "pickrIch",
     JSON.stringify({ code, teilnehmerId, name, frageEntwurf: frage }),
   );
-  location.href = `raum.html?code=${code}`;
+  location.href = `/test/raum.html?code=${code}`;
 }
 
 erstellenForm.addEventListener("submit", erstellenAbsenden);
