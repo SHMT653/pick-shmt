@@ -28,10 +28,6 @@ const radWarten = document.getElementById("rad-warten");
 const fingerFeld = document.getElementById("finger-feld");
 const fingerStatus = document.getElementById("finger-status");
 
-const tipprennenButton = document.getElementById("tipprennen-button");
-const tipprennenListe = document.getElementById("tipprennen-liste");
-const tippAnzeige = document.getElementById("tipp-zaehler");
-
 const battleOption0 = document.getElementById("battle-option-0");
 const battleOption1 = document.getElementById("battle-option-1");
 const battleWarten = document.getElementById("battle-warten");
@@ -44,12 +40,6 @@ let aktuelleSwipeOptionId = null;
 const fingerPositionen = new Map();
 let fingerTimer = null;
 let fingerGewinnerIndex = null;
-
-// Tipprennen: die eigene Zahl zeigt sich sofort lokal (kein Warten auf Sync),
-// im Hintergrund wird aber nur alle 250ms synchronisiert (throttle), damit nicht
-// bei jedem einzelnen Klick ein eigener Request rausgeht.
-let meinTippZaehler = 0;
-let tippSyncTimer = null;
 
 function zeigeNur(bereichId) {
   document.querySelectorAll(".modus-bereich").forEach((el) => {
@@ -95,7 +85,6 @@ function rendereRunde() {
   if (runde.modus === "swipe") rendereSwipe(runde);
   else if (runde.modus === "rad") rendereRad(runde);
   else if (runde.modus === "zahler") rendereZahler(runde);
-  else if (runde.modus === "tipprennen") rendereTipprennen(runde);
   else if (runde.modus === "battle") rendereBattle(runde);
 }
 
@@ -262,7 +251,7 @@ function fingerGewinnerErmitteln() {
   const anzahlFinger = fingerPositionen.size;
   fingerGewinnerIndex = Math.floor(Math.random() * anzahlFinger);
   rendereFingerRinge();
-  fingerStatus.textContent = `Finger ${fingerGewinnerIndex + 1} zahlt gleich ...`;
+  fingerStatus.textContent = `Finger ${fingerGewinnerIndex + 1} ist gleich dran ...`;
 
   // Der Gewinner-Finger blinkt erst 5 Sekunden lang, bevor das Ergebnis gespeichert wird -
   // so sieht die Gruppe noch, wer "gezogen" wurde, bevor die Seite wechselt.
@@ -274,79 +263,15 @@ function fingerGewinnerErmitteln() {
 
     const aktuelleRunde = aktuellerRaum.state.runde;
     aktuelleRunde.status = "fertig";
-    aktuelleRunde.ergebnis = `Finger ${fingerGewinnerIndex + 1} zahlt!`;
+    // Bewusst allgemein gehalten ("ist dran" statt z.B. "zahlt"), weil die Frage
+    // selbst (z.B. "Wer zahlt?", "Wer holt Getraenke?") schon sagt worum es geht.
+    aktuelleRunde.ergebnis = `Finger ${fingerGewinnerIndex + 1} ist dran!`;
 
     await speichereRaum(aktuellerRaum);
     raum = aktuellerRaum;
     letzterStand = JSON.stringify(raum);
     rendereRunde();
   }, 5000);
-}
-
-// --- Tipprennen --------------------------------------------------------------
-
-function rendereTipprennen(runde) {
-  tipprennenListe.innerHTML = "";
-  runde.stimmen.forEach((stimme) => {
-    const teilnehmer = raum.state.teilnehmer.find((t) => t.id === stimme.teilnehmerId);
-    const eintrag = document.createElement("li");
-    eintrag.textContent = `${teilnehmer ? teilnehmer.name : "?"}: ${stimme.anzahl} / 20`;
-    tipprennenListe.appendChild(eintrag);
-  });
-
-  const meineStimme = runde.stimmen.find((s) => s.teilnehmerId === ich.teilnehmerId);
-  // Math.max statt Ueberschreiben: ein verspaetet eintreffender Sync-Stand darf die
-  // eigene, schon lokal hochgezaehlte Zahl nie wieder nach unten "zuruecksetzen".
-  meinTippZaehler = Math.max(meinTippZaehler, meineStimme ? meineStimme.anzahl : 0);
-  tippAnzeige.textContent = `${meinTippZaehler} / 20`;
-}
-
-function tipprennenKlick() {
-  meinTippZaehler++;
-  tippAnzeige.textContent = `${meinTippZaehler} / 20`;
-
-  if (meinTippZaehler >= 20) {
-    clearTimeout(tippSyncTimer);
-    tippSyncTimer = null;
-    tipprennenSpeichern();
-    return;
-  }
-
-  // Wichtig: waehrend dauerhaft getippt wird, SOLL alle 250ms synchronisiert werden
-  // (throttle), nicht erst wenn man aufhoert zu tippen (das waere ein debounce und
-  // wuerde den Fortschritt bei den anderen erst ganz am Ende zeigen).
-  if (!tippSyncTimer) {
-    tippSyncTimer = setTimeout(() => {
-      tippSyncTimer = null;
-      tipprennenSpeichern();
-    }, 250);
-  }
-}
-
-async function tipprennenSpeichern() {
-  const aktuellerRaum = await holeRaum(code);
-  if (!aktuellerRaum) {
-    return;
-  }
-
-  const aktuelleRunde = aktuellerRaum.state.runde;
-  let meineStimme = aktuelleRunde.stimmen.find((s) => s.teilnehmerId === ich.teilnehmerId);
-  if (!meineStimme) {
-    meineStimme = { teilnehmerId: ich.teilnehmerId, anzahl: 0 };
-    aktuelleRunde.stimmen.push(meineStimme);
-  }
-  meineStimme.anzahl = Math.max(meineStimme.anzahl, meinTippZaehler);
-
-  if (meineStimme.anzahl >= 20 && aktuelleRunde.status !== "fertig") {
-    const gewinnerTeilnehmer = aktuellerRaum.state.teilnehmer.find((t) => t.id === ich.teilnehmerId);
-    aktuelleRunde.status = "fertig";
-    aktuelleRunde.ergebnis = gewinnerTeilnehmer ? gewinnerTeilnehmer.name : "Unbekannt";
-  }
-
-  await speichereRaum(aktuellerRaum);
-  raum = aktuellerRaum;
-  letzterStand = JSON.stringify(raum);
-  rendereRunde();
 }
 
 // --- Battle --------------------------------------------------------------
@@ -413,7 +338,6 @@ radDrehenButton.addEventListener("click", radDrehen);
 fingerFeld.addEventListener("pointerdown", fingerAufgelegt);
 fingerFeld.addEventListener("pointerup", fingerEntfernt);
 fingerFeld.addEventListener("pointercancel", fingerEntfernt);
-tipprennenButton.addEventListener("click", tipprennenKlick);
 battleOption0.addEventListener("click", () => battleAbstimmen(0));
 battleOption1.addEventListener("click", () => battleAbstimmen(1));
 neueRundeButton.addEventListener("click", neueRundeStarten);
