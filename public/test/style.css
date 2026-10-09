@@ -292,9 +292,14 @@ textarea {
 .back-link {
   display: inline-block;
   margin-bottom: 16px;
+  border: 0;
+  padding: 0;
+  background: transparent;
   color: var(--text-hell);
   text-decoration: none;
+  font: inherit;
   font-weight: 700;
+  cursor: pointer;
 }
 
 /* Intro (index.html) - liegt als Vollbild-Ebene ueber allem, auch ueber dem

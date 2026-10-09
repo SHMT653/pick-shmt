@@ -1,6 +1,32 @@
 // Solo-Tools: brauchen keinen Raum und keine Datenbank - alles bleibt lokal in
 // diesem einen Browser-Tab, deshalb kein api.js auf dieser Seite nötig.
 
+// --- Auswahl: welches Tool wird gerade gezeigt? -----------------------------
+
+const auswahlBereich = document.getElementById("solo-auswahl");
+const werMussBereich = document.getElementById("solo-wer-muss");
+const muenzeBereich = document.getElementById("solo-muenze");
+
+function zeigeTool(tool) {
+  auswahlBereich.hidden = true;
+  werMussBereich.hidden = tool !== "wer-muss";
+  muenzeBereich.hidden = tool !== "muenze";
+}
+
+function zeigeAuswahl() {
+  auswahlBereich.hidden = false;
+  werMussBereich.hidden = true;
+  muenzeBereich.hidden = true;
+}
+
+document.querySelectorAll("#solo-auswahl .modus-kachel").forEach((kachel) => {
+  kachel.addEventListener("click", () => zeigeTool(kachel.dataset.tool));
+});
+
+document.querySelectorAll('[data-action="zurueck"]').forEach((button) => {
+  button.addEventListener("click", zeigeAuswahl);
+});
+
 // --- Wer muss...? (Finger-Methode) ------------------------------------------
 
 const frageInput = document.getElementById("solo-frage");
