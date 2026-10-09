@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solo-Tools – Pickr</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/test/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="topbar-brand" href="/test/index.html"><img src="/test/assets/logo/pickr-logo-transparent.png" alt="Pickr"></a>
+  <nav class="topbar-links">
+    <a href="/test/impressum.html">Impressum</a>
+    <a href="/test/datenschutz.html">Datenschutz</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="layout-zweispaltig">
+    <section class="card">
+      <a class="back-link" href="/test/index.html">&larr; Zurück</a>
+      <h1>Wer muss...?</h1>
+      <p>Kein Raum, kein Code nötig - ein Handy reicht. Alle legen gleichzeitig einen Finger auf das Feld.</p>
+
+      <label for="solo-frage">
+        Wer muss...?
+        <input type="text" id="solo-frage" placeholder="z. B. Wer zahlt? / Wer holt Getränke?">
+      </label>
+
+      <div id="solo-finger-feld" class="finger-feld"></div>
+      <p id="solo-finger-status" class="hinweis"></p>
+      <button id="solo-finger-reset" class="btn btn-secondary btn-big" type="button" hidden>Nochmal</button>
+    </section>
+
+    <aside class="card">
+      <span class="eyebrow">Münzwurf</span>
+      <h2>Kopf oder Zahl?</h2>
+      <p>Für die ganz schnellen Entscheidungen zwischendurch.</p>
+
+      <div class="muenze-buehne">
+        <div id="muenze" class="muenze">
+          <div class="muenze-seite muenze-kopf">K</div>
+          <div class="muenze-seite muenze-zahl">Z</div>
+        </div>
+      </div>
+
+      <p id="muenze-ergebnis" class="ergebnis-text muenze-ergebnis"></p>
+      <button id="muenze-werfen-button" class="btn btn-primary btn-big" type="button">Werfen</button>
+    </aside>
+  </div>
+</main>
+
+<script src="/test/js/solo.js"></script>
+</body>
+</html>

@@ -25,8 +25,8 @@ const radListe = document.getElementById("rad-liste");
 const radDrehenButton = document.getElementById("rad-drehen-button");
 const radWarten = document.getElementById("rad-warten");
 
-const fingerFeld = document.getElementById("finger-feld");
-const fingerStatus = document.getElementById("finger-status");
+const mehrheitListe = document.getElementById("mehrheit-liste");
+const mehrheitWarten = document.getElementById("mehrheit-warten");
 
 const battleOption0 = document.getElementById("battle-option-0");
 const battleOption1 = document.getElementById("battle-option-1");
@@ -35,11 +35,6 @@ const battleWarten = document.getElementById("battle-warten");
 let raum = null;
 let letzterStand = "";
 let aktuelleSwipeOptionId = null;
-
-// Zahler-Modus ist rein lokal auf dem Host-Gerät, bis das Ergebnis feststeht.
-const fingerPositionen = new Map();
-let fingerTimer = null;
-let fingerGewinnerIndex = null;
 
 function zeigeNur(bereichId) {
   document.querySelectorAll(".modus-bereich").forEach((el) => {
@@ -84,7 +79,7 @@ function rendereRunde() {
 
   if (runde.modus === "swipe") rendereSwipe(runde);
   else if (runde.modus === "rad") rendereRad(runde);
-  else if (runde.modus === "zahler") rendereZahler(runde);
+  else if (runde.modus === "mehrheit") rendereMehrheit(runde);
   else if (runde.modus === "battle") rendereBattle(runde);
 }
 
@@ -187,91 +182,64 @@ function radDrehen() {
   }, 1500);
 }
 
-// --- Zahler (Finger-Methode) -------------------------------------------------
+// --- Mehrheit ----------------------------------------------------------------
+// Jede:r stimmt einmal fuer die Lieblingsoption, Option mit den meisten
+// Stimmen gewinnt (anders als Battle: beliebig viele Optionen statt nur 2).
 
-function rendereZahler() {
-  // Keine Server-Daten nötig, das Finger-Auflegen ist rein lokal auf diesem Gerät.
+function rendereMehrheit(runde) {
+  const meineStimme = runde.stimmen.find((s) => s.teilnehmerId === ich.teilnehmerId);
+  mehrheitWarten.hidden = !meineStimme;
+
+  mehrheitListe.innerHTML = "";
+  runde.optionen.forEach((option) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "mehrheit-option";
+    button.textContent = option.titel;
+    button.disabled = Boolean(meineStimme);
+    button.addEventListener("click", () => mehrheitAbstimmen(option.id));
+    mehrheitListe.appendChild(button);
+  });
 }
 
-function fingerPositionBerechnen(event) {
-  const rect = fingerFeld.getBoundingClientRect();
-  const x = ((event.clientX - rect.left) / rect.width) * 100;
-  const y = ((event.clientY - rect.top) / rect.height) * 100;
-  return { x, y };
-}
-
-function fingerAufgelegt(event) {
-  if (fingerGewinnerIndex !== null) {
+async function mehrheitAbstimmen(optionId) {
+  const aktuellerRaum = await holeRaum(code);
+  if (!aktuellerRaum) {
     return;
   }
 
-  fingerPositionen.set(event.pointerId, fingerPositionBerechnen(event));
-  rendereFingerRinge();
-  fingerTimerNeuStarten();
-}
-
-function fingerEntfernt(event) {
-  if (fingerGewinnerIndex !== null) {
+  const aktuelleRunde = aktuellerRaum.state.runde;
+  if (aktuelleRunde.stimmen.some((s) => s.teilnehmerId === ich.teilnehmerId)) {
     return;
   }
 
-  fingerPositionen.delete(event.pointerId);
-  rendereFingerRinge();
-  fingerTimerNeuStarten();
-}
+  aktuelleRunde.stimmen.push({ teilnehmerId: ich.teilnehmerId, optionId });
 
-function fingerTimerNeuStarten() {
-  clearTimeout(fingerTimer);
-  // Erst wenn sich 800ms nichts mehr ändert (keine neuen/entfernten Finger), wird gewertet.
-  if (fingerPositionen.size >= 2) {
-    fingerTimer = setTimeout(fingerGewinnerErmitteln, 800);
-  }
-}
-
-function rendereFingerRinge() {
-  fingerFeld.innerHTML = "";
-  let index = 0;
-  for (const [, position] of fingerPositionen) {
-    const ring = document.createElement("div");
-    ring.className = "finger-ring" + (index === fingerGewinnerIndex ? " gewinner" : "");
-    ring.style.left = `${position.x}%`;
-    ring.style.top = `${position.y}%`;
-    ring.textContent = String(index + 1);
-    fingerFeld.appendChild(ring);
-    index++;
-  }
-  fingerStatus.textContent = `${fingerPositionen.size} Finger erkannt`;
-}
-
-function fingerGewinnerErmitteln() {
-  if (fingerPositionen.size < 2 || fingerGewinnerIndex !== null) {
-    return;
-  }
-
-  const anzahlFinger = fingerPositionen.size;
-  fingerGewinnerIndex = Math.floor(Math.random() * anzahlFinger);
-  rendereFingerRinge();
-  fingerStatus.textContent = `Finger ${fingerGewinnerIndex + 1} ist gleich dran ...`;
-
-  // Der Gewinner-Finger blinkt erst 5 Sekunden lang, bevor das Ergebnis gespeichert wird -
-  // so sieht die Gruppe noch, wer "gezogen" wurde, bevor die Seite wechselt.
-  setTimeout(async () => {
-    const aktuellerRaum = await holeRaum(code);
-    if (!aktuellerRaum) {
-      return;
-    }
-
-    const aktuelleRunde = aktuellerRaum.state.runde;
+  if (aktuelleRunde.stimmen.length >= aktuellerRaum.state.teilnehmer.length) {
     aktuelleRunde.status = "fertig";
-    // Bewusst allgemein gehalten ("ist dran" statt z.B. "zahlt"), weil die Frage
-    // selbst (z.B. "Wer zahlt?", "Wer holt Getraenke?") schon sagt worum es geht.
-    aktuelleRunde.ergebnis = `Finger ${fingerGewinnerIndex + 1} ist dran!`;
+    aktuelleRunde.ergebnis = ermittleMehrheitsGewinner(aktuelleRunde);
+  }
 
-    await speichereRaum(aktuellerRaum);
-    raum = aktuellerRaum;
-    letzterStand = JSON.stringify(raum);
-    rendereRunde();
-  }, 5000);
+  await speichereRaum(aktuellerRaum);
+  raum = aktuellerRaum;
+  letzterStand = JSON.stringify(raum);
+  rendereRunde();
+}
+
+function ermittleMehrheitsGewinner(runde) {
+  // Bei Gleichstand gewinnt die zuerst erstellte Option.
+  let gewinner = runde.optionen[0];
+  let meisteStimmen = -1;
+
+  runde.optionen.forEach((option) => {
+    const anzahl = runde.stimmen.filter((s) => s.optionId === option.id).length;
+    if (anzahl > meisteStimmen) {
+      meisteStimmen = anzahl;
+      gewinner = option;
+    }
+  });
+
+  return gewinner.titel;
 }
 
 // --- Battle --------------------------------------------------------------
@@ -335,9 +303,6 @@ async function neueRundeStarten() {
 swipeJaButton.addEventListener("click", () => swipeAbstimmen("ja"));
 swipeNeinButton.addEventListener("click", () => swipeAbstimmen("nein"));
 radDrehenButton.addEventListener("click", radDrehen);
-fingerFeld.addEventListener("pointerdown", fingerAufgelegt);
-fingerFeld.addEventListener("pointerup", fingerEntfernt);
-fingerFeld.addEventListener("pointercancel", fingerEntfernt);
 battleOption0.addEventListener("click", () => battleAbstimmen(0));
 battleOption1.addEventListener("click", () => battleAbstimmen(1));
 neueRundeButton.addEventListener("click", neueRundeStarten);

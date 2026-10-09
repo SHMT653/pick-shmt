@@ -1,4 +1,4 @@
-const MODI_MIT_OPTIONEN = ["swipe", "rad", "battle"];
+const MODI_MIT_OPTIONEN = ["swipe", "rad", "battle", "mehrheit"];
 
 const params = new URLSearchParams(location.search);
 const code = params.get("code");

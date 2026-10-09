@@ -360,6 +360,19 @@ textarea {
   margin: 16px auto 0;
 }
 
+.solo-link {
+  display: inline-block;
+  margin-top: 14px;
+  color: var(--text-hell);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.solo-link:hover {
+  color: var(--lila);
+}
+
 .hero-preview {
   display: flex;
   justify-content: center;
@@ -747,6 +760,35 @@ textarea {
   }
 }
 
+.mehrheit-liste {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.mehrheit-option {
+  padding: 16px;
+  border: 1px solid var(--rand);
+  border-radius: 12px;
+  background: var(--flaeche-hell);
+  font: inherit;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 150ms ease, transform 150ms ease, background 150ms ease;
+}
+
+.mehrheit-option:hover:not(:disabled) {
+  border-color: rgba(102, 87, 245, 0.45);
+  transform: translateY(-1px);
+}
+
+.mehrheit-option:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .battle-reihe {
   display: flex;
   align-items: center;
@@ -792,6 +834,79 @@ textarea {
   margin-top: 16px;
   padding-top: 14px;
   border-top: 1px solid var(--rand);
+}
+
+/* Solo-Tools (solo.html) */
+.muenze-buehne {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 24px;
+  perspective: 600px;
+}
+
+.muenze {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  transform-style: preserve-3d;
+}
+
+.muenze-seite {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 2.6rem;
+  font-weight: 900;
+  color: #ffffff;
+  backface-visibility: hidden;
+  box-shadow: 0 14px 30px rgba(23, 33, 58, 0.22);
+}
+
+.muenze-kopf {
+  background: linear-gradient(145deg, var(--lila), var(--lila-dunkel));
+}
+
+.muenze-zahl {
+  background: linear-gradient(145deg, var(--mint), #2bb98a);
+  transform: rotateY(180deg);
+}
+
+/* 1800deg = 5 volle Drehungen, enden bei 0deg -> Kopf-Seite zeigt nach vorne.
+   1980deg = 5 Drehungen + 180deg -> Zahl-Seite zeigt nach vorne. */
+.muenze.wirft-kopf {
+  animation: muenze-drehen-kopf 0.9s ease-out;
+}
+
+.muenze.wirft-zahl {
+  animation: muenze-drehen-zahl 0.9s ease-out;
+}
+
+@keyframes muenze-drehen-kopf {
+  from {
+    transform: rotateY(0deg);
+  }
+
+  to {
+    transform: rotateY(1800deg);
+  }
+}
+
+@keyframes muenze-drehen-zahl {
+  from {
+    transform: rotateY(0deg);
+  }
+
+  to {
+    transform: rotateY(1980deg);
+  }
+}
+
+.muenze-ergebnis {
+  text-align: center;
+  min-height: 2.6rem;
 }
 
 @media (min-width: 680px) {
