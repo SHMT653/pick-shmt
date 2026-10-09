@@ -178,6 +178,6 @@ bereitButton.addEventListener("click", bereitUmschalten);
 rundeStartenButton.addEventListener("click", rundeStarten);
 
 ladeUndRendere();
-// Live-Sync ohne Realtime/WebSockets, weil Polling einfacher zu erklären ist: alle 2s neu laden
-// und nur neu rendern, wenn sich wirklich etwas geändert hat.
-setInterval(ladeUndRendere, 2000);
+// Live-Sync ohne Realtime/WebSockets, weil Polling einfacher zu erklären ist: jede
+// Sekunde neu laden und nur neu rendern, wenn sich wirklich etwas geändert hat.
+setInterval(ladeUndRendere, 1000);

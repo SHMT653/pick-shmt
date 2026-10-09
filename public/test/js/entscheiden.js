@@ -30,6 +30,7 @@ const fingerStatus = document.getElementById("finger-status");
 
 const tipprennenButton = document.getElementById("tipprennen-button");
 const tipprennenListe = document.getElementById("tipprennen-liste");
+const tippAnzeige = document.getElementById("tipp-zaehler");
 
 const battleOption0 = document.getElementById("battle-option-0");
 const battleOption1 = document.getElementById("battle-option-1");
@@ -44,8 +45,9 @@ const fingerPositionen = new Map();
 let fingerTimer = null;
 let fingerGewinnerIndex = null;
 
-// Tipprennen: lokal sofort hochzählen, aber nur gesammelt alle 300ms synchronisieren,
-// damit nicht bei jedem einzelnen Klick ein Request raus geht.
+// Tipprennen: die eigene Zahl zeigt sich sofort lokal (kein Warten auf Sync),
+// im Hintergrund wird aber nur alle 250ms synchronisiert (throttle), damit nicht
+// bei jedem einzelnen Klick ein eigener Request rausgeht.
 let meinTippZaehler = 0;
 let tippSyncTimer = null;
 
@@ -293,20 +295,32 @@ function rendereTipprennen(runde) {
   });
 
   const meineStimme = runde.stimmen.find((s) => s.teilnehmerId === ich.teilnehmerId);
-  meinTippZaehler = meineStimme ? meineStimme.anzahl : 0;
+  // Math.max statt Ueberschreiben: ein verspaetet eintreffender Sync-Stand darf die
+  // eigene, schon lokal hochgezaehlte Zahl nie wieder nach unten "zuruecksetzen".
+  meinTippZaehler = Math.max(meinTippZaehler, meineStimme ? meineStimme.anzahl : 0);
+  tippAnzeige.textContent = `${meinTippZaehler} / 20`;
 }
 
 function tipprennenKlick() {
   meinTippZaehler++;
+  tippAnzeige.textContent = `${meinTippZaehler} / 20`;
 
   if (meinTippZaehler >= 20) {
     clearTimeout(tippSyncTimer);
+    tippSyncTimer = null;
     tipprennenSpeichern();
     return;
   }
 
-  clearTimeout(tippSyncTimer);
-  tippSyncTimer = setTimeout(tipprennenSpeichern, 300);
+  // Wichtig: waehrend dauerhaft getippt wird, SOLL alle 250ms synchronisiert werden
+  // (throttle), nicht erst wenn man aufhoert zu tippen (das waere ein debounce und
+  // wuerde den Fortschritt bei den anderen erst ganz am Ende zeigen).
+  if (!tippSyncTimer) {
+    tippSyncTimer = setTimeout(() => {
+      tippSyncTimer = null;
+      tipprennenSpeichern();
+    }, 250);
+  }
 }
 
 async function tipprennenSpeichern() {
@@ -405,4 +419,6 @@ battleOption1.addEventListener("click", () => battleAbstimmen(1));
 neueRundeButton.addEventListener("click", neueRundeStarten);
 
 ladeUndRendere();
-setInterval(ladeUndRendere, 2000);
+// Jede Sekunde neu laden (statt alle 2s) - fuehlt sich fuer alle Mitspieler:innen
+// deutlich schneller synchron an, ohne die Datenbank spuerbar mehr zu belasten.
+setInterval(ladeUndRendere, 1000);

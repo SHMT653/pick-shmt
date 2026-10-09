@@ -19,35 +19,39 @@
 </header>
 
 <main class="page">
-  <section class="card">
-    <div class="raum-kopf">
-      <div>
-        <p class="label">Raum-Code</p>
-        <p id="raum-code-anzeige" class="code-gross"></p>
+  <div class="raum-layout">
+    <section class="card">
+      <span class="eyebrow">Einladen</span>
+      <div class="raum-kopf">
+        <div>
+          <p class="label">Raum-Code</p>
+          <p id="raum-code-anzeige" class="code-gross"></p>
+        </div>
+        <img id="qr-bild" class="qr-bild" alt="QR-Code zum Beitreten">
       </div>
-      <img id="qr-bild" class="qr-bild" alt="QR-Code zum Beitreten">
-    </div>
 
-    <p id="einladungs-link" class="einladungs-link"></p>
+      <p id="einladungs-link" class="einladungs-link"></p>
 
-    <div id="laufende-runde-banner" class="banner" hidden>
-      <p>Es läuft schon eine Entscheidung.</p>
-      <a id="zur-entscheidung-link" class="btn btn-primary" href="#">Zur laufenden Entscheidung</a>
-    </div>
+      <div id="laufende-runde-banner" class="banner" hidden>
+        <p>Es läuft schon eine Entscheidung.</p>
+        <a id="zur-entscheidung-link" class="btn btn-primary" href="#">Zur laufenden Entscheidung</a>
+      </div>
 
-    <h2>Teilnehmer:innen</h2>
-    <ul id="teilnehmer-liste" class="teilnehmer-liste"></ul>
+      <h2>Teilnehmer:innen</h2>
+      <ul id="teilnehmer-liste" class="teilnehmer-liste"></ul>
 
-    <button id="bereit-button" class="btn btn-secondary btn-big" type="button">Bereit</button>
+      <button id="bereit-button" class="btn btn-secondary btn-big" type="button">Bereit</button>
+    </section>
 
-    <section id="host-bereich" class="host-bereich" hidden>
+    <section id="host-bereich" class="card host-bereich" hidden>
+      <span class="eyebrow">Als Host</span>
       <h2>Modus wählen</h2>
       <div id="modus-kacheln" class="modus-kacheln">
-        <button type="button" class="modus-kachel" data-modus="swipe">Swipe</button>
-        <button type="button" class="modus-kachel" data-modus="rad">Zufallsrad</button>
-        <button type="button" class="modus-kachel" data-modus="zahler">Wer zahlt</button>
-        <button type="button" class="modus-kachel" data-modus="tipprennen">Tipprennen</button>
-        <button type="button" class="modus-kachel" data-modus="battle">Battle</button>
+        <button type="button" class="modus-kachel" data-modus="swipe"><span class="modus-icon">👆</span>Swipe</button>
+        <button type="button" class="modus-kachel" data-modus="rad"><span class="modus-icon">🎡</span>Zufallsrad</button>
+        <button type="button" class="modus-kachel" data-modus="zahler"><span class="modus-icon">🤑</span>Wer zahlt</button>
+        <button type="button" class="modus-kachel" data-modus="tipprennen"><span class="modus-icon">⚡</span>Tipprennen</button>
+        <button type="button" class="modus-kachel" data-modus="battle"><span class="modus-icon">⚔️</span>Battle</button>
       </div>
 
       <label for="runden-frage">
@@ -59,7 +63,7 @@
 
       <button id="runde-starten-button" class="btn btn-primary btn-big" type="button" disabled>Runde starten</button>
     </section>
-  </section>
+  </div>
 </main>
 
 

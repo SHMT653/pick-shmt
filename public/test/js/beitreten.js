@@ -1,5 +1,7 @@
 const MODI_MIT_OPTIONEN = ["swipe", "rad", "battle"];
 
+const codeAusLink = new URLSearchParams(location.search).get("code");
+
 const codeInput = document.getElementById("code");
 const ideenFeld = document.getElementById("ideen-feld");
 const beitretenForm = document.getElementById("beitreten-form");
@@ -81,3 +83,11 @@ async function beitretenAbsenden(event) {
 
 codeInput.addEventListener("blur", ideenFeldAktualisieren);
 beitretenForm.addEventListener("submit", beitretenAbsenden);
+
+// Code kommt aus dem QR-Code-/Einladungslink (?code=...) - direkt eintragen und
+// die Ideen-Vorschau sofort laden, statt dass man den Code nochmal abtippen muss.
+if (codeAusLink) {
+  codeInput.value = codeAusLink.toUpperCase();
+  ideenFeldAktualisieren();
+  document.getElementById("name").focus();
+}

@@ -334,7 +334,7 @@ textarea {
   text-align: center;
 }
 
-.hero-copy .eyebrow {
+.eyebrow {
   display: block;
   margin-bottom: 8px;
   color: var(--lila);
@@ -454,14 +454,6 @@ textarea {
   box-shadow: 0 20px 48px rgba(23, 33, 58, 0.08);
 }
 
-.info-panel .eyebrow {
-  display: block;
-  color: var(--lila);
-  font-size: 0.8rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
 
 .schritte {
   counter-reset: schritt;
@@ -601,20 +593,41 @@ textarea {
   color: var(--text);
 }
 
-.host-bereich {
-  margin-top: 20px;
-  border-top: 1px solid var(--rand);
-  padding-top: 20px;
+/* Raum (zweispaltig: Einladen links, Host-Steuerung rechts). Wenn der Host-Bereich
+   per [hidden] ausgeblendet ist (man ist nicht Host), faellt die Seite per :has()
+   automatisch auf eine zentrierte Spalte zurueck - ganz ohne JS. */
+.raum-layout {
+  display: grid;
+  gap: 28px;
+  width: 100%;
+  max-width: 980px;
+}
+
+@media (min-width: 840px) {
+  .raum-layout {
+    grid-template-columns: 0.85fr 1.15fr;
+    align-items: start;
+  }
+
+  .raum-layout:has(#host-bereich[hidden]) {
+    grid-template-columns: 1fr;
+    max-width: 560px;
+    margin: 0 auto;
+  }
 }
 
 .modus-kacheln {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 16px;
 }
 
 .modus-kachel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
   padding: 16px 8px;
   border: 1px solid var(--rand);
   border-radius: 12px;
@@ -624,6 +637,10 @@ textarea {
   cursor: pointer;
   color: var(--text);
   transition: border-color 150ms ease, transform 150ms ease, background 150ms ease;
+}
+
+.modus-icon {
+  font-size: 1.4rem;
 }
 
 .modus-kachel:hover {
@@ -730,12 +747,24 @@ textarea {
   }
 }
 
+.tipp-zaehler {
+  font-size: 2.6rem;
+  font-weight: 900;
+  color: var(--lila);
+  margin: 4px 0 0;
+}
+
 .tipp-button {
   font-size: 1.3rem;
   border-radius: 50%;
   width: 180px;
   height: 180px;
   margin: 16px auto;
+  transition: transform 80ms ease, box-shadow 150ms ease;
+}
+
+.tipp-button:active {
+  transform: scale(0.94);
 }
 
 .tipprennen-liste {
