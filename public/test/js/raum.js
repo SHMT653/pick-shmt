@@ -156,6 +156,9 @@ async function rundeStarten() {
   }
 
   aktuellerRaum.state.runde = {
+    // Eigene ID pro Runde, damit entscheiden.js ein fertiges Ergebnis nur
+    // einmal in den Verlauf einträgt, auch wenn mehrfach gepollt wird.
+    id: crypto.randomUUID(),
     modus: ausgewaehlterModus,
     frage,
     optionen,

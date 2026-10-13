@@ -72,6 +72,7 @@ function rendereRunde() {
     zeigeNur("ergebnis-bereich");
     ergebnisText.textContent = runde.ergebnis;
     zurueckLink.href = `/test/raum.html?code=${code}`;
+    merkeImVerlauf(runde);
     return;
   }
 
@@ -287,6 +288,30 @@ function ermittleBattleGewinner(runde) {
 }
 
 // --- Ergebnis-Bereich / Neue Runde -----------------------------------------
+
+const MODUS_NAMEN = { swipe: "Swipe", rad: "Zufallsrad", mehrheit: "Mehrheit", battle: "Battle" };
+
+// Traegt ein fertiges Ergebnis einmalig in den lokalen Verlauf ein (verlauf.html).
+// Die Runden-ID verhindert doppelte Eintraege, weil rendereRunde() bei jedem
+// Polling-Tick erneut aufgerufen wird, solange die Runde "fertig" ist.
+function merkeImVerlauf(runde) {
+  const verlauf = JSON.parse(localStorage.getItem("pickrVerlauf") || "[]");
+  if (verlauf.some((eintrag) => eintrag.rundenId === runde.id)) {
+    return;
+  }
+
+  verlauf.unshift({
+    rundenId: runde.id,
+    raumCode: code,
+    modus: MODUS_NAMEN[runde.modus] || runde.modus,
+    frage: runde.frage,
+    ergebnis: runde.ergebnis,
+    datum: new Date().toISOString(),
+  });
+
+  // Nur die letzten 30 Eintraege behalten, damit localStorage nicht endlos waechst.
+  localStorage.setItem("pickrVerlauf", JSON.stringify(verlauf.slice(0, 30)));
+}
 
 async function neueRundeStarten() {
   const aktuellerRaum = await holeRaum(code);

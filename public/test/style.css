@@ -398,19 +398,6 @@ textarea {
   margin: 16px auto 0;
 }
 
-.solo-link {
-  display: inline-block;
-  margin-top: 14px;
-  color: var(--text-hell);
-  font-weight: 700;
-  font-size: 0.9rem;
-  text-decoration: none;
-}
-
-.solo-link:hover {
-  color: var(--lila);
-}
-
 .hero-preview {
   display: flex;
   justify-content: center;
@@ -872,6 +859,55 @@ textarea {
   margin-top: 16px;
   padding-top: 14px;
   border-top: 1px solid var(--rand);
+}
+
+/* Verlauf (verlauf.html) */
+.verlauf-liste {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.verlauf-eintrag {
+  padding: 14px 16px;
+  border: 1px solid var(--rand);
+  border-radius: 12px;
+  background: var(--flaeche-hell);
+}
+
+.verlauf-kopf {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.verlauf-modus {
+  color: var(--lila);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.verlauf-datum {
+  color: var(--text-hell);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.verlauf-eintrag strong {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.verlauf-ergebnis {
+  display: block;
+  color: var(--text-hell);
+  font-weight: 700;
 }
 
 /* Solo-Tools (solo.html) */
