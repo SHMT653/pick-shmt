@@ -10,6 +10,10 @@
 <link rel="stylesheet" href="/test/style.css">
 </head>
 <body>
+
+<!-- Kopfzeile: auf jeder Seite gleich. Logo + Navigation links, rechtliche
+     Links rechts. Steckt in fast jeder Datei 1:1 so drin, bewusst kein
+     eigenes Template-System - copy & paste reicht bei 10 Seiten locker. -->
 <header class="topbar">
   <div class="topbar-left">
     <a class="topbar-brand" href="/test/index.html"><img src="/test/assets/logo/pickr-logo-transparent.png" alt="Pickr"></a>
@@ -28,11 +32,16 @@
 <script src="/test/js/header.js"></script>
 
 <main class="page">
+
+  <!-- Intro-Video, volle Bildschirmgroesse. Wird per JS (intro.js) nach dem
+       ersten Besuch uebersprungen, siehe unten. -->
   <section id="intro" class="intro-stage">
     <video id="intro-video" class="intro-video" src="/test/assets/video/pickr-logo-animation.mp4" autoplay muted playsinline></video>
     <button id="weiter-button" class="btn btn-primary intro-skip" type="button">Weiter</button>
   </section>
 
+  <!-- Start-Bildschirm: kommt nach dem Intro. "hidden" ist anfangs gesetzt,
+       JS entfernt es sobald das Video durch ist oder man "Weiter" klickt. -->
   <section id="start" class="hero" hidden>
     <div class="hero-copy">
       <span class="eyebrow">Gemeinsam entscheiden</span>
@@ -45,6 +54,8 @@
       </div>
     </div>
 
+    <!-- Nur zur Deko: zeigt beispielhaft wie ein Raum aussehen wuerde, ist
+         kein echter Raum (deshalb aria-hidden, Screenreader ueberspringen's). -->
     <div class="hero-preview" aria-hidden="true">
       <div class="preview-card">
         <span class="label">RAUM 7KFX2P</span>

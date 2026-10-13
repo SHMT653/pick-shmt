@@ -1,5 +1,7 @@
 /* Pickr (simple) - eine gemeinsame, bewusst einfache CSS-Datei für alle Seiten */
 
+/* Alle Farben einmal zentral als Variable - wenn sich z.B. unser Lila mal
+   aendern soll, reicht eine Zeile hier statt an 50 Stellen zu suchen. */
 :root {
   --lila: #6657f5;
   --lila-dunkel: #5546ee;
