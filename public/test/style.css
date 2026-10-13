@@ -85,12 +85,23 @@ h2 {
   z-index: 20;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px 20px;
   padding: 12px 20px;
   background: rgba(246, 248, 251, 0.85);
   border-bottom: 1px solid var(--rand);
   backdrop-filter: blur(14px);
+}
+
+/* Logo und Haupt-Navigation bleiben als ein Block zusammen, wenn der Header
+   umbricht - nur die Impressum/Datenschutz-Zeile rutscht bei wenig Platz
+   als Ganzes in eine eigene Zeile darunter. */
+.topbar-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 24px;
 }
 
 .topbar-brand {
@@ -101,6 +112,28 @@ h2 {
 .topbar-brand img {
   display: block;
   height: 34px;
+}
+
+.topbar-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.topbar-nav a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.topbar-nav a:hover {
+  color: var(--lila);
+}
+
+.mein-raum-link {
+  color: var(--lila) !important;
 }
 
 .topbar-links {
