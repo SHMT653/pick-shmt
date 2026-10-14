@@ -3,7 +3,7 @@ const code = params.get("code");
 const ich = JSON.parse(localStorage.getItem("pickrIch") || "null");
 
 if (!code || !ich || ich.code !== code) {
-  location.href = "/test/beitreten.html";
+  location.href = "/beitreten.html";
 }
 
 const fragenAnzeige = document.getElementById("frage-anzeige");
@@ -62,7 +62,7 @@ async function ladeUndRendere() {
 function rendereRunde() {
   const runde = raum.state.runde;
   if (!runde) {
-    location.href = `/test/raum.html?code=${code}`;
+    location.href = `/raum.html?code=${code}`;
     return;
   }
 
@@ -71,7 +71,7 @@ function rendereRunde() {
   if (runde.status === "fertig") {
     zeigeNur("ergebnis-bereich");
     ergebnisText.textContent = runde.ergebnis;
-    zurueckLink.href = `/test/raum.html?code=${code}`;
+    zurueckLink.href = `/raum.html?code=${code}`;
     merkeImVerlauf(runde);
     return;
   }
@@ -316,13 +316,13 @@ function merkeImVerlauf(runde) {
 async function neueRundeStarten() {
   const aktuellerRaum = await holeRaum(code);
   if (!aktuellerRaum) {
-    location.href = `/test/raum.html?code=${code}`;
+    location.href = `/raum.html?code=${code}`;
     return;
   }
 
   aktuellerRaum.state.runde = null;
   await speichereRaum(aktuellerRaum);
-  location.href = `/test/raum.html?code=${code}`;
+  location.href = `/raum.html?code=${code}`;
 }
 
 swipeJaButton.addEventListener("click", () => swipeAbstimmen("ja"));

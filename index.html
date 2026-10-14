@@ -1,18 +1,80 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Pickr ist ein DHBW-Projekt von SHMT für schnelle Gruppenentscheidungen."
-    />
-    <meta name="theme-color" content="#6657F5" />
-    <link rel="icon" href="/assets/logo/pickr-logo-transparent.png" />
-    <title>Pickr</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/js/main.js"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pickr</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<!-- Kopfzeile: auf jeder Seite gleich. Logo + Navigation links, rechtliche
+     Links rechts. Steckt in fast jeder Datei 1:1 so drin, bewusst kein
+     eigenes Template-System - copy & paste reicht bei 10 Seiten locker. -->
+<header class="topbar">
+  <div class="topbar-left">
+    <a class="topbar-brand" href="/index.html"><img src="/assets/logo/pickr-logo-transparent.png" alt="Pickr"></a>
+    <nav class="topbar-nav">
+      <a href="/index.html">Home</a>
+      <a href="/verlauf.html">Verlauf</a>
+      <a href="/einstellungen.html">Einstellungen</a>
+      <a id="mein-raum-link" class="mein-raum-link" href="/raum.html" hidden>Mein Raum</a>
+    </nav>
+  </div>
+  <nav class="topbar-links">
+    <a href="/impressum.html">Impressum</a>
+    <a href="/datenschutz.html">Datenschutz</a>
+  </nav>
+</header>
+<script src="/js/header.js"></script>
+
+<main class="page">
+
+  <!-- Intro-Video, volle Bildschirmgroesse. Wird per JS (intro.js) nach dem
+       ersten Besuch uebersprungen, siehe unten. -->
+  <section id="intro" class="intro-stage">
+    <video id="intro-video" class="intro-video" src="/assets/video/pickr-logo-animation.mp4" autoplay muted playsinline></video>
+    <button id="weiter-button" class="btn btn-primary intro-skip" type="button">Weiter</button>
+  </section>
+
+  <!-- Start-Bildschirm: kommt nach dem Intro. "hidden" ist anfangs gesetzt,
+       JS entfernt es sobald das Video durch ist oder man "Weiter" klickt. -->
+  <section id="start" class="hero" hidden>
+    <div class="hero-copy">
+      <span class="eyebrow">Gemeinsam entscheiden</span>
+      <h1>Swipe. Pick. Done.</h1>
+      <p>Erstellt gemeinsam einen Raum und entscheidet zusammen, was ihr essen, schauen oder tun wollt.</p>
+      <div class="button-stack">
+        <a id="raum-erstellen-link" class="btn btn-primary btn-big" href="/erstellen.html">Raum erstellen</a>
+        <a id="raum-beitreten-link" class="btn btn-secondary btn-big" href="/beitreten.html">Raum beitreten</a>
+        <a id="solo-tools-link" class="btn btn-secondary btn-big" href="/solo.html">⚡ Solo-Tools ohne Raum</a>
+      </div>
+    </div>
+
+    <!-- Nur zur Deko: zeigt beispielhaft wie ein Raum aussehen wuerde, ist
+         kein echter Raum (deshalb aria-hidden, Screenreader ueberspringen's). -->
+    <div class="hero-preview" aria-hidden="true">
+      <div class="preview-card">
+        <span class="label">RAUM 7KFX2P</span>
+        <strong>Was essen wir heute?</strong>
+        <div class="preview-optionen">
+          <span>🍕 Pizza</span>
+          <span>🍣 Sushi</span>
+          <span>🍝 Pasta</span>
+        </div>
+        <div class="preview-leute">
+          <span>A</span>
+          <span>P</span>
+          <span>L</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="/js/intro.js"></script>
+</body>
 </html>

@@ -12,14 +12,14 @@ Viele kleine Entscheidungen dauern in Gruppen unverhaeltnismaessig lange:
 - Was essen wir?
 - Was schauen wir?
 - Was machen wir heute?
-- Wer zahlt diesmal?
+- Wer muss zahlen, Getraenke holen, aufraeumen ...?
 
 Pickr macht daraus einen kurzen gemeinsamen Ablauf.
 
 ## Loesung
 
 1. Raum erstellen
-2. Code teilen
+2. Code oder QR-Code teilen
 3. Ideen sammeln
 4. Modus waehlen
 5. Ergebnis bekommen
@@ -29,28 +29,29 @@ Der Fokus liegt auf Tempo, wenig Einstiegshuerden und einer spielerischen Bedien
 ## Funktionen
 
 - Raumcode statt Account
-- Beitritt per Link oder Code
-- verschiedene Modi wie Swipe, Blind Vote, Rad und Battle
-- lokale Historie fuer letzte Entscheidungen
-- heller und dunkler Modus
-- Deutsch und Englisch
+- Beitritt per Link, QR-Code oder Code
+- vier Gruppen-Modi: Swipe, Zufallsrad, Mehrheit, Battle
+- Solo-Tools ganz ohne Raum: Fingerwahl ("Wer muss...?") und Muenzwurf
+- lokaler Verlauf der letzten Entscheidungen
+- Einstellungen zum Zuruecksetzen/Loeschen lokaler Daten
 
 ## Demo-Ablauf
 
-1. Startseite mit Pickr Logo Animation zeigen
+1. Startseite mit Pickr-Logo-Animation zeigen
 2. Raum erstellen
-3. Zweite Person per Code beitreten lassen
+3. Zweite Person per QR-Code/Link beitreten lassen
 4. Ideen eingeben
-5. Pick starten
-6. Ergebnis zeigen
+5. Modus waehlen und Pick starten
+6. Ergebnis zeigen, danach im Verlauf wiederfinden
+7. Kurz die Solo-Tools zeigen (Fingerwahl, Muenzwurf) - funktionieren ganz ohne Raum
 
 ## Technik
 
-- Vite Frontend
-- JavaScript
-- Supabase fuer temporaere Raeume
-- LocalStorage als Fallback
-- QR-Code und Realtime-Sync
+- Reines HTML/CSS/JavaScript, kein Build-Tool, kein Framework
+- Supabase (REST-API per fetch) fuer die gemeinsamen Raeume
+- LocalStorage fuer Session, Verlauf und Einstellungen
+- QR-Code ueber einen externen Bild-Dienst, kein JS-Paket noetig
+- Live-Sync per Polling (jede Sekunde neu laden), bewusst keine WebSockets
 
 ## Hinweis
 

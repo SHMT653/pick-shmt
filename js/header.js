@@ -8,7 +8,7 @@ if (meinRaumLink) {
   const ich = JSON.parse(localStorage.getItem("pickrIch") || "null");
 
   if (ich && ich.code) {
-    meinRaumLink.href = `/test/raum.html?code=${ich.code}`;
+    meinRaumLink.href = `/raum.html?code=${ich.code}`;
     meinRaumLink.hidden = false;
   }
 }
