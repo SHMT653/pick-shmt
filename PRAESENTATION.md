@@ -53,6 +53,25 @@ Der Fokus liegt auf Tempo, wenig Einstiegshuerden und einer spielerischen Bedien
 - QR-Code ueber einen externen Bild-Dienst, kein JS-Paket noetig
 - Live-Sync per Polling (jede Sekunde neu laden), bewusst keine WebSockets
 
+## Vortrag zu fuenft
+
+Fuenf natuerliche Themenbloecke, je etwa 2 Minuten. Wer welchen Teil uebernimmt, sucht ihr euch selbst aus - jeder Block steht fuer sich und laesst sich direkt an einer eigenen Seite/Datei zeigen.
+
+**Idee & Problem**
+Worum geht's bei Pickr, welches Problem loest die App. Kurzer Blick auf die Startseite mit der Logo-Animation.
+
+**Raum erstellen & beitreten**
+`erstellen.html` und `beitreten.html` zeigen: das Formular, und dass doppelt eingetragene Ideen (z.B. zweimal "Pizza") automatisch zusammengefasst werden. QR-Code/Link zum Beitreten erklaeren.
+
+**Der Raum (Lobby)**
+`raum.html`: Teilnehmerliste, Bereit-System, Modus auswaehlen. Schoen zu zeigen: sobald der Host startet, landen alle automatisch in der Abstimmung - keiner muss extra klicken.
+
+**Die Spielmodi**
+`entscheiden.html`: Swipe zum Ziehen (wie bei Tinder), das echte Glücksrad, Mehrheits-Abstimmung, Battle. Hier lohnt sich eine kurze Live-Runde.
+
+**Technik & Extras**
+Wie die Daten gespeichert werden (`api.js`, einfache fetch-Aufrufe gegen die Datenbank, Live-Sync per Polling), plus die Solo-Tools, den Verlauf und die Einstellungen kurz zeigen.
+
 ## Hinweis
 
 Pickr ist ein DHBW-Projekt und ein Projekt von SHMT.
