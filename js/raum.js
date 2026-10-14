@@ -1,24 +1,3 @@
-const MODI_MIT_OPTIONEN = ["swipe", "rad", "battle", "mehrheit"];
-
-// Sortiert doppelte Ideen aus (Gross-/Kleinschreibung egal) - wenn zwei Leute
-// "Pizza" eintragen, soll das nur einmal als Option auftauchen. Die zuerst
-// eingetragene Schreibweise gewinnt.
-function sortiereIdeenAus(ideen) {
-  const gesehen = new Set();
-  const ergebnis = [];
-
-  for (const idee of ideen) {
-    const schluessel = idee.trim().toLowerCase();
-    if (!schluessel || gesehen.has(schluessel)) {
-      continue;
-    }
-    gesehen.add(schluessel);
-    ergebnis.push(idee.trim());
-  }
-
-  return ergebnis;
-}
-
 const params = new URLSearchParams(location.search);
 const code = params.get("code");
 const ich = JSON.parse(localStorage.getItem("pickrIch") || "null");
@@ -95,6 +74,25 @@ function rendereRaum() {
   if (binHost) {
     aktualisiereStartKnopf();
   }
+}
+
+// Sortiert doppelte Ideen aus (Gross-/Kleinschreibung egal) - wenn zwei Leute
+// "Pizza" eintragen, soll das nur einmal als Option auftauchen. Die zuerst
+// eingetragene Schreibweise gewinnt.
+function sortiereIdeenAus(ideen) {
+  const gesehen = new Set();
+  const ergebnis = [];
+
+  for (const idee of ideen) {
+    const schluessel = idee.trim().toLowerCase();
+    if (!schluessel || gesehen.has(schluessel)) {
+      continue;
+    }
+    gesehen.add(schluessel);
+    ergebnis.push(idee.trim());
+  }
+
+  return ergebnis;
 }
 
 function aktualisiereStartKnopf() {

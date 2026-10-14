@@ -1,5 +1,3 @@
-const MODI_MIT_OPTIONEN = ["swipe", "rad", "battle", "mehrheit"];
-
 const codeAusLink = new URLSearchParams(location.search).get("code");
 
 const codeInput = document.getElementById("code");

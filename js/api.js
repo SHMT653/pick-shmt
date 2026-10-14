@@ -1,6 +1,11 @@
 // Alle Zugriffe auf die Datenbank laufen roh per fetch() gegen die Supabase-REST-API (PostgREST),
 // bewusst ohne Supabase-JS-SDK - das ist transparenter zu erklären.
 
+// Welche Modi Ideen/Optionen brauchen - steht hier zentral, weil sowohl
+// beitreten.js (Ideen-Feld ein-/ausblenden) als auch raum.js (Ideen sammeln,
+// Start-Knopf freischalten) das wissen müssen.
+const MODI_MIT_OPTIONEN = ["swipe", "rad", "battle", "mehrheit"];
+
 const SUPABASE_URL = "https://tjodkygosuxrlvzvlgos.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqb2RreWdvc3V4cmx2enZsZ29zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5MzYzMjgsImV4cCI6MjEwNDUxMjMyOH0.jadRVsOBpTuuO_cKM6y7MF8lDK3QLNF8YCedFi1ml8k";
