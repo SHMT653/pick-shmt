@@ -39,6 +39,11 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  /* dvh = "dynamic viewport height", reagiert richtig wenn sich auf dem Handy
+     die Adressleiste beim Scrollen ein-/ausblendet. 100vh allein sorgt sonst
+     fuer wackelndes/springendes Layout. Aeltere Browser nutzen einfach die
+     vh-Zeile davor als Ersatz. */
+  min-height: 100dvh;
   overflow-x: hidden;
   background: var(--hintergrund);
   color: var(--text);
@@ -152,6 +157,35 @@ h2 {
 
 .topbar-links a:hover {
   color: var(--lila);
+}
+
+/* Auf schmalen Handys wird der Header sonst schnell dreizeilig und wirkt
+   ueberladen - hier wird alles etwas enger, nichts verschwindet. */
+@media (max-width: 480px) {
+  .topbar {
+    padding: 10px 16px;
+    gap: 6px 14px;
+  }
+
+  .topbar-left {
+    gap: 6px 16px;
+  }
+
+  .topbar-nav {
+    gap: 12px;
+  }
+
+  .topbar-nav a {
+    font-size: 0.8rem;
+  }
+
+  .topbar-links {
+    gap: 12px;
+  }
+
+  .topbar-links a {
+    font-size: 0.74rem;
+  }
 }
 
 .page {
@@ -283,16 +317,6 @@ textarea {
   transform: translateY(-1px);
 }
 
-.btn-ja {
-  background: var(--gruen);
-  box-shadow: 0 14px 28px rgba(66, 211, 146, 0.32);
-}
-
-.btn-nein {
-  background: var(--rot);
-  box-shadow: 0 14px 28px rgba(255, 99, 125, 0.32);
-}
-
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -304,16 +328,6 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 10px;
-}
-
-.button-row {
-  display: flex;
-  gap: 12px;
-}
-
-.button-row .btn {
-  flex: 1;
-  margin-bottom: 0;
 }
 
 .fehler {
@@ -345,6 +359,7 @@ textarea {
   z-index: 50;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background: #05050a;
 }
 
@@ -727,10 +742,16 @@ textarea {
   cursor: grabbing;
 }
 
-.swipe-karte small {
-  font-size: 0.8rem;
-  font-weight: 700;
-  opacity: 0.75;
+/* Die globale p-Regel (p { color: var(--text-hell) }) wuerde hier sonst den
+   Titel-Text dunkelblau-grau statt weiss einfaerben, obwohl .swipe-karte
+   selbst weiss gesetzt hat - ein <p> mit eigener Farbregel gewinnt sonst
+   gegen die Elternfarbe, auch wenn das Elternteil spezifischer aussieht. */
+.swipe-karte p {
+  color: inherit;
+}
+
+.swipe-hinweis {
+  text-align: center;
 }
 
 /* Echtes Glücksrad: ein Kreis aus Farbsegmenten (conic-gradient, von

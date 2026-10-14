@@ -18,8 +18,6 @@ const swipeInhalt = document.getElementById("swipe-inhalt");
 const swipeKarte = document.getElementById("swipe-karte");
 const swipeTitel = document.getElementById("swipe-titel");
 const swipeWarten = document.getElementById("swipe-warten");
-const swipeJaButton = document.getElementById("swipe-ja");
-const swipeNeinButton = document.getElementById("swipe-nein");
 
 const radKreis = document.getElementById("rad-kreis");
 const radLegende = document.getElementById("rad-legende");
@@ -431,8 +429,6 @@ async function neueRundeStarten() {
   location.href = `/raum.html?code=${code}`;
 }
 
-swipeJaButton.addEventListener("click", () => swipeAbstimmen("ja"));
-swipeNeinButton.addEventListener("click", () => swipeAbstimmen("nein"));
 radDrehenButton.addEventListener("click", radDrehen);
 battleOption0.addEventListener("click", () => battleAbstimmen(0));
 battleOption1.addEventListener("click", () => battleAbstimmen(1));
