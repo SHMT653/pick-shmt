@@ -15,15 +15,19 @@ const neueRundeButton = document.getElementById("neue-runde-button");
 
 const swipeFortschritt = document.getElementById("swipe-fortschritt");
 const swipeInhalt = document.getElementById("swipe-inhalt");
+const swipeKarte = document.getElementById("swipe-karte");
 const swipeTitel = document.getElementById("swipe-titel");
 const swipeWarten = document.getElementById("swipe-warten");
 const swipeJaButton = document.getElementById("swipe-ja");
 const swipeNeinButton = document.getElementById("swipe-nein");
 
-const rad = document.getElementById("rad");
-const radListe = document.getElementById("rad-liste");
+const radKreis = document.getElementById("rad-kreis");
+const radLegende = document.getElementById("rad-legende");
 const radDrehenButton = document.getElementById("rad-drehen-button");
 const radWarten = document.getElementById("rad-warten");
+
+// Die Segment-Farben des Glücksrads, der Reihe nach fuer jede Option.
+const RAD_FARBEN = ["#6657f5", "#55e6b5", "#ffbe55", "#ff637d", "#2bb98a", "#8b7cf6"];
 
 const mehrheitListe = document.getElementById("mehrheit-liste");
 const mehrheitWarten = document.getElementById("mehrheit-warten");
@@ -84,6 +88,33 @@ function rendereRunde() {
   else if (runde.modus === "battle") rendereBattle(runde);
 }
 
+// Speichert eine Stimme und prueft danach ob sie wirklich angekommen ist.
+// Hintergrund: wenn zwei Leute fast gleichzeitig abstimmen, lesen beide den
+// gleichen alten Stand, aendern ihn und speichern nacheinander zurueck - die
+// zweite Speicherung ueberschreibt die erste dabei komplett, die Stimme davor
+// geht verloren und die Runde haengt dann ewig bei "nicht alle fertig" fest.
+// "stimmeHinzufuegen" darf die Runde veraendern, "stimmeIstDa" prueft danach
+// ob die eigene Stimme drinsteht - falls nicht, wird es nochmal versucht.
+async function stimmeSpeichernMitRetry(stimmeHinzufuegen, stimmeIstDa) {
+  for (let versuch = 0; versuch < 3; versuch++) {
+    const aktuellerRaum = await holeRaum(code);
+    if (!aktuellerRaum) {
+      return;
+    }
+
+    stimmeHinzufuegen(aktuellerRaum.state.runde, aktuellerRaum.state.teilnehmer);
+    await speichereRaum(aktuellerRaum);
+
+    const kontrolle = await holeRaum(code);
+    if (kontrolle && stimmeIstDa(kontrolle.state.runde)) {
+      raum = kontrolle;
+      letzterStand = JSON.stringify(raum);
+      rendereRunde();
+      return;
+    }
+  }
+}
+
 // --- Swipe -----------------------------------------------------------------
 
 function rendereSwipe(runde) {
@@ -102,31 +133,83 @@ function rendereSwipe(runde) {
   swipeWarten.hidden = true;
   swipeTitel.textContent = offeneOption.titel;
   aktuelleSwipeOptionId = offeneOption.id;
+
+  // Karte fuer die naechste Option wieder an ihren Platz setzen, falls die
+  // vorherige noch rausgeflogen war.
+  swipeKarte.style.transition = "none";
+  swipeKarte.style.transform = "";
 }
 
-async function swipeAbstimmen(stimme) {
-  const aktuellerRaum = await holeRaum(code);
-  if (!aktuellerRaum) {
+// Ziehen wie bei Tinder: die Karte folgt per Pointer-Events dem Finger/der
+// Maus. Ab einer Schwelle fliegt sie raus und zaehlt als Ja (rechts) oder
+// Nein (links), sonst schnappt sie zurueck in die Mitte.
+let ziehtGerade = false;
+let ziehStartX = 0;
+let ziehX = 0;
+
+function swipeZiehenStart(event) {
+  if (aktuelleSwipeOptionId === null) {
     return;
   }
 
-  const aktuelleRunde = aktuellerRaum.state.runde;
-  aktuelleRunde.stimmen.push({
-    teilnehmerId: ich.teilnehmerId,
-    optionId: aktuelleSwipeOptionId,
-    stimme,
-  });
+  ziehtGerade = true;
+  ziehStartX = event.clientX;
+  swipeKarte.setPointerCapture(event.pointerId);
+  swipeKarte.style.transition = "none";
+}
 
-  const insgesamtNoetig = aktuelleRunde.optionen.length * aktuellerRaum.state.teilnehmer.length;
-  if (aktuelleRunde.stimmen.length >= insgesamtNoetig) {
-    aktuelleRunde.status = "fertig";
-    aktuelleRunde.ergebnis = ermittleSwipeGewinner(aktuelleRunde);
+function swipeZiehenBewegen(event) {
+  if (!ziehtGerade) {
+    return;
   }
 
-  await speichereRaum(aktuellerRaum);
-  raum = aktuellerRaum;
-  letzterStand = JSON.stringify(raum);
-  rendereRunde();
+  ziehX = event.clientX - ziehStartX;
+  const rotation = ziehX / 14;
+  swipeKarte.style.transform = `translateX(${ziehX}px) rotate(${rotation}deg)`;
+}
+
+function swipeZiehenEnde() {
+  if (!ziehtGerade) {
+    return;
+  }
+
+  ziehtGerade = false;
+  swipeKarte.style.transition = "transform 300ms ease";
+
+  const schwelle = 100;
+  if (Math.abs(ziehX) < schwelle) {
+    swipeKarte.style.transform = "";
+    return;
+  }
+
+  const stimme = ziehX > 0 ? "ja" : "nein";
+  swipeKarte.style.transform = `translateX(${ziehX > 0 ? 600 : -600}px) rotate(${ziehX > 0 ? 30 : -30}deg)`;
+
+  // Erst die Flug-Animation zeigen, dann erst abstimmen/speichern - sonst
+  // wird die Karte durch den naechsten rendereRunde()-Aufruf sofort ersetzt.
+  setTimeout(() => swipeAbstimmen(stimme), 220);
+}
+
+swipeKarte.addEventListener("pointerdown", swipeZiehenStart);
+swipeKarte.addEventListener("pointermove", swipeZiehenBewegen);
+swipeKarte.addEventListener("pointerup", swipeZiehenEnde);
+swipeKarte.addEventListener("pointercancel", swipeZiehenEnde);
+
+async function swipeAbstimmen(stimme) {
+  const optionId = aktuelleSwipeOptionId;
+
+  await stimmeSpeichernMitRetry(
+    (runde, teilnehmer) => {
+      runde.stimmen.push({ teilnehmerId: ich.teilnehmerId, optionId, stimme });
+
+      const insgesamtNoetig = runde.optionen.length * teilnehmer.length;
+      if (runde.stimmen.length >= insgesamtNoetig) {
+        runde.status = "fertig";
+        runde.ergebnis = ermittleSwipeGewinner(runde);
+      }
+    },
+    (runde) => runde.stimmen.some((s) => s.teilnehmerId === ich.teilnehmerId && s.optionId === optionId),
+  );
 }
 
 function ermittleSwipeGewinner(runde) {
@@ -148,11 +231,26 @@ function ermittleSwipeGewinner(runde) {
 // --- Rad (Zufallsrad) -------------------------------------------------------
 
 function rendereRad(runde) {
-  radListe.innerHTML = "";
-  runde.optionen.forEach((option) => {
+  // Kreis-Segmente per conic-gradient bauen - ein Farbabschnitt pro Option,
+  // alle gleich gross. Dazu eine Legende mit Farbpunkt + Name darunter,
+  // weil Text direkt auf dem Rad bei vielen Optionen schwer lesbar waere.
+  const anzahl = runde.optionen.length;
+  const segmentGroesse = 360 / anzahl;
+
+  const segmente = runde.optionen.map((_, i) => {
+    const farbe = RAD_FARBEN[i % RAD_FARBEN.length];
+    return `${farbe} ${i * segmentGroesse}deg ${(i + 1) * segmentGroesse}deg`;
+  });
+  radKreis.style.background = `conic-gradient(${segmente.join(", ")})`;
+
+  radLegende.innerHTML = "";
+  runde.optionen.forEach((option, i) => {
     const eintrag = document.createElement("li");
-    eintrag.textContent = option.titel;
-    radListe.appendChild(eintrag);
+    const farbpunkt = document.createElement("span");
+    farbpunkt.className = "rad-farbe";
+    farbpunkt.style.background = RAD_FARBEN[i % RAD_FARBEN.length];
+    eintrag.append(farbpunkt, document.createTextNode(option.titel));
+    radLegende.appendChild(eintrag);
   });
 
   const binHost = Boolean(raum.state.teilnehmer.find((t) => t.id === ich.teilnehmerId)?.istHost);
@@ -162,9 +260,20 @@ function rendereRad(runde) {
 
 function radDrehen() {
   radDrehenButton.disabled = true;
-  rad.classList.add("dreht-sich");
 
-  // Erst nach der CSS-Dreh-Animation (1.5s) wird das Ergebnis ermittelt und gespeichert.
+  // Der Gewinner steht VOR dem Drehen schon fest - das Rad dreht sich dann
+  // gezielt so weit, dass das passende Segment am Zeiger oben landet. So
+  // zeigt das Rad wirklich das Ergebnis, statt sich nur zufaellig zu drehen.
+  const optionen = raum.state.runde.optionen;
+  const segmentGroesse = 360 / optionen.length;
+  const gewinnerIndex = Math.floor(Math.random() * optionen.length);
+  const gewinnerOption = optionen[gewinnerIndex];
+  const segmentMitte = gewinnerIndex * segmentGroesse + segmentGroesse / 2;
+
+  // 5 volle Umdrehungen fuers Spektakel, dann exakt auf die Segment-Mitte.
+  radKreis.style.transform = `rotate(${5 * 360 - segmentMitte}deg)`;
+
+  // Erst nach der Dreh-Animation (3s, siehe CSS) wird das Ergebnis gespeichert.
   setTimeout(async () => {
     const aktuellerRaum = await holeRaum(code);
     if (!aktuellerRaum) {
@@ -172,7 +281,6 @@ function radDrehen() {
     }
 
     const aktuelleRunde = aktuellerRaum.state.runde;
-    const gewinnerOption = aktuelleRunde.optionen[Math.floor(Math.random() * aktuelleRunde.optionen.length)];
     aktuelleRunde.status = "fertig";
     aktuelleRunde.ergebnis = gewinnerOption.titel;
 
@@ -180,7 +288,7 @@ function radDrehen() {
     raum = aktuellerRaum;
     letzterStand = JSON.stringify(raum);
     rendereRunde();
-  }, 1500);
+  }, 3000);
 }
 
 // --- Mehrheit ----------------------------------------------------------------
@@ -204,27 +312,25 @@ function rendereMehrheit(runde) {
 }
 
 async function mehrheitAbstimmen(optionId) {
-  const aktuellerRaum = await holeRaum(code);
-  if (!aktuellerRaum) {
-    return;
-  }
+  document.querySelectorAll(".mehrheit-option").forEach((button) => {
+    button.disabled = true;
+  });
 
-  const aktuelleRunde = aktuellerRaum.state.runde;
-  if (aktuelleRunde.stimmen.some((s) => s.teilnehmerId === ich.teilnehmerId)) {
-    return;
-  }
+  await stimmeSpeichernMitRetry(
+    (runde, teilnehmer) => {
+      if (runde.stimmen.some((s) => s.teilnehmerId === ich.teilnehmerId)) {
+        return;
+      }
 
-  aktuelleRunde.stimmen.push({ teilnehmerId: ich.teilnehmerId, optionId });
+      runde.stimmen.push({ teilnehmerId: ich.teilnehmerId, optionId });
 
-  if (aktuelleRunde.stimmen.length >= aktuellerRaum.state.teilnehmer.length) {
-    aktuelleRunde.status = "fertig";
-    aktuelleRunde.ergebnis = ermittleMehrheitsGewinner(aktuelleRunde);
-  }
-
-  await speichereRaum(aktuellerRaum);
-  raum = aktuellerRaum;
-  letzterStand = JSON.stringify(raum);
-  rendereRunde();
+      if (runde.stimmen.length >= teilnehmer.length) {
+        runde.status = "fertig";
+        runde.ergebnis = ermittleMehrheitsGewinner(runde);
+      }
+    },
+    (runde) => runde.stimmen.some((s) => s.teilnehmerId === ich.teilnehmerId),
+  );
 }
 
 function ermittleMehrheitsGewinner(runde) {
@@ -256,28 +362,28 @@ function rendereBattle(runde) {
 }
 
 async function battleAbstimmen(optionIndex) {
-  const aktuellerRaum = await holeRaum(code);
-  if (!aktuellerRaum) {
-    return;
-  }
+  // Sofort sperren, nicht erst wenn das Speichern durch ist - sonst koennte
+  // ein zweiter, schneller Klick auf den anderen Button eine zweite Stimme
+  // derselben Person auslösen, bevor die erste überhaupt gespeichert ist.
+  battleOption0.disabled = true;
+  battleOption1.disabled = true;
 
-  const aktuelleRunde = aktuellerRaum.state.runde;
-  if (aktuelleRunde.stimmen.some((s) => s.teilnehmerId === ich.teilnehmerId)) {
-    return;
-  }
+  await stimmeSpeichernMitRetry(
+    (runde, teilnehmer) => {
+      if (runde.stimmen.some((s) => s.teilnehmerId === ich.teilnehmerId)) {
+        return;
+      }
 
-  const option = aktuelleRunde.optionen[optionIndex];
-  aktuelleRunde.stimmen.push({ teilnehmerId: ich.teilnehmerId, optionId: option.id });
+      const option = runde.optionen[optionIndex];
+      runde.stimmen.push({ teilnehmerId: ich.teilnehmerId, optionId: option.id });
 
-  if (aktuelleRunde.stimmen.length >= aktuellerRaum.state.teilnehmer.length) {
-    aktuelleRunde.status = "fertig";
-    aktuelleRunde.ergebnis = ermittleBattleGewinner(aktuelleRunde);
-  }
-
-  await speichereRaum(aktuellerRaum);
-  raum = aktuellerRaum;
-  letzterStand = JSON.stringify(raum);
-  rendereRunde();
+      if (runde.stimmen.length >= teilnehmer.length) {
+        runde.status = "fertig";
+        runde.ergebnis = ermittleBattleGewinner(runde);
+      }
+    },
+    (runde) => runde.stimmen.some((s) => s.teilnehmerId === ich.teilnehmerId),
+  );
 }
 
 function ermittleBattleGewinner(runde) {

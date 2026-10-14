@@ -1,5 +1,24 @@
 const MODI_MIT_OPTIONEN = ["swipe", "rad", "battle", "mehrheit"];
 
+// Sortiert doppelte Ideen aus (Gross-/Kleinschreibung egal) - wenn zwei Leute
+// "Pizza" eintragen, soll das nur einmal als Option auftauchen. Die zuerst
+// eingetragene Schreibweise gewinnt.
+function sortiereIdeenAus(ideen) {
+  const gesehen = new Set();
+  const ergebnis = [];
+
+  for (const idee of ideen) {
+    const schluessel = idee.trim().toLowerCase();
+    if (!schluessel || gesehen.has(schluessel)) {
+      continue;
+    }
+    gesehen.add(schluessel);
+    ergebnis.push(idee.trim());
+  }
+
+  return ergebnis;
+}
+
 const params = new URLSearchParams(location.search);
 const code = params.get("code");
 const ich = JSON.parse(localStorage.getItem("pickrIch") || "null");
@@ -55,6 +74,14 @@ function rendereRaum() {
   const binHost = Boolean(ichSelbst && ichSelbst.istHost);
   hostBereich.hidden = !binHost;
 
+  // Sobald der Host eine Runde startet, sollen alle anderen direkt in die
+  // Abstimmung wechseln statt erst auf einen Link klicken zu muessen - der
+  // Host bleibt bewusst im Raum, falls er/sie hier noch was sehen will.
+  if (!binHost && raum.state.runde) {
+    location.href = `/entscheiden.html?code=${raum.code}`;
+    return;
+  }
+
   if (binHost && !frageVorbelegt && ich.frageEntwurf) {
     rundenFrageInput.value = ich.frageEntwurf;
     frageVorbelegt = true;
@@ -72,7 +99,7 @@ function rendereRaum() {
 
 function aktualisiereStartKnopf() {
   const alleBereit = raum.state.teilnehmer.every((t) => t.istBereit);
-  const gesammelteIdeen = raum.state.teilnehmer.flatMap((t) => t.ideen || []);
+  const gesammelteIdeen = sortiereIdeenAus(raum.state.teilnehmer.flatMap((t) => t.ideen || []));
   const brauchtOptionen = MODI_MIT_OPTIONEN.includes(ausgewaehlterModus);
   const genugIdeen = !brauchtOptionen || gesammelteIdeen.length >= 2;
   const frageVorhanden = rundenFrageInput.value.trim().length > 0;
@@ -147,7 +174,7 @@ async function rundeStarten() {
 
   let optionen = [];
   if (brauchtOptionen) {
-    const alleIdeen = aktuellerRaum.state.teilnehmer.flatMap((t) => t.ideen || []);
+    const alleIdeen = sortiereIdeenAus(aktuellerRaum.state.teilnehmer.flatMap((t) => t.ideen || []));
     optionen = alleIdeen.map((titel) => ({ id: crypto.randomUUID(), titel }));
     if (ausgewaehlterModus === "battle") {
       // Bewusste Vereinfachung: bei mehr als 2 Ideen werden einfach nur die ersten 2 genommen.

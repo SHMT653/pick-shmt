@@ -700,50 +700,94 @@ textarea {
   text-align: center;
 }
 
+/* Karte zum Ziehen (wie bei Tinder): wird in entscheiden.js per Pointer-Events
+   (pointerdown/move/up) bewegt. touch-action: none verhindert, dass das Handy
+   die Seite scrollt waehrend man die Karte zieht. */
 .swipe-karte {
-  background: var(--lila);
-  color: #ffffff;
-  border-radius: 16px;
-  padding: 50px 20px;
-  font-size: 1.6rem;
-  font-weight: 800;
-  margin-bottom: 16px;
-  min-height: 140px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow-wrap: anywhere;
-}
-
-#rad {
-  margin-bottom: 16px;
-}
-
-.rad-liste {
-  list-style: none;
-  padding: 16px;
-  margin: 0;
-  border: 4px solid var(--flaeche-hell);
-  border-radius: 50%;
-  background: var(--flaeche-hell);
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-height: 220px;
+  align-items: center;
   justify-content: center;
-  transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-#rad.dreht-sich .rad-liste {
-  transform: rotate(1440deg);
-}
-
-.rad-liste li {
-  font-weight: 700;
-  background: #ffffff;
-  padding: 8px;
-  border-radius: 8px;
+  gap: 10px;
+  min-height: 180px;
+  margin-bottom: 16px;
+  padding: 50px 20px;
+  border-radius: 16px;
+  background: var(--lila);
+  color: #ffffff;
+  font-size: 1.6rem;
+  font-weight: 800;
   overflow-wrap: anywhere;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.swipe-karte:active {
+  cursor: grabbing;
+}
+
+.swipe-karte small {
+  font-size: 0.8rem;
+  font-weight: 700;
+  opacity: 0.75;
+}
+
+/* Echtes Glücksrad: ein Kreis aus Farbsegmenten (conic-gradient, von
+   rad.js berechnet), der sich per CSS-transition dreht. Der Zielwinkel wird
+   in JS VOR dem Drehen festgelegt, damit das Rad wirklich auf dem Ergebnis
+   landet, statt sich nur zufällig/unabhängig zu drehen. */
+.rad-buehne {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 0 auto 18px;
+}
+
+.rad-kreis {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 5px solid var(--flaeche);
+  box-shadow: 0 16px 36px rgba(23, 33, 58, 0.2);
+  transition: transform 3s cubic-bezier(0.15, 0.7, 0.2, 1);
+}
+
+.rad-zeiger {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  z-index: 2;
+  width: 0;
+  height: 0;
+  transform: translateX(-50%);
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 16px solid var(--text);
+}
+
+.rad-legende {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  text-align: left;
+}
+
+.rad-legende li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.rad-farbe {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border-radius: 4px;
 }
 
 .finger-feld {
