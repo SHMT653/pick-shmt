@@ -27,8 +27,24 @@ let frageVorbelegt = false;
 function rendereRaum() {
   codeAnzeige.textContent = raum.code;
 
+  // Beitritts-Link selbst zusammenbauen: location.origin ist die aktuelle
+  // Domain (passt sich also automatisch an egal wo die Seite laeuft), und
+  // statt "beitreten.html" fest einzutippen nehmen wir einfach den Pfad der
+  // AKTUELLEN Seite (location.pathname, hier "/raum.html") und tauschen das
+  // eine Wort aus. So bleibt der Link immer korrekt, auch wenn sich mal der
+  // Ordnerpfad aendert.
   const beitrittsLink = `${location.origin}${location.pathname.replace("raum.html", "beitreten.html")}?code=${raum.code}`;
+
+  // Den QR-Code selbst malen wir nicht - dafuer gibt's keine eigene Logik im
+  // Projekt. Stattdessen nutzen wir einen kostenlosen externen Bild-Dienst
+  // (api.qrserver.com): wir haengen unseren Link als "data"-Parameter an
+  // dessen URL an (encodeURIComponent macht den Link dafuer sicher, damit
+  // Zeichen wie "?" und "=" nicht mit den Parametern des Dienstes kollidieren)
+  // und setzen das Ergebnis einfach als Bild-Adresse. Der Dienst baut daraus
+  // live ein PNG mit dem fertigen QR-Code und schickt es uns zurueck - wir
+  // zeigen nur ein ganz normales <img>.
   qrBild.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(beitrittsLink)}`;
+
   einladungsLink.textContent = beitrittsLink;
 
   teilnehmerListe.innerHTML = "";
