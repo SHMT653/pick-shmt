@@ -1,3 +1,6 @@
+// ==========================================
+// PRÄSENTATION - QR-CODE & BEITRITTSLINK START
+// ==========================================
 const params = new URLSearchParams(location.search);
 const code = params.get("code");
 const ich = JSON.parse(localStorage.getItem("pickrIch") || "null");
@@ -9,6 +12,9 @@ if (!code || !ich || ich.code !== code) {
 const codeAnzeige = document.getElementById("raum-code-anzeige");
 const qrBild = document.getElementById("qr-bild");
 const einladungsLink = document.getElementById("einladungs-link");
+// ==========================================
+// PRÄSENTATION - QR-CODE & BEITRITTSLINK ENDE
+// ==========================================
 const laufendeRundeBanner = document.getElementById("laufende-runde-banner");
 const zurEntscheidungLink = document.getElementById("zur-entscheidung-link");
 const teilnehmerListe = document.getElementById("teilnehmer-liste");
@@ -25,17 +31,17 @@ let ausgewaehlterModus = null;
 let frageVorbelegt = false;
 
 function rendereRaum() {
+  // ==========================================
+  // PRÄSENTATION - QR-CODE & BEITRITTSLINK START
+  // ==========================================
   codeAnzeige.textContent = raum.code;
 
-  // ================================
-  // PRÄSENTATION: QR-CODE START
-  // ================================
   const beitrittsLink = `${location.origin}${location.pathname.replace("raum.html", "beitreten.html")}?code=${raum.code}`;
   qrBild.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(beitrittsLink)}`;
   einladungsLink.textContent = beitrittsLink;
-  // ================================
-  // PRÄSENTATION: QR-CODE ENDE
-  // ================================
+  // ==========================================
+  // PRÄSENTATION - QR-CODE & BEITRITTSLINK ENDE
+  // ==========================================
 
   teilnehmerListe.innerHTML = "";
   raum.state.teilnehmer.forEach((teilnehmer) => {
