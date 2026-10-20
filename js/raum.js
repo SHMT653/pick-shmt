@@ -1,4 +1,3 @@
-// 1. RAUM ERKENNEN
 const params = new URLSearchParams(location.search);
 const code = params.get("code");
 const ich = JSON.parse(localStorage.getItem("pickrIch") || "null");
@@ -7,7 +6,6 @@ if (!code || !ich || ich.code !== code) {
   location.href = "/beitreten.html";
 }
 
-// 2. HTML-ELEMENTE HOLEN
 const codeAnzeige = document.getElementById("raum-code-anzeige");
 const qrBild = document.getElementById("qr-bild");
 const einladungsLink = document.getElementById("einladungs-link");
@@ -26,13 +24,18 @@ let letzterStand = "";
 let ausgewaehlterModus = null;
 let frageVorbelegt = false;
 
-// 3. LOBBY ANZEIGEN
 function rendereRaum() {
   codeAnzeige.textContent = raum.code;
 
+  // ================================
+  // PRÄSENTATION: QR-CODE START
+  // ================================
   const beitrittsLink = `${location.origin}${location.pathname.replace("raum.html", "beitreten.html")}?code=${raum.code}`;
   qrBild.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(beitrittsLink)}`;
   einladungsLink.textContent = beitrittsLink;
+  // ================================
+  // PRÄSENTATION: QR-CODE ENDE
+  // ================================
 
   teilnehmerListe.innerHTML = "";
   raum.state.teilnehmer.forEach((teilnehmer) => {
@@ -76,7 +79,6 @@ function rendereRaum() {
   }
 }
 
-// 4. DOPPELTE IDEEN ENTFERNEN
 function sortiereIdeenAus(ideen) {
   const gesehen = new Set();
   const ergebnis = [];
@@ -93,7 +95,6 @@ function sortiereIdeenAus(ideen) {
   return ergebnis;
 }
 
-// 5. DARF DIE RUNDE STARTEN?
 function aktualisiereStartKnopf() {
   const alleBereit = raum.state.teilnehmer.every((t) => t.istBereit);
   const gesammelteIdeen = sortiereIdeenAus(raum.state.teilnehmer.flatMap((t) => t.ideen || []));
@@ -117,7 +118,6 @@ function aktualisiereStartKnopf() {
   }
 }
 
-// 6. AKTUELLEN RAUM LADEN
 async function ladeUndRendere() {
   const neuerRaum = await holeRaum(code);
   if (!neuerRaum) {
@@ -134,7 +134,6 @@ async function ladeUndRendere() {
   rendereRaum();
 }
 
-// 7. BEREIT-BUTTON
 async function bereitUmschalten() {
   const aktuellerRaum = await holeRaum(code);
   if (!aktuellerRaum) {
@@ -154,7 +153,6 @@ async function bereitUmschalten() {
   rendereRaum();
 }
 
-// 8. MODUS AUSWÄHLEN
 function modusAuswaehlen(event) {
   ausgewaehlterModus = event.currentTarget.dataset.modus;
   modusKacheln.forEach((kachel) => {
@@ -163,7 +161,6 @@ function modusAuswaehlen(event) {
   aktualisiereStartKnopf();
 }
 
-// 9. NEUE RUNDE STARTEN
 async function rundeStarten() {
   const aktuellerRaum = await holeRaum(code);
   if (!aktuellerRaum) {
@@ -196,7 +193,6 @@ async function rundeStarten() {
   location.href = `/entscheiden.html?code=${code}`;
 }
 
-// 10. EVENTS
 modusKacheln.forEach((kachel) => kachel.addEventListener("click", modusAuswaehlen));
 rundenFrageInput.addEventListener("input", () => {
   if (ausgewaehlterModus) {
@@ -208,5 +204,4 @@ rundeStartenButton.addEventListener("click", rundeStarten);
 
 ladeUndRendere();
 
-// 11. LIVE-AKTUALISIERUNG
 setInterval(ladeUndRendere, 1000);
