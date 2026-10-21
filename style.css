@@ -754,6 +754,21 @@ textarea {
   text-align: center;
 }
 
+.swipe-richtungen {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  margin: -6px 4px 12px;
+}
+
+.swipe-richtung-nein {
+  color: #e4572e;
+}
+
+.swipe-richtung-ja {
+  color: #2ea043;
+}
+
 /* Echtes Glücksrad: ein Kreis aus Farbsegmenten (conic-gradient, von
    rad.js berechnet), der sich per CSS-transition dreht. Der Zielwinkel wird
    in JS VOR dem Drehen festgelegt, damit das Rad wirklich auf dem Ergebnis
@@ -1016,13 +1031,15 @@ textarea {
 }
 
 /* 1800deg = 5 volle Drehungen, enden bei 0deg -> Kopf-Seite zeigt nach vorne.
-   1980deg = 5 Drehungen + 180deg -> Zahl-Seite zeigt nach vorne. */
+   1980deg = 5 Drehungen + 180deg -> Zahl-Seite zeigt nach vorne.
+   animation-fill-mode: forwards haelt die Endposition, sonst springt die
+   Muenze nach Ablauf der Animation zurueck auf ihre Grundstellung (Kopf). */
 .muenze.wirft-kopf {
-  animation: muenze-drehen-kopf 0.9s ease-out;
+  animation: muenze-drehen-kopf 0.9s ease-out forwards;
 }
 
 .muenze.wirft-zahl {
-  animation: muenze-drehen-zahl 0.9s ease-out;
+  animation: muenze-drehen-zahl 0.9s ease-out forwards;
 }
 
 @keyframes muenze-drehen-kopf {
